@@ -2,6 +2,7 @@
 
 open import Lib
 
+-- TypedSet T = Set / T (slice category)
 module TypedSet (T : Set) where
 
 infix 4 _⇛_

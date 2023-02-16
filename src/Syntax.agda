@@ -83,3 +83,6 @@ bind σ = intro-hom λ { (A , t) → ⊢-bind σ t }
 
 join : ∀ {Γ} → Term (Term Γ) ⇛ Term Γ
 join = bind (id _)
+
+_∗_ : ∀ {Γ Δ Ε} → Γ ⇛ Term Δ → Δ ⇛ Term Ε → Γ ⇛ Term Ε
+σ ∗ τ = σ ⍮ bind τ

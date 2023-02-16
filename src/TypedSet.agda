@@ -6,6 +6,7 @@ open import Lib
 module TypedSet (T : Set) where
 
 infix 4 _⇛_
+infixr 5 _⍮_
 infixl 5 _⊕_
 
 record TypedSet : Set₁ where
@@ -16,6 +17,7 @@ record TypedSet : Set₁ where
 open TypedSet public
 
 record _⇛_ (Γ Δ : TypedSet) : Set₁ where
+  constructor hom
   field
     fun : Γ .Car → Δ .Car
     fun-type : ∀ x → Δ .type (fun x) ≡ Γ .type x

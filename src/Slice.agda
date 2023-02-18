@@ -2,21 +2,21 @@
 
 open import Lib
 
--- TypedSet T = Set / T (slice category)
-module TypedSet (T : Set) where
+-- A slice category (specialized for Set)
+module Slice (T : Set) where
 
 infix 4 _⇛_
 infixr 5 _⍮_
 infixl 5 _⊕_
 
-record TypedSet : Set₁ where
+record Set/ : Set₁ where
   field
     Car : Set
     type : Car → T
 
-open TypedSet public
+open Set/ public
 
-record _⇛_ (Γ Δ : TypedSet) : Set₁ where
+record _⇛_ (Γ Δ : Set/) : Set₁ where
   constructor hom
   field
     fun : Γ .Car → Δ .Car
@@ -32,7 +32,7 @@ _⍮_ : ∀ {Γ Δ Ε} → Γ ⇛ Δ → Δ ⇛ Ε → Γ ⇛ Ε
 (f ⍮ g) .fun x = g .fun (f .fun x)
 (f ⍮ g) .fun-type x = trans (g .fun-type (f .fun x)) (f .fun-type x)
 
-∅ : TypedSet
+∅ : Set/
 ∅ .Car = ⊥
 ∅ .type ()
 
@@ -40,11 +40,11 @@ _⍮_ : ∀ {Γ Δ Ε} → Γ ⇛ Δ → Δ ⇛ Ε → Γ ⇛ Ε
 ∅-initial Γ .fun ()
 ∅-initial Γ .fun-type ()
 
-⟨_⟩ : T → TypedSet
+⟨_⟩ : T → Set/
 ⟨ A ⟩ .Car = ⊤
 ⟨ A ⟩ .type _ = A
 
-_⊕_ : TypedSet → TypedSet → TypedSet
+_⊕_ : Set/ → Set/ → Set/
 (Γ ⊕ Δ) .Car = Γ .Car ⊎ Δ .Car
 (Γ ⊕ Δ) .type (inj₁ x) = Γ .type x
 (Γ ⊕ Δ) .type (inj₂ y) = Δ .type y
@@ -68,7 +68,7 @@ bimap f g .fun = Sum.map (f .fun) (g .fun)
 bimap f g .fun-type (inj₁ x) = f .fun-type x
 bimap f g .fun-type (inj₂ y) = g .fun-type y
 
-Σ⟦_⟧ : (T → Set) → TypedSet
+Σ⟦_⟧ : (T → Set) → Set/
 Σ⟦ F ⟧ .Car = Σ T F
 Σ⟦ F ⟧ .type = proj₁
 

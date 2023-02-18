@@ -1,7 +1,7 @@
 {-# OPTIONS --safe --without-K #-}
 
 open import Lib
-import TypedSet
+import Slice
 
 module Syntax where
 
@@ -13,8 +13,8 @@ data Type : Set where
   _⇒_ : Type → Type → Type
   `ℕ : Type
 
-module TySet = TypedSet Type
-open TySet renaming (TypedSet to TySet)
+module TypedSet = Slice Type
+open TypedSet renaming (Set/ to TySet)
 
 data _⊢_ (Γ : TySet) : Type → Set where
 

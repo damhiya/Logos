@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-open import Lib
+open import Lib hiding (id)
 
 -- A slice category (specialized for Set)
 module Slice (T : Set) where

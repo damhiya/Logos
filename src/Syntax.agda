@@ -6,6 +6,7 @@ import TypedSet
 module Syntax where
 
 infixr 7 _⇒_
+infixl 7 _·_
 infix 4 _⊢_
 
 data Type : Set where
@@ -25,6 +26,12 @@ data _⊢_ (Γ : TySet) : Type → Set where
         (t : Γ ⊕ ⟨ A ⟩ ⊢ B) →
         -----------
         Γ ⊢ (A ⇒ B)
+
+  _·_ : ∀ {A B} →
+        (t₁ : Γ ⊢ A ⇒ B) →
+        (t2 : Γ ⊢ A) →
+        --------------
+        Γ ⊢ B
 
   `zero : ------
           Γ ⊢ `ℕ
@@ -54,6 +61,7 @@ return = intro-hom λ x → ` x
 ⊢-map : ∀ {Γ Δ A} → Γ ⇛ Δ → Γ ⊢ A → Δ ⊢ A
 ⊢-map ρ (` x) = elim-hom (ρ ⍮ return) x
 ⊢-map ρ (`λ_ t) = `λ ⊢-map (bimap ρ (id _)) t
+⊢-map ρ (t₁ · t₂) = ⊢-map ρ t₁ · ⊢-map ρ t₂
 ⊢-map ρ `zero = `zero
 ⊢-map ρ (`suc t) = `suc (⊢-map ρ t)
 ⊢-map ρ (`case t t₁ t₂) = `case (⊢-map ρ t) (⊢-map ρ t₁) (⊢-map (bimap ρ (id _)) t₂)
@@ -73,6 +81,7 @@ map ρ = intro-hom λ { (A , t) → ⊢-map ρ t }
 ⊢-bind : ∀ {Γ Δ A} → Γ ⇛ Term Δ → Γ ⊢ A → Δ ⊢ A
 ⊢-bind σ (` x) = elim-hom σ x
 ⊢-bind σ (`λ t) = `λ ⊢-bind (⇑ σ) t
+⊢-bind σ (t₁ · t₂) = ⊢-bind σ t₁ · ⊢-bind σ t₂
 ⊢-bind σ `zero = `zero
 ⊢-bind σ (`suc t) = `suc (⊢-bind σ t)
 ⊢-bind σ (`case t t₁ t₂) = `case (⊢-bind σ t) (⊢-bind σ t₁) (⊢-bind (⇑ σ) t₂)

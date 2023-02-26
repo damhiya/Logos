@@ -19,6 +19,7 @@ module _ {I : Set} where
       Γ Γ′ Δ Δ′ Ε : Set^ I
 
   infixl 5 _⊕_
+  infixr 5 _⍮_
 
   id : Γ ⇛ Γ
   id = λ A x → x
@@ -46,4 +47,4 @@ module _ {I : Set} where
   ⊕-elim f g A (inj₂ y) = g A y
 
   bimap : (Γ ⇛ Γ′) → (Δ ⇛ Δ′) → Γ ⊕ Δ ⇛ Γ′ ⊕ Δ′
-  bimap f g A = Sum.map (f A) (g A)
+  bimap f g = ⊕-elim (f ⍮ ⊕-inl) (g ⍮ ⊕-inr)

@@ -168,11 +168,8 @@ module UsingFamily where
   map ρ A (`case t t₁ t₂) = `case (map ρ `ℕ t) (map ρ _ t₁) (map (⇑ʷ ρ) _ t₂)
   map ρ A (`μ t) = `μ map (⇑ʷ ρ) _ t
 
-  ↑_ : Γ ⇛ Term Δ → Γ ⇛ Term (Δ ⊕ Ε)
-  ↑ σ = σ ⍮ map ⊕-inl
-
   ⇑_ : Γ ⇛ Term Δ → Γ ⊕ Ε ⇛ Term (Δ ⊕ Ε)
-  ⇑ σ = ⊕-elim (↑ σ) (⊕-inr ⍮ return)
+  ⇑ σ = ⊕-elim (σ ⍮ map ⊕-inl) (⊕-inr ⍮ return)
 
   bind : Γ ⇛ Term Δ → Term Γ ⇛ Term Δ
   bind σ A (` x) = σ _ x
@@ -213,68 +210,68 @@ module UsingFamily where
       (ϕ  ⍮ δ₁ ⍮ δ) _ t ∎
       where open ℙ.≡-Reasoning
 
-    ⇑-return : return {Γ ⊕ Δ} ≡ ⇑ return
-    ⇑-return = funext2 λ { A (inj₁ x) → refl ; A (inj₂ y) → refl }
-
-    ⇑ʷ-⇑ʷ-⍮ : ∀ {Ζ} (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Ε) → ⇑ʷ ρ ⍮ ⇑ʷ σ ≡ ⇑ʷ_ {Ε = Ζ} (ρ ⍮ σ)
-    ⇑ʷ-⇑ʷ-⍮ ρ σ = funext2 λ { A (inj₁ x) → refl ; A (inj₂ y) → refl }
-
     private
+      P : ∀ {A : Type} (tₗ : Term Γ A) (tᵣ : Term Δ A) (σ : Γ ⇛ Term Δ) → Set
+      P tₗ tᵣ σ = bind σ _ tₗ ≡ tᵣ
+
       Q : ∀ {A : Type} (tₗ : Term Γ A) (tᵣ : Term Δ A) (ρ : Γ ⇛ Δ) → Set
       Q tₗ tᵣ ρ = map ρ _ tₗ ≡ tᵣ
 
-      R : ∀ {A : Type} (tₗ : Term Δ A) (tᵣ : Term Γ A) (σ : Γ ⇛ Term Δ) → Set
-      R tₗ tᵣ σ = tₗ ≡ bind σ _ tᵣ
-
-    map-⍮-aux : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Ε) {A} (t : Term Γ A) → map (ρ ⍮ σ) A t ≡ (map ρ ⍮ map σ) A t
-    map-⍮-aux ρ σ (` x) = refl
-    map-⍮-aux ρ σ (`λ t) = cong `λ_ (subst (Q t _) (⇑ʷ-⇑ʷ-⍮ ρ σ) (map-⍮-aux (⇑ʷ ρ) (⇑ʷ σ) t))
-    map-⍮-aux ρ σ (t₁ · t₂) = cong₂ _·_ (map-⍮-aux ρ σ t₁) (map-⍮-aux ρ σ t₂)
-    map-⍮-aux ρ σ `zero = refl
-    map-⍮-aux ρ σ (`suc t) = cong `suc_ (map-⍮-aux ρ σ t)
-    map-⍮-aux ρ σ (`case t t₁ t₂) = cong₃ `case (map-⍮-aux ρ σ t) (map-⍮-aux ρ σ t₁) (subst (Q t₂ _) (⇑ʷ-⇑ʷ-⍮ ρ σ) (map-⍮-aux (⇑ʷ ρ) (⇑ʷ σ) t₂))
-    map-⍮-aux ρ σ (`μ t) = cong `μ_ (subst (Q t _) (⇑ʷ-⇑ʷ-⍮ ρ σ) (map-⍮-aux (⇑ʷ ρ) (⇑ʷ σ) t))
+    -- map, ⇑ʷ, ⇑
+    ⇑ʷ-⇑ʷ-⍮ : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Ε) → ⇑ʷ_ {Ε = Ζ} (ρ ⍮ σ) ≡ ⇑ʷ ρ ⍮ ⇑ʷ σ
+    ⇑ʷ-⇑ʷ-⍮ ρ σ = funext2 λ { A (inj₁ x) → refl ; A (inj₂ y) → refl }
 
     map-⍮ : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Ε) → map (ρ ⍮ σ) ≡ map ρ ⍮ map σ
     map-⍮ ρ σ = funext2 λ A t → map-⍮-aux ρ σ t
+      where
+        map-⍮-aux : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Ε) {A} (t : Term Γ A) → map (ρ ⍮ σ) A t ≡ (map ρ ⍮ map σ) A t
+        map-⍮-aux ρ σ (` x) = refl
+        map-⍮-aux ρ σ (`λ t) = cong `λ_ (subst (Q t _) (sym $ ⇑ʷ-⇑ʷ-⍮ ρ σ) (map-⍮-aux (⇑ʷ ρ) (⇑ʷ σ) t))
+        map-⍮-aux ρ σ (t₁ · t₂) = cong₂ _·_ (map-⍮-aux ρ σ t₁) (map-⍮-aux ρ σ t₂)
+        map-⍮-aux ρ σ `zero = refl
+        map-⍮-aux ρ σ (`suc t) = cong `suc_ (map-⍮-aux ρ σ t)
+        map-⍮-aux ρ σ (`case t t₁ t₂) = cong₃ `case (map-⍮-aux ρ σ t) (map-⍮-aux ρ σ t₁) (subst (Q t₂ _) (sym $ ⇑ʷ-⇑ʷ-⍮ ρ σ) (map-⍮-aux (⇑ʷ ρ) (⇑ʷ σ) t₂))
+        map-⍮-aux ρ σ (`μ t) = cong `μ_ (subst (Q t _) (sym $ ⇑ʷ-⇑ʷ-⍮ ρ σ) (map-⍮-aux (⇑ʷ ρ) (⇑ʷ σ) t))
 
-    ⇑-⇑ʷ-⍮ : ∀ {Ζ} (σ : Γ ⇛ Term Δ) (ρ : Δ ⇛ Ε) → ⇑ σ ⍮ map (⇑ʷ ρ) ≡ ⇑_ {Ε = Ζ} (σ ⍮ map ρ)
+    ⇑-⇑ʷ-⍮ : ∀ (σ : Γ ⇛ Term Δ) (ρ : Δ ⇛ Ε) → ⇑_ {Ε = Ζ} (σ ⍮ map ρ) ≡ ⇑ σ ⍮ map (⇑ʷ ρ)
     ⇑-⇑ʷ-⍮ σ ρ = funext2 λ { A (inj₁ x) → begin
-                               (map ⊕-inl ⍮ map (⇑ʷ ρ)) A (σ A x) ≡˘⟨ cong (λ f → f A (σ A x)) (map-⍮ _ _) ⟩
-                               (map (⊕-inl ⍮ ⇑ʷ ρ)) A (σ A x) ≡⟨⟩
-                               (map (ρ ⍮ ⊕-inl)) A (σ A x) ≡⟨ cong (λ f → f A (σ A x)) (map-⍮ _ _) ⟩
-                               (map ρ ⍮ map ⊕-inl) A (σ A x) ∎
+                               (map ρ ⍮ map ⊕-inl) A (σ A x) ≡˘⟨ cong (λ f → f A (σ A x)) (map-⍮ _ _) ⟩
+                               (map (ρ ⍮ ⊕-inl)) A (σ A x) ≡⟨⟩
+                               (map (⊕-inl ⍮ ⇑ʷ ρ)) A (σ A x) ≡⟨ cong (λ f → f A (σ A x)) (map-⍮ _ _) ⟩
+                               (map ⊕-inl ⍮ map (⇑ʷ ρ)) A (σ A x) ∎
                            ; A (inj₂ y) → refl
                            }
       where open ℙ.≡-Reasoning
 
-    ⇑ʷ-⇑-⍮ : ∀ {Ζ} (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Term Ε) → ⇑ʷ ρ ⍮ ⇑ σ ≡ ⇑_ {Ε = Ζ} (ρ ⍮ σ)
+    ⇑ʷ-⇑-⍮ : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Term Ε) → ⇑_ {Ε = Ζ} (ρ ⍮ σ) ≡ ⇑ʷ ρ ⍮ ⇑ σ
     ⇑ʷ-⇑-⍮ ρ σ = funext2 λ { A (inj₁ x) → refl ; A (inj₂ y) → refl }
 
-    bind-map-aux : ∀ (σ : Γ ⇛ Term Δ) (ρ : Δ ⇛ Ε) {A} (t : Term Γ A) → (bind σ ⍮ map ρ) A t ≡ bind (σ ⍮ map ρ) A t
-    bind-map-aux σ ρ (` x) = refl
-    bind-map-aux σ ρ (`λ t) = cong `λ_ (subst (R _ t) (⇑-⇑ʷ-⍮ σ ρ) (bind-map-aux (⇑ σ) (⇑ʷ ρ) t))
-    bind-map-aux σ ρ (t₁ · t₂) = cong₂ _·_ (bind-map-aux σ ρ t₁) (bind-map-aux σ ρ t₂)
-    bind-map-aux σ ρ `zero = refl
-    bind-map-aux σ ρ (`suc t) = cong `suc_ (bind-map-aux σ ρ t)
-    bind-map-aux σ ρ (`case t t₁ t₂) = cong₃ `case (bind-map-aux σ ρ t) (bind-map-aux σ ρ t₁) (subst (R _ t₂) (⇑-⇑ʷ-⍮ σ ρ) (bind-map-aux (⇑ σ) (⇑ʷ ρ) t₂))
-    bind-map-aux σ ρ (`μ t) = cong `μ_ (subst (R _ t) (⇑-⇑ʷ-⍮ σ ρ) (bind-map-aux (⇑ σ) (⇑ʷ ρ) t))
-
-    bind-map : ∀ (σ : Γ ⇛ Term Δ) (ρ : Δ ⇛ Ε) → bind σ ⍮ map ρ ≡ bind (σ ⍮ map ρ)
+    -- relation between bind and map
+    bind-map : ∀ (σ : Γ ⇛ Term Δ) (ρ : Δ ⇛ Ε) → bind (σ ⍮ map ρ) ≡ bind σ ⍮ map ρ
     bind-map σ ρ = funext2 λ A t → bind-map-aux σ ρ t
+      where
+        bind-map-aux : ∀ (σ : Γ ⇛ Term Δ) (ρ : Δ ⇛ Ε) {A} (t : Term Γ A) → bind (σ ⍮ map ρ) A t ≡ (bind σ ⍮ map ρ) A t
+        bind-map-aux σ ρ (` x) = refl
+        bind-map-aux σ ρ (`λ t) = cong `λ_ (subst (P t _) (sym $ ⇑-⇑ʷ-⍮ σ ρ) (bind-map-aux (⇑ σ) (⇑ʷ ρ) t))
+        bind-map-aux σ ρ (t₁ · t₂) = cong₂ _·_ (bind-map-aux σ ρ t₁) (bind-map-aux σ ρ t₂)
+        bind-map-aux σ ρ `zero = refl
+        bind-map-aux σ ρ (`suc t) = cong `suc_ (bind-map-aux σ ρ t)
+        bind-map-aux σ ρ (`case t t₁ t₂) = cong₃ `case (bind-map-aux σ ρ t) (bind-map-aux σ ρ t₁) (subst (P t₂ _) (sym $ ⇑-⇑ʷ-⍮ σ ρ) (bind-map-aux (⇑ σ) (⇑ʷ ρ) t₂))
+        bind-map-aux σ ρ (`μ t) = cong `μ_ (subst (P t _) (sym $ ⇑-⇑ʷ-⍮ σ ρ) (bind-map-aux (⇑ σ) (⇑ʷ ρ) t))
 
-    map-bind-aux : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Term Ε) {A} (t : Term Γ A) → (map ρ ⍮ bind σ) A t ≡ bind (ρ ⍮ σ) A t
-    map-bind-aux ρ σ (` x) = refl
-    map-bind-aux ρ σ (`λ t) = cong `λ_ (subst (R _ t) (⇑ʷ-⇑-⍮ ρ σ) (map-bind-aux (⇑ʷ ρ) (⇑ σ) t))
-    map-bind-aux ρ σ (t₁ · t₂) = cong₂ _·_ (map-bind-aux ρ σ t₁) (map-bind-aux ρ σ t₂)
-    map-bind-aux ρ σ `zero = refl
-    map-bind-aux ρ σ (`suc t) = cong `suc_ (map-bind-aux ρ σ t)
-    map-bind-aux ρ σ (`case t t₁ t₂) = cong₃ `case (map-bind-aux ρ σ t) (map-bind-aux ρ σ t₁) (subst (R _ t₂) (⇑ʷ-⇑-⍮ ρ σ) (map-bind-aux (⇑ʷ ρ) (⇑ σ) t₂))
-    map-bind-aux ρ σ (`μ t) = cong `μ_ (subst (R _ t) (⇑ʷ-⇑-⍮ ρ σ) (map-bind-aux (⇑ʷ ρ) (⇑ σ) t))
-
-    map-bind : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Term Ε) → map ρ ⍮ bind σ ≡ bind (ρ ⍮ σ)
+    map-bind : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Term Ε) → bind (ρ ⍮ σ) ≡ map ρ ⍮ bind σ
     map-bind ρ σ = funext2 λ A t → map-bind-aux ρ σ t
+      where
+        map-bind-aux : ∀ (ρ : Γ ⇛ Δ) (σ : Δ ⇛ Term Ε) {A} (t : Term Γ A) → bind (ρ ⍮ σ) A t ≡ (map ρ ⍮ bind σ) A t
+        map-bind-aux ρ σ (` x) = refl
+        map-bind-aux ρ σ (`λ t) = cong `λ_ (subst (P t _) (sym $ ⇑ʷ-⇑-⍮ ρ σ) (map-bind-aux (⇑ʷ ρ) (⇑ σ) t))
+        map-bind-aux ρ σ (t₁ · t₂) = cong₂ _·_ (map-bind-aux ρ σ t₁) (map-bind-aux ρ σ t₂)
+        map-bind-aux ρ σ `zero = refl
+        map-bind-aux ρ σ (`suc t) = cong `suc_ (map-bind-aux ρ σ t)
+        map-bind-aux ρ σ (`case t t₁ t₂) = cong₃ `case (map-bind-aux ρ σ t) (map-bind-aux ρ σ t₁) (subst (P t₂ _) (sym $ ⇑ʷ-⇑-⍮ ρ σ) (map-bind-aux (⇑ʷ ρ) (⇑ σ) t₂))
+        map-bind-aux ρ σ (`μ t) = cong `μ_ (subst (P t _) (sym $ ⇑ʷ-⇑-⍮ ρ σ) (map-bind-aux (⇑ʷ ρ) (⇑ σ) t))
 
+    -- lemmas for bind
     comm : ∀ (Γ Δ Ε : TySet) → (Γ ⊕ Δ ⊕ Ε) ⇛ (Γ ⊕ Ε ⊕ Δ)
     comm Γ Δ Ε A (inj₁ (inj₁ x)) = inj₁ (inj₁ x)
     comm Γ Δ Ε A (inj₁ (inj₂ y)) = inj₂ y
@@ -287,23 +284,28 @@ module UsingFamily where
       map ⊕-inl ⍮ map (comm _ _ _) ∎
       where open ℙ.≡-Reasoning
 
+    comm-⇑-⇑ : ∀ (σ : Γ ⇛ Term Δ) → comm Γ Ζ Ε ⍮ ⇑ ⇑ σ ≡ ⇑ ⇑ σ ⍮ map (comm Δ Ζ Ε)
+    comm-⇑-⇑ {Γ} {Δ} {Ζ} {Ε} σ = funext2 λ
+      { A (inj₁ (inj₁ x)) → begin
+          (σ ⍮ map ⊕-inl ⍮ map ⊕-inl) A x ≡˘⟨ cong (λ f → (σ ⍮ f) A x) (map-⍮ _ _) ⟩
+          (σ ⍮ map (⊕-inl ⍮ ⊕-inl)) A x ≡⟨⟩
+          (σ ⍮ map (⊕-inl ⍮ ⊕-inl ⍮ comm Δ Ζ Ε)) A x ≡⟨ cong (λ f → (σ ⍮ f) A x) (map-⍮ _ _)  ⟩
+          (σ ⍮ map ⊕-inl ⍮ map (⊕-inl ⍮ comm Δ Ζ Ε)) A x ≡⟨ cong (λ f → (σ ⍮ map ⊕-inl ⍮ f) A x) (map-⍮ _ _) ⟩
+          (σ ⍮ map ⊕-inl ⍮ map ⊕-inl ⍮ map (comm Δ Ζ Ε)) A x ∎
+      ; A (inj₁ (inj₂ y)) → refl
+      ; A (inj₂ y) → refl
+      }
+      where open ℙ.≡-Reasoning
+
     squareʳ : ∀ Γ Δ Ψ Ε (σ : Γ ⇛ Term Δ) → map (comm Γ Ψ Ε) ⍮ bind (⇑ ⇑ σ) ≡ bind (⇑ ⇑ σ) ⍮ map (comm Δ Ψ Ε)
     squareʳ Γ Δ Ψ Ε σ = begin
-      map (comm Γ Ψ Ε) ⍮ bind (⇑ ⇑ σ) ≡⟨ map-bind _ _ ⟩
-      bind (comm Γ Ψ Ε ⍮ ⇑ ⇑ σ) ≡⟨ cong bind (funext2 (λ { A (inj₁ (inj₁ x)) → begin
-                                                             (σ ⍮ map ⊕-inl ⍮ map ⊕-inl) A x ≡˘⟨ cong (λ f → (σ ⍮ f) A x) (map-⍮ _ _) ⟩
-                                                             (σ ⍮ map (⊕-inl ⍮ ⊕-inl)) A x ≡⟨⟩
-                                                             (σ ⍮ map (⊕-inl ⍮ ⊕-inl ⍮ comm Δ Ψ Ε)) A x ≡⟨ cong (λ f → (σ ⍮ f) A x) (map-⍮ _ _)  ⟩
-                                                             (σ ⍮ map ⊕-inl ⍮ map (⊕-inl ⍮ comm Δ Ψ Ε)) A x ≡⟨ cong (λ f → (σ ⍮ map ⊕-inl ⍮ f) A x) (map-⍮ _ _) ⟩
-                                                             (σ ⍮ map ⊕-inl ⍮ map ⊕-inl ⍮ map (comm Δ Ψ Ε)) A x ∎
-                                                         ; A (inj₁ (inj₂ y)) → refl
-                                                         ; A (inj₂ y) → refl
-                                                         })) ⟩
-      bind (⇑ ⇑ σ ⍮ map (comm Δ Ψ Ε)) ≡˘⟨ bind-map _ _ ⟩
+      map (comm Γ Ψ Ε) ⍮ bind (⇑ ⇑ σ) ≡˘⟨ map-bind _ _ ⟩
+      bind (comm Γ Ψ Ε ⍮ ⇑ ⇑ σ) ≡⟨ cong bind (comm-⇑-⇑ σ) ⟩
+      bind (⇑ ⇑ σ ⍮ map (comm Δ Ψ Ε)) ≡⟨ bind-map _ _ ⟩
       bind (⇑ ⇑ σ) ⍮ map (comm Δ Ψ Ε) ∎
       where open ℙ.≡-Reasoning
 
-    bind-⇑ : ∀ {Ε} (σ : Γ ⇛ Term Δ) {A : Type} (t : Term Γ A) →
+    bind-⇑ : ∀ (σ : Γ ⇛ Term Δ) {A : Type} (t : Term Γ A) →
              (map ⊕-inl ⍮ bind (⇑_ {Ε = Ε} σ)) A t ≡ (bind σ ⍮ map ⊕-inl) A t
     bind-⇑ σ (` x) = refl
     bind-⇑ {Γ} {Δ} {Ε} σ (`λ_ {A} t) = cong `λ_
@@ -331,39 +333,45 @@ module UsingFamily where
         (triangle Γ (⟨ A ⟩) Ε) (triangle Δ (⟨ A ⟩) Ε) (squareʳ Γ Δ (⟨ A ⟩) Ε σ)
         t (bind-⇑ (⇑ σ) t))
 
-    ⇑-∗ : ∀ {Ζ} (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) → ⇑ σ ∗ ⇑ τ ≡ ⇑_ {Ε = Ζ} (σ ∗ τ)
-    ⇑-∗ σ τ = funext2 λ { A (inj₁ x) → bind-⇑ τ (σ A x)
+    ⇑-∗ : ∀ (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) → ⇑_ {Ε = Ζ} (σ ∗ τ) ≡ ⇑ σ ∗ ⇑ τ
+    ⇑-∗ σ τ = funext2 λ { A (inj₁ x) → sym (bind-⇑ τ (σ A x))
                         ; A (inj₂ y) → refl
                         }
 
-    private
-      P : ∀ {A : Type} (tₗ : Term Γ A) (tᵣ : Term Δ A) (σ : Γ ⇛ Term Δ) → Set
-      P tₗ tᵣ σ = bind σ _ tₗ ≡ tᵣ
+    ⇑-return : return ≡ ⇑_ {Ε = Δ} (return {Γ})
+    ⇑-return = funext2 λ { A (inj₁ x) → refl ; A (inj₂ y) → refl }
 
-    bind-return : ∀ {A} (t : Term Γ A) → bind return A t ≡ t
-    bind-return (` x) = refl
-    bind-return (`λ t) = cong `λ_ (subst (P t t) ⇑-return (bind-return t))
-    bind-return (t₁ · t₂) = cong₂ _·_ (bind-return t₁) (bind-return t₂)
-    bind-return `zero = refl
-    bind-return (`suc t) = cong `suc_ (bind-return t)
-    bind-return (`case t t₁ t₂) = cong₃ `case (bind-return t) (bind-return t₁) (subst (P t₂ t₂) ⇑-return (bind-return t₂))
-    bind-return (`μ t) = cong `μ_ (subst (P t t) ⇑-return (bind-return t))
+    bind-return : bind return ≡ id {Γ = Term Γ}
+    bind-return = funext2 λ A t → bind-return-aux t
+      where
+        bind-return-aux : ∀ {A} (t : Term Γ A) → bind return A t ≡ id {Γ = Term Γ} A t
+        bind-return-aux (` x) = refl
+        bind-return-aux (`λ t) = cong `λ_ (subst (P t t) ⇑-return (bind-return-aux t))
+        bind-return-aux (t₁ · t₂) = cong₂ _·_ (bind-return-aux t₁) (bind-return-aux t₂)
+        bind-return-aux `zero = refl
+        bind-return-aux (`suc t) = cong `suc_ (bind-return-aux t)
+        bind-return-aux (`case t t₁ t₂) = cong₃ `case (bind-return-aux t) (bind-return-aux t₁) (subst (P t₂ t₂) ⇑-return (bind-return-aux t₂))
+        bind-return-aux (`μ t) = cong `μ_ (subst (P t t) ⇑-return (bind-return-aux t))
 
-    bind-∗ : ∀ (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) {A} (t : Term Γ A) →
-             bind (σ ∗ τ) A t ≡ bind τ A (bind σ A t)
-    bind-∗ σ τ (` x) = refl
-    bind-∗ σ τ (`λ t) = cong `λ_ (subst (P t _) (⇑-∗ σ τ ) (bind-∗ (⇑ σ) (⇑ τ) t))
-    bind-∗ σ τ (t₁ · t₂) = cong₂ _·_ (bind-∗ σ τ t₁) (bind-∗ σ τ t₂)
-    bind-∗ σ τ `zero = refl
-    bind-∗ σ τ (`suc t) = cong `suc_ (bind-∗ σ τ t)
-    bind-∗ σ τ (`case t t₁ t₂) = cong₃ `case (bind-∗ σ τ t) (bind-∗ σ τ t₁) (subst (P t₂ _) (⇑-∗ σ τ) (bind-∗ (⇑ σ) (⇑ τ) t₂))
-    bind-∗ σ τ (`μ t) = cong `μ_ (subst (P t _) (⇑-∗ σ τ) (bind-∗ (⇑ σ) (⇑ τ) t))
+    bind-∗ : ∀ (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) → bind (σ ∗ τ) ≡ (bind σ ⍮ bind τ)
+    bind-∗ σ τ = funext2 λ A t → bind-∗-aux σ τ t
+      where
+        bind-∗-aux : ∀ (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) {A} (t : Term Γ A) →
+                 bind (σ ∗ τ) A t ≡ (bind σ ⍮ bind τ) A t
+        bind-∗-aux σ τ (` x) = refl
+        bind-∗-aux σ τ (`λ t) = cong `λ_ (subst (P t _) (sym $ ⇑-∗ σ τ) (bind-∗-aux (⇑ σ) (⇑ τ) t))
+        bind-∗-aux σ τ (t₁ · t₂) = cong₂ _·_ (bind-∗-aux σ τ t₁) (bind-∗-aux σ τ t₂)
+        bind-∗-aux σ τ `zero = refl
+        bind-∗-aux σ τ (`suc t) = cong `suc_ (bind-∗-aux σ τ t)
+        bind-∗-aux σ τ (`case t t₁ t₂) = cong₃ `case (bind-∗-aux σ τ t) (bind-∗-aux σ τ t₁) (subst (P t₂ _) (sym $ ⇑-∗ σ τ) (bind-∗-aux (⇑ σ) (⇑ τ) t₂))
+        bind-∗-aux σ τ (`μ t) = cong `μ_ (subst (P t _) (sym $ ⇑-∗ σ τ) (bind-∗-aux (⇑ σ) (⇑ τ) t))
 
+    -- Kleisli category
     ∗-return-idˡ : ∀ (σ : Γ ⇛ Term Δ) → return ∗ σ ≡ σ
     ∗-return-idˡ σ = refl
 
     ∗-return-idʳ : ∀ (σ : Γ ⇛ Term Δ) → σ ∗ return ≡ σ
-    ∗-return-idʳ σ = funext2 λ A x → bind-return (σ A x)
+    ∗-return-idʳ σ = cong (λ f A x → f A (σ A x)) bind-return
 
     ∗-assoc : ∀ (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) (υ : Ε ⇛ Term Ζ) → (σ ∗ τ) ∗ υ ≡ σ ∗ (τ ∗ υ)
-    ∗-assoc σ τ υ = funext2 λ A x → sym (bind-∗ τ υ (σ A x))
+    ∗-assoc σ τ υ = sym $ cong (λ f A x → f A (σ A x)) (bind-∗ τ υ)

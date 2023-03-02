@@ -375,3 +375,66 @@ module UsingFamily where
 
     ∗-assoc : ∀ (σ : Γ ⇛ Term Δ) (τ : Δ ⇛ Term Ε) (υ : Ε ⇛ Term Ζ) → (σ ∗ τ) ∗ υ ≡ σ ∗ (τ ∗ υ)
     ∗-assoc σ τ υ = sym $ cong (λ f A x → f A (σ A x)) (bind-∗ τ υ)
+
+module SubstitutionSystem where
+
+  open Family
+  TySet = Set^ Type
+
+  data F⇒ (T : TySet → TySet) (Γ : TySet) : TySet where
+
+    `λ_ : ∀ {A B} →
+          (t : T (Γ ⊕ ⟨ A ⟩) B) →
+          -----------
+          F⇒ T Γ (A ⇒ B)
+
+    _·_ : ∀ {A B} →
+          (t₁ : T Γ (A ⇒ B)) →
+          (t2 : T Γ A) →
+          --------------
+          F⇒ T Γ B
+
+  data Fℕ (T : TySet → TySet) (Γ : TySet) : TySet where
+
+    `zero : ------
+            Fℕ T Γ `ℕ
+
+    `suc_ : (t : T Γ `ℕ) →
+            --------------
+            Fℕ T Γ `ℕ
+
+    `case : ∀ {A} →
+            (t-nat : T Γ `ℕ) →
+            (t-zero : T Γ A) →
+            (t-suc : T (Γ ⊕ ⟨ `ℕ ⟩) A) →
+            --------------------------
+            Fℕ T Γ A
+
+  data Fμ (T : TySet → TySet) (Γ : TySet) : TySet where
+
+    `μ_ : ∀ {A} →
+          (t : T (Γ ⊕ ⟨ A ⟩) A) →
+          ---------------------
+          Fμ T Γ A
+
+  Id : TySet → TySet
+  Id Γ = Γ
+
+  F : (TySet → TySet) → (TySet → TySet)
+  F T Γ = F⇒ T Γ ⊕ Fℕ T Γ ⊕ Fμ T Γ
+
+  F* : (TySet → TySet) → (TySet → TySet)
+  F* T Γ = Id Γ ⊕ F T Γ
+
+  data Term (Γ : TySet) : TySet where
+    sup : ∀ {A} → F* Term Γ A → Term Γ A
+
+  private
+    variable
+      Γ Δ Ε Ζ : TySet
+
+  return : Γ ⇛ Term Γ
+  return A x = sup (inj₁ x)
+
+  ⇑ʷ_ : Γ ⇛ Δ → Γ ⊕ Ε ⇛ Δ ⊕ Ε
+  ⇑ʷ ρ = ⊕-elim (ρ ⍮ ⊕-inl) ⊕-inr

@@ -11,7 +11,7 @@ module Derivation (TypeVar : Type) where
   data _⊢_ (Γ : Ctx) : `Type → Type where
     -- hypothesis
     `_ : ∀ {A} →
-         A ∈ Γ →
+         Γ ∋ A →
          Γ ⊢ A
 
     -- function type

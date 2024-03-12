@@ -14,10 +14,10 @@ module Verification (TypeVar : Type) where
 
   data _⊢_ne Γ where
     `_ : ∀ {A} →
-         A ∈ Γ →
+         Γ ∋ A →
          Γ ⊢ A ne
     _·_ : ∀ {A B} →
-          Γ , A ⊢ B ne →
+          Γ ⊢ A `→ B ne →
           Γ ⊢ A nf →
           Γ ⊢ B ne
     `fst : ∀ {A B} →

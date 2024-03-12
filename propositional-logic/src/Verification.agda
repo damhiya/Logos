@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --cubical #-}
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 
 module Verification (TypeVar : Type) where
 

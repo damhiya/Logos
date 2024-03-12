@@ -7,7 +7,7 @@ import Data.Product
 import Data.Sum.Base
 import Data.Unit.Base
 import Function.Base
-import Relation.Binary.PropositionalEquality.Core
+import Relation.Binary.PropositionalEquality
 
 module Lib where
 
@@ -17,7 +17,7 @@ module Prod = Data.Product
 module Sum = Data.Sum.Base
 module Unit = Data.Unit.Base
 module Func = Function.Base
-module ℙ = Relation.Binary.PropositionalEquality.Core
+module ℙ = Relation.Binary.PropositionalEquality
 
 open Level public
 open Empty public

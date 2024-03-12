@@ -9,7 +9,8 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
-        agda = pkgs.agda.withPackages (pkgs: with pkgs; [ standard-library ]);
+        agda = pkgs.agda.withPackages
+          (pkgs: with pkgs; [ standard-library cubical ]);
         buildInputs = [ agda ];
       in {
         devShell = pkgs.mkShell {

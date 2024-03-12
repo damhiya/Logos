@@ -1,5 +1,5 @@
 {
-  description = "lambda calculus";
+  description = "logos";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -9,16 +9,12 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
-        agdaPackages = pkgs: with pkgs; [ standard-library ];
-        buildInputs = with pkgs; [
-          (agda.withPackages agdaPackages)
-        ];
+        agda = pkgs.agda.withPackages (pkgs: with pkgs; [ standard-library ]);
+        buildInputs = [ agda ];
       in {
         devShell = pkgs.mkShell {
-          inherit buildInputs;
+          buildInputs = [ agda ];
           nativeBuildInputs = [ ];
         };
       });
-
 }
-

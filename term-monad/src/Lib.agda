@@ -27,6 +27,8 @@ open Unit public
 open Func public
 open ℙ public
 
+open import Data.Bool
+
 private
   variable
     a : Level

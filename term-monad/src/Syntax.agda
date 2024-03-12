@@ -1,6 +1,7 @@
 {-# OPTIONS --safe --without-K #-}
 
-open import Lib hiding (id)
+open import Lib hiding (id; inj₁; inj₂)
+open import Data.Sum using (inj₁; inj₂)
 import Slice
 import Family
 
@@ -33,7 +34,7 @@ module UsingSlice where
 
     _·_ : ∀ {A B} →
           (t₁ : Γ ⊢ A ⇒ B) →
-          (t2 : Γ ⊢ A) →
+          (t₂ : Γ ⊢ A) →
           --------------
           Γ ⊢ B
 
@@ -123,7 +124,7 @@ module UsingFamily where
 
     _·_ : ∀ {A B} →
           (t₁ : Γ ⊢ A ⇒ B) →
-          (t2 : Γ ⊢ A) →
+          (t₂ : Γ ⊢ A) →
           --------------
           Γ ⊢ B
 
@@ -390,7 +391,7 @@ module SubstitutionSystem where
 
     _·_ : ∀ {A B} →
           (t₁ : T Γ (A ⇒ B)) →
-          (t2 : T Γ A) →
+          (t₂ : T Γ A) →
           --------------
           F⇒ T Γ B
 
@@ -417,11 +418,14 @@ module SubstitutionSystem where
           ---------------------
           Fμ T Γ A
 
+  data F (T : TySet → TySet) (Γ : TySet) (A : Type) : Set where
+
+    F-F⇒ : F⇒ T Γ A → F T Γ A
+    F-Fℕ : Fℕ T Γ A → F T Γ A
+    F-Fμ : Fμ T Γ A → F T Γ A
+
   Id : TySet → TySet
   Id Γ = Γ
-
-  F : (TySet → TySet) → (TySet → TySet)
-  F T Γ = F⇒ T Γ ⊕ Fℕ T Γ ⊕ Fμ T Γ
 
   F* : (TySet → TySet) → (TySet → TySet)
   F* T Γ = Id Γ ⊕ F T Γ
@@ -438,3 +442,15 @@ module SubstitutionSystem where
 
   ⇑ʷ_ : Γ ⇛ Δ → Γ ⊕ Ε ⇛ Δ ⊕ Ε
   ⇑ʷ ρ = ⊕-elim (ρ ⍮ ⊕-inl) ⊕-inr
+
+  cata : ∀ {T} → (∀ Γ → F* T Γ ⇛ T Γ) → ∀ Γ → Term Γ ⇛ T Γ
+  cata f Γ A (sup (inj₁ x)) = f _ _ (inj₁ x)
+  cata f Γ A (sup (inj₂ (F-F⇒ (`λ t)))) = f _ _ (inj₂ (F-F⇒ (`λ cata f _ _ t)))
+  cata f Γ A (sup (inj₂ (F-F⇒ (t₁ · t₂)))) = f _ _ (inj₂ (F-F⇒ (cata f _ _ t₁ · cata f _ _ t₂)))
+  cata f Γ A (sup (inj₂ (F-Fℕ `zero))) = f _ _ (inj₂ (F-Fℕ `zero))
+  cata f Γ A (sup (inj₂ (F-Fℕ (`suc t)))) = f _ _ (inj₂ (F-Fℕ (`suc cata f _ _ t)))
+  cata f Γ A (sup (inj₂ (F-Fℕ (`case t-nat t-zero t-suc)))) = f _ _ (inj₂ (F-Fℕ (`case (cata f _ _ t-nat) (cata f _ _ t-zero) (cata f _ _ t-suc))))
+  cata f Γ A (sup (inj₂ (F-Fμ (`μ t)))) = f _ _ (inj₂ (F-Fμ (`μ cata f _ _ t)))
+
+  map : (Γ ⇛ Δ) → (Term Γ ⇛ Term Δ)
+  map ρ A t = {!cata ?!}

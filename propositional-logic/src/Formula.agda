@@ -23,7 +23,7 @@ module Formula (TypeVar : Type) where
   data _∋_ (Γ : Ctx) (A : `Type) : Type
   _∋Z_ _∋S_ : Ctx → `Type → Type
 
-  ∙     ∋Z A   = ⊥
+  ∙     ∋Z A = ⊥
   Γ , B ∋Z A = B ≡ A
 
   ∙       ∋S A = ⊥

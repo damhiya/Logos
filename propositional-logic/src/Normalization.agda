@@ -16,7 +16,7 @@ open import SpinalVerification TypeVar
 open import Derivation TypeVar
 
 vf-· : ∀ {Γ A B} → Γ , A `→ B , A ⊢ B nf
-vf-· = completeness _ ((# (S Z refl)) · completeness _ (# (Z refl)))
+vf-· = completeness _ ((# S Z refl) · completeness _ (# Z refl))
 
 vf-`fst : ∀ {Γ A B} → Γ , A `× B ⊢ A nf
 vf-`fst = completeness _ (`fst (# Z refl))

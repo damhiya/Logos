@@ -88,7 +88,7 @@ ne⇒sp′ (`snd D)  E = ne⇒sp′ D (sp-`snd E)
 nf⇒nf′ (ne D) with ne⇒sp′ D sp-id
 ... | ⟨ A , ⟨ n , E ⟩ ⟩ = sp n E
 nf⇒nf′ (`λ D)           = `λ nf⇒nf′ D
-nf⇒nf′ `⟨ D₁ , D₂ ⟩    = `⟨ nf⇒nf′ D₁ , nf⇒nf′ D₂ ⟩
+nf⇒nf′ `⟨ D₁ , D₂ ⟩     = `⟨ nf⇒nf′ D₁ , nf⇒nf′ D₂ ⟩
 nf⇒nf′ (`inl D)         = `inl (nf⇒nf′ D)
 nf⇒nf′ (`inr D)         = `inr (nf⇒nf′ D)
 nf⇒nf′ (`case D₀ D₁ D₂) with ne⇒sp′ D₀ (sp-`case (nf⇒nf′ D₁) (nf⇒nf′ D₂))

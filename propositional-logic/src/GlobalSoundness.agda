@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --safe --cubical #-}
 
 open import Cubical.Foundations.Prelude hiding (_,_)
 
@@ -27,8 +27,6 @@ _∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A (Γ , A) Γ
 ...            | inl ⟨ p , D ⟩ = inl ⟨ p , wk-nf′ ↑ D ⟩
 ...            | inr n         = inr (S n)
 
-{-# TERMINATING #-}
--- TODO : prove termination
 hsubst-sp′    : ∀ {Γ Δ B C} A
                 (σ : HSubst A Γ Δ)
                 (E : Γ ⊢ B ⇒ C sp′) →
@@ -57,7 +55,7 @@ hsubst-sp′ A σ (sp-`fst D)      = sp-`fst (hsubst-sp′ A σ D)
 hsubst-sp′ A σ (sp-`snd D)      = sp-`snd (hsubst-sp′ A σ D)
 
 hsubst-nf′ A σ (sp n E) with σ n
-... | inl ⟨ p , D ⟩          = reduce-nf′ A D (hsubst-sp′ A σ (subst (_ ⊢_⇒ _ sp′) (sym p) E))
+... | inl ⟨ p , D ⟩          = reduce-nf′ A D (subst (_ ⊢_⇒ _ sp′) (sym p) (hsubst-sp′ A σ E))
 ... | inr m                  = sp m (hsubst-sp′ A σ E)
 hsubst-nf′ A σ (`λ D)        = `λ hsubst-nf′ A (⇑ σ) D
 hsubst-nf′ A σ (`pair D₁ D₂) = `pair (hsubst-nf′ A σ D₁) (hsubst-nf′ A σ D₂)

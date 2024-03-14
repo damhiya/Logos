@@ -7,6 +7,7 @@ module SpinalVerification (TypeVar : Type) where
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Formula TypeVar
 open import Verification TypeVar
+open import Weakening TypeVar
 
 infix 4 _⊢_⇒_sp′ _⊢_nf′
 
@@ -91,3 +92,20 @@ nf′⇒nf (`pair D₁ D₂) = `pair (nf′⇒nf D₁) (nf′⇒nf D₂)
 nf′⇒nf (`inl D)      = `inl (nf′⇒nf D)
 nf′⇒nf (`inr D)      = `inr (nf′⇒nf D)
 nf′⇒nf `tt           = `tt
+
+wk-sp′ : ∀ {Γ Δ A B} → Wk Γ Δ → Γ ⊢ A ⇒ B sp′ → Δ ⊢ A ⇒ B sp′
+wk-nf′ : ∀ {Γ Δ A} → Wk Γ Δ → Γ ⊢ A nf′ → Δ ⊢ A nf′
+
+wk-sp′ ρ sp-id = sp-id
+wk-sp′ ρ (sp-`case D₁ D₂) = sp-`case (wk-nf′ (⇑ʷ ρ) D₁) (wk-nf′ (⇑ʷ ρ) D₂)
+wk-sp′ ρ sp-`absurd = sp-`absurd
+wk-sp′ ρ (sp-· D E) = sp-· (wk-nf′ ρ D) (wk-sp′ ρ E)
+wk-sp′ ρ (sp-`fst E) = sp-`fst (wk-sp′ ρ E)
+wk-sp′ ρ (sp-`snd E) = sp-`snd (wk-sp′ ρ E)
+
+wk-nf′ ρ (sp n E) = sp (ρ n) (wk-sp′ ρ E)
+wk-nf′ ρ (`λ D) = `λ wk-nf′ (⇑ʷ ρ) D
+wk-nf′ ρ (`pair D₁ D₂) = `pair (wk-nf′ ρ D₁) (wk-nf′ ρ D₂)
+wk-nf′ ρ (`inl D) = `inl (wk-nf′ ρ D)
+wk-nf′ ρ (`inr D) = `inr (wk-nf′ ρ D)
+wk-nf′ ρ `tt = `tt

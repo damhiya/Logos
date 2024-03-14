@@ -47,10 +47,10 @@ data _⊢_nf′ Γ where
   `λ_ : ∀ {A B} →
         Γ , A ⊢ B nf′ →
         Γ ⊢ A `→ B nf′
-  `pair : ∀ {A B} →
-          Γ ⊢ A nf′ →
-          Γ ⊢ B nf′ →
-          Γ ⊢ A `× B nf′
+  `⟨_,_⟩ : ∀ {A B} →
+           Γ ⊢ A nf′ →
+           Γ ⊢ B nf′ →
+           Γ ⊢ A `× B nf′
   `inl : ∀ {A B} →
          Γ ⊢ A nf′ →
          Γ ⊢ A `+ B nf′
@@ -88,7 +88,7 @@ ne⇒sp′ (`snd D)  E = ne⇒sp′ D (sp-`snd E)
 nf⇒nf′ (ne D) with ne⇒sp′ D sp-id
 ... | ⟨ A , ⟨ n , E ⟩ ⟩ = sp n E
 nf⇒nf′ (`λ D)           = `λ nf⇒nf′ D
-nf⇒nf′ (`pair D₁ D₂)    = `pair (nf⇒nf′ D₁) (nf⇒nf′ D₂)
+nf⇒nf′ `⟨ D₁ , D₂ ⟩    = `⟨ nf⇒nf′ D₁ , nf⇒nf′ D₂ ⟩
 nf⇒nf′ (`inl D)         = `inl (nf⇒nf′ D)
 nf⇒nf′ (`inr D)         = `inr (nf⇒nf′ D)
 nf⇒nf′ (`case D₀ D₁ D₂) with ne⇒sp′ D₀ (sp-`case (nf⇒nf′ D₁) (nf⇒nf′ D₂))
@@ -109,7 +109,7 @@ sp′⇒nf D (sp-`snd E)      = sp′⇒nf (`snd D) E
 
 nf′⇒nf (sp n E)      = sp′⇒nf (` n) E
 nf′⇒nf (`λ D)        = `λ nf′⇒nf D
-nf′⇒nf (`pair D₁ D₂) = `pair (nf′⇒nf D₁) (nf′⇒nf D₂)
+nf′⇒nf `⟨ D₁ , D₂ ⟩  = `⟨ nf′⇒nf D₁ , nf′⇒nf D₂ ⟩
 nf′⇒nf (`inl D)      = `inl (nf′⇒nf D)
 nf′⇒nf (`inr D)      = `inr (nf′⇒nf D)
 nf′⇒nf `tt           = `tt
@@ -126,7 +126,7 @@ wk-sp′ ρ (sp-`snd E) = sp-`snd (wk-sp′ ρ E)
 
 wk-nf′ ρ (sp n E) = sp (ρ n) (wk-sp′ ρ E)
 wk-nf′ ρ (`λ D) = `λ wk-nf′ (⇑ʷ ρ) D
-wk-nf′ ρ (`pair D₁ D₂) = `pair (wk-nf′ ρ D₁) (wk-nf′ ρ D₂)
+wk-nf′ ρ `⟨ D₁ , D₂ ⟩ = `⟨ wk-nf′ ρ D₁ , wk-nf′ ρ D₂ ⟩
 wk-nf′ ρ (`inl D) = `inl (wk-nf′ ρ D)
 wk-nf′ ρ (`inr D) = `inr (wk-nf′ ρ D)
 wk-nf′ ρ `tt = `tt

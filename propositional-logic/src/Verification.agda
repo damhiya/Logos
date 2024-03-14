@@ -34,10 +34,10 @@ data _⊢_nf Γ where
   `λ_ : ∀ {A B} →
         Γ , A ⊢ B nf →
         Γ ⊢ A `→ B nf
-  `pair : ∀ {A B} →
-          Γ ⊢ A nf →
-          Γ ⊢ B nf →
-          Γ ⊢ A `× B nf
+  `⟨_,_⟩ : ∀ {A B} →
+           Γ ⊢ A nf →
+           Γ ⊢ B nf →
+           Γ ⊢ A `× B nf
   `inl : ∀ {A B} →
          Γ ⊢ A nf →
          Γ ⊢ A `+ B nf

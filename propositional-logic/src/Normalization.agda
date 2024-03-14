@@ -36,7 +36,7 @@ normalize : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A nf
 normalize (` n)            = completeness _ (` n)
 normalize (`λ D)           = `λ normalize D
 normalize (D₁ · D₂)        = soundness (normalize D₁) (soundness (wk-nf ↑ (normalize D₂)) vf-·)
-normalize (`pair D₁ D₂)    = `pair (normalize D₁) (normalize D₂)
+normalize `⟨ D₁ , D₂ ⟩     = `⟨ normalize D₁ , normalize D₂ ⟩
 normalize (`fst D)         = soundness (normalize D) vf-`fst
 normalize (`snd D)         = soundness (normalize D) vf-`snd
 normalize (`inl D)         = `inl (normalize D)

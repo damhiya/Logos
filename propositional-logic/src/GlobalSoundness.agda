@@ -48,7 +48,7 @@ hsubst-nf′ A σ (sp n E) with σ n
 ... | inl ⟨ p , D ⟩          = reduce-nf′ A D (subst (_ ⊢_⇒ _ sp′) (sym p) (hsubst-sp′ A σ E))
 ... | inr m                  = sp m (hsubst-sp′ A σ E)
 hsubst-nf′ A σ (`λ D)        = `λ hsubst-nf′ A (⇑ σ) D
-hsubst-nf′ A σ (`pair D₁ D₂) = `pair (hsubst-nf′ A σ D₁) (hsubst-nf′ A σ D₂)
+hsubst-nf′ A σ `⟨ D₁ , D₂ ⟩  = `⟨ hsubst-nf′ A σ D₁ , hsubst-nf′ A σ D₂ ⟩
 hsubst-nf′ A σ (`inl D)      = `inl (hsubst-nf′ A σ D)
 hsubst-nf′ A σ (`inr D)      = `inr (hsubst-nf′ A σ D)
 hsubst-nf′ A σ `tt           = `tt
@@ -67,16 +67,16 @@ reduce-sp′ B (sp-`snd D)      E = sp-`snd (reduce-sp′ B D E)
 --   reduce-nf′ with (A := decreased A)
 --   reduce-sp′ with (B := A)           (D := decreased D)
 --   hsubst-nf′ with (A := decreased A)
-reduce-nf′ A         (sp n D)              E                   = sp n (reduce-sp′ A D E)
-reduce-nf′ .(A `→ B) (`λ_   {A} {B} D₁)    E with encode-sp′ E
-...                                             | ⟨ D₂ , E ⟩   = reduce-nf′ B (hsubst-nf′ A (D₂ ∷ids) D₁) E
-reduce-nf′ .(A `× B) (`pair {A} {B} D₁ D₂) E with encode-sp′ E
-...                                             | inl E        = reduce-nf′ A D₁ E
-...                                             | inr E        = reduce-nf′ B D₂ E
-reduce-nf′ .(A `+ B) (`inl  {A} {B} D)     E with encode-sp′ E
-...                                             | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ A (D ∷ids) D₁
-reduce-nf′ .(A `+ B) (`inr  {A} {B} D)     E with encode-sp′ E
-...                                             | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ B (D ∷ids) D₂
+reduce-nf′ A         (sp n D)               E                   = sp n (reduce-sp′ A D E)
+reduce-nf′ .(A `→ B) (`λ_   {A} {B} D₁)     E with encode-sp′ E
+...                                              | ⟨ D₂ , E ⟩   = reduce-nf′ B (hsubst-nf′ A (D₂ ∷ids) D₁) E
+reduce-nf′ .(A `× B) (`⟨_,_⟩ {A} {B} D₁ D₂) E with encode-sp′ E
+...                                              | inl E        = reduce-nf′ A D₁ E
+...                                              | inr E        = reduce-nf′ B D₂ E
+reduce-nf′ .(A `+ B) (`inl  {A} {B} D)      E with encode-sp′ E
+...                                              | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ A (D ∷ids) D₁
+reduce-nf′ .(A `+ B) (`inr  {A} {B} D)      E with encode-sp′ E
+...                                              | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ B (D ∷ids) D₂
 
 -- The global soundness theorem, or hereditary substitution
 soundness : ∀ {Γ A B} → Γ ⊢ A nf → Γ , A ⊢ B nf → Γ ⊢ B nf

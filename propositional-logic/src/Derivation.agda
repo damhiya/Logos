@@ -24,10 +24,10 @@ data _⊢_ (Γ : Ctx) : `Type → Type where
         Γ ⊢ B
 
   -- product type
-  `pair : ∀ {A B} →
-          Γ ⊢ A →
-          Γ ⊢ B →
-          Γ ⊢ A `× B
+  `⟨_,_⟩ : ∀ {A B} →
+           Γ ⊢ A →
+           Γ ⊢ B →
+           Γ ⊢ A `× B
   `fst : ∀ {A B} →
          Γ ⊢ A `× B →
          Γ ⊢ A

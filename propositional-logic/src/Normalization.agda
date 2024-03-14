@@ -15,39 +15,47 @@ open import GlobalSoundness TypeVar
 open import SpinalVerification TypeVar
 open import Derivation TypeVar
 
-vf-· : ∀ {Γ A B} → Γ , A `→ B , A ⊢ B nf
-vf-· = completeness _ ((# S Z refl) · completeness _ (# Z refl))
+-- some admissible rules
+adm-# : ∀ {Γ A} → Γ ∋ A → Γ ⊢ A nf
+adm-# n = completeness _ (# n)
 
-vf-`fst : ∀ {Γ A B} → Γ , A `× B ⊢ A nf
-vf-`fst = completeness _ (`fst (# Z refl))
+adm-· : ∀ {Γ A B} → Γ ⊢ A `→ B nf → Γ ⊢ A nf → Γ ⊢ B nf
+adm-· D₁ D₂ = soundness D₁
+               (soundness (wk-nf ↑ D₂)
+                 (completeness _ ((# S Z refl) · completeness _ (# Z refl))))
 
-vf-`snd : ∀ {Γ A B} → Γ , A `× B ⊢ B nf
-vf-`snd = completeness _ (`snd (# Z refl))
+adm-`fst : ∀ {Γ A B} → Γ ⊢ A `× B nf → Γ ⊢ A nf
+adm-`fst D = soundness D (completeness _ (`fst (# Z refl)))
 
-vf-`case : ∀ {Γ A B C} → Γ , A `+ B , A `→ C , B `→ C ⊢ C nf
-vf-`case = `case (# S S Z refl)
-                 (completeness _ ((# S S Z refl) · completeness _ (# Z refl)))
-                 (completeness _ ((# S Z refl)   · completeness _ (# Z refl)))
+adm-`snd : ∀ {Γ A B} → Γ ⊢ A `× B nf → Γ ⊢ B nf
+adm-`snd D = soundness D (completeness _ (`snd (# Z refl)))
 
-vf-`absurd : ∀ {Γ C} → Γ , `0 ⊢ C nf
-vf-`absurd = `absurd (# Z refl)
+adm-`case : ∀ {Γ A B C} → Γ ⊢ A `+ B nf → Γ , A ⊢ C nf → Γ , B ⊢ C nf → Γ ⊢ C nf
+adm-`case D₀ D₁ D₂ = soundness D₀
+                      (soundness (wk-nf ↑ (`λ D₁))
+                        (soundness (wk-nf ↑ (wk-nf ↑ (`λ D₂)))
+                          (`case (# S S Z refl)
+                                 (completeness _ ((# S S Z refl) · completeness _ (# Z refl)))
+                                 (completeness _ ((# S Z refl)   · completeness _ (# Z refl))))))
 
+adm-`absurd : ∀ {Γ C} → Γ ⊢ `0 nf → Γ ⊢ C nf
+adm-`absurd D = soundness D (`absurd (# Z refl))
+
+-- normalizer
 normalize : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A nf
-normalize (# n)            = completeness _ (# n)
+normalize (# n)            = adm-# n
 normalize (`λ D)           = `λ normalize D
-normalize (D₁ · D₂)        = soundness (normalize D₁) (soundness (wk-nf ↑ (normalize D₂)) vf-·)
+normalize (D₁ · D₂)        = adm-· (normalize D₁) (normalize D₂)
 normalize `⟨ D₁ , D₂ ⟩     = `⟨ normalize D₁ , normalize D₂ ⟩
-normalize (`fst D)         = soundness (normalize D) vf-`fst
-normalize (`snd D)         = soundness (normalize D) vf-`snd
+normalize (`fst D)         = adm-`fst (normalize D)
+normalize (`snd D)         = adm-`snd (normalize D)
 normalize (`inl D)         = `inl (normalize D)
 normalize (`inr D)         = `inr (normalize D)
-normalize (`case D₀ D₁ D₂) = soundness (normalize D₀)
-                              (soundness (wk-nf ↑ (`λ (normalize D₁)))
-                                (soundness (wk-nf ↑ (wk-nf ↑ (`λ (normalize D₂))))
-                                  vf-`case))
+normalize (`case D₀ D₁ D₂) = adm-`case (normalize D₀) (normalize D₁) (normalize D₂)
 normalize `tt              = `tt
-normalize (`absurd D)      = soundness (normalize D) vf-`absurd
+normalize (`absurd D)      = adm-`absurd (normalize D)
 
+-- the system is consistent
 consistency : ∙ ⊢ `0 → ⊥
 consistency D with nf⇒nf′ (normalize D)
 ... | sp (Z ()) D

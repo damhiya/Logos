@@ -4,6 +4,9 @@ open import Cubical.Foundations.Prelude
 
 module SpinalVerification (TypeVar : Type) where
 
+open import Cubical.Data.Sum
+open import Cubical.Data.Empty
+open import Cubical.Data.Unit
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Formula TypeVar
 open import Verification TypeVar
@@ -56,6 +59,24 @@ data _⊢_nf′ Γ where
          Γ ⊢ A `+ B nf′
   `tt : Γ ⊢ `1 nf′
 
+-- dependent pattern matching lemma
+code-sp′ : Ctx → `Type → `Type → Type
+code-sp′ Γ (` P)    C = C ≡ ` P
+code-sp′ Γ (A `→ B) C = (Γ ⊢ A nf′) × (Γ ⊢ B ⇒ C sp′)
+code-sp′ Γ (A `× B) C = (Γ ⊢ A ⇒ C sp′) ⊎ (Γ ⊢ B ⇒ C sp′)
+code-sp′ Γ (A `+ B) C = (Γ , A ⊢ C nf′) × (Γ , B ⊢ C nf′)
+code-sp′ Γ `1       C = ⊥
+code-sp′ Γ `0       C = Unit
+
+encode-sp′ : ∀ {Γ A C} → Γ ⊢ A ⇒ C sp′ → code-sp′ Γ A C
+encode-sp′  sp-id = refl
+encode-sp′ (sp-`case D₁ D₂) = ⟨ D₁ , D₂ ⟩
+encode-sp′  sp-`absurd = tt
+encode-sp′ (sp-· D₁ E) = ⟨ D₁ , E ⟩
+encode-sp′ (sp-`fst E) = inl E
+encode-sp′ (sp-`snd E) = inr E
+
+-- conversion lemmas
 ne⇒sp′ : ∀ {Γ B C} → Γ ⊢ B ne → Γ ⊢ B ⇒ C sp′ → Σ `Type (λ A → (Γ ∋ A) × (Γ ⊢ A ⇒ C sp′))
 nf⇒nf′ : ∀ {Γ A} → Γ ⊢ A nf → Γ ⊢ A nf′
 

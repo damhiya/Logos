@@ -4,8 +4,6 @@ open import Cubical.Foundations.Prelude hiding (_,_)
 
 module GlobalSoundness (TypeVar : Type) where
 
-open import Cubical.Data.Unit
-open import Cubical.Data.Empty
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Cubical.Data.Sum
 open import Formula TypeVar
@@ -69,22 +67,6 @@ reduce-sp′ B sp-`absurd E = sp-`absurd
 reduce-sp′ B (sp-· D₁ D₂) E = sp-· D₁ (reduce-sp′ B D₂ E)
 reduce-sp′ B (sp-`fst D) E = sp-`fst (reduce-sp′ B D E)
 reduce-sp′ B (sp-`snd D) E = sp-`snd (reduce-sp′ B D E)
-
-code-sp′ : Ctx → `Type → `Type → Type
-code-sp′ Γ (` P)    C = C ≡ ` P
-code-sp′ Γ (A `→ B) C = (Γ ⊢ A nf′) × (Γ ⊢ B ⇒ C sp′)
-code-sp′ Γ (A `× B) C = (Γ ⊢ A ⇒ C sp′) ⊎ (Γ ⊢ B ⇒ C sp′)
-code-sp′ Γ (A `+ B) C = (Γ , A ⊢ C nf′) × (Γ , B ⊢ C nf′)
-code-sp′ Γ `1       C = ⊥
-code-sp′ Γ `0       C = Unit
-
-encode-sp′ : ∀ {Γ A C} → Γ ⊢ A ⇒ C sp′ → code-sp′ Γ A C
-encode-sp′  sp-id = refl
-encode-sp′ (sp-`case D₁ D₂) = ⟨ D₁ , D₂ ⟩
-encode-sp′  sp-`absurd = tt
-encode-sp′ (sp-· D₁ E) = ⟨ D₁ , E ⟩
-encode-sp′ (sp-`fst E) = inl E
-encode-sp′ (sp-`snd E) = inr E
 
 reduce-nf′ A         (sp n D)                      E                   = sp n (reduce-sp′ A D E)
 reduce-nf′ .(A `→ B) (`λ_ {A = A} {B = B} D₁)      E with encode-sp′ E

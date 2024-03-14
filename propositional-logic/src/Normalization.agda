@@ -16,24 +16,24 @@ open import SpinalVerification TypeVar
 open import Derivation TypeVar
 
 vf-· : ∀ {Γ A B} → Γ , A `→ B , A ⊢ B nf
-vf-· = completeness _ ((` (S Z refl)) · completeness _ (` (Z refl)))
+vf-· = completeness _ ((# (S Z refl)) · completeness _ (# (Z refl)))
 
 vf-`fst : ∀ {Γ A B} → Γ , A `× B ⊢ A nf
-vf-`fst = completeness _ (`fst (` Z refl))
+vf-`fst = completeness _ (`fst (# Z refl))
 
 vf-`snd : ∀ {Γ A B} → Γ , A `× B ⊢ B nf
-vf-`snd = completeness _ (`snd (` Z refl))
+vf-`snd = completeness _ (`snd (# Z refl))
 
 vf-`case : ∀ {Γ A B C} → Γ , A `+ B , A `→ C , B `→ C ⊢ C nf
-vf-`case = `case (` S S Z refl)
-                 (completeness _ ((` S S Z refl) · completeness _ (` Z refl)))
-                 (completeness _ ((` S Z refl)   · completeness _ (` Z refl)))
+vf-`case = `case (# S S Z refl)
+                 (completeness _ ((# S S Z refl) · completeness _ (# Z refl)))
+                 (completeness _ ((# S Z refl)   · completeness _ (# Z refl)))
 
 vf-`absurd : ∀ {Γ C} → Γ , `0 ⊢ C nf
-vf-`absurd = `absurd (` Z refl)
+vf-`absurd = `absurd (# Z refl)
 
 normalize : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A nf
-normalize (` n)            = completeness _ (` n)
+normalize (# n)            = completeness _ (# n)
 normalize (`λ D)           = `λ normalize D
 normalize (D₁ · D₂)        = soundness (normalize D₁) (soundness (wk-nf ↑ (normalize D₂)) vf-·)
 normalize `⟨ D₁ , D₂ ⟩     = `⟨ normalize D₁ , normalize D₂ ⟩

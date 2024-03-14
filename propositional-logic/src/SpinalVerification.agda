@@ -80,7 +80,7 @@ encode-sp′ (sp-`snd E) = inr E
 ne⇒sp′ : ∀ {Γ B C} → Γ ⊢ B ne → Γ ⊢ B ⇒ C sp′ → Σ `Type (λ A → (Γ ∋ A) × (Γ ⊢ A ⇒ C sp′))
 nf⇒nf′ : ∀ {Γ A} → Γ ⊢ A nf → Γ ⊢ A nf′
 
-ne⇒sp′ (` n)     E = ⟨ _ , ⟨ n , E ⟩ ⟩
+ne⇒sp′ (# n)     E = ⟨ _ , ⟨ n , E ⟩ ⟩
 ne⇒sp′ (D₁ · D₂) E = ne⇒sp′ D₁ (sp-· (nf⇒nf′ D₂) E)
 ne⇒sp′ (`fst D)  E = ne⇒sp′ D (sp-`fst E)
 ne⇒sp′ (`snd D)  E = ne⇒sp′ D (sp-`snd E)
@@ -107,7 +107,7 @@ sp′⇒nf D (sp-· E₁ E₂)     = sp′⇒nf (D · (nf′⇒nf E₁)) E₂
 sp′⇒nf D (sp-`fst E)      = sp′⇒nf (`fst D) E
 sp′⇒nf D (sp-`snd E)      = sp′⇒nf (`snd D) E
 
-nf′⇒nf (sp n E)      = sp′⇒nf (` n) E
+nf′⇒nf (sp n E)      = sp′⇒nf (# n) E
 nf′⇒nf (`λ D)        = `λ nf′⇒nf D
 nf′⇒nf `⟨ D₁ , D₂ ⟩  = `⟨ nf′⇒nf D₁ , nf′⇒nf D₂ ⟩
 nf′⇒nf (`inl D)      = `inl (nf′⇒nf D)

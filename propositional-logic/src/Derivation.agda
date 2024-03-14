@@ -10,7 +10,7 @@ infix 4 _⊢_
 
 data _⊢_ (Γ : Ctx) : `Type → Type where
   -- hypothesis
-  `_ : ∀ {A} →
+  #_ : ∀ {A} →
        Γ ∋ A →
        Γ ⊢ A
 

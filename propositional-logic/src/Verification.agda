@@ -13,7 +13,7 @@ data _⊢_ne (Γ : Ctx) : `Type → Type
 data _⊢_nf (Γ : Ctx) : `Type → Type
 
 data _⊢_ne Γ where
-  `_ : ∀ {A} →
+  #_ : ∀ {A} →
        Γ ∋ A →
        Γ ⊢ A ne
   _·_ : ∀ {A B} →

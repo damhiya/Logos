@@ -32,3 +32,8 @@ _∋Z_ _∋S_ : Ctx → `Type → Type
 data _∋_ Γ A where
   Z  : Γ ∋Z A → Γ ∋ A
   S_ : Γ ∋S A → Γ ∋ A
+
+infixr 30 `¬_
+
+`¬_ : `Type → `Type
+`¬_ A = A `→ `0

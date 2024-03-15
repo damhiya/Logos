@@ -76,6 +76,22 @@ encode-sp′ (sp-· D₁ E) = ⟨ D₁ , E ⟩
 encode-sp′ (sp-`fst E) = inl E
 encode-sp′ (sp-`snd E) = inr E
 
+code-nf′ : Ctx → `Type → Type
+code-nf′ Γ (` P)    = ⊥
+code-nf′ Γ (A `→ B) = Γ , A ⊢ B nf′
+code-nf′ Γ (A `× B) = (Γ ⊢ A nf′) × (Γ ⊢ B nf′)
+code-nf′ Γ (A `+ B) = (Γ ⊢ A nf′) ⊎ (Γ ⊢ B nf′)
+code-nf′ Γ `1       = Unit
+code-nf′ Γ `0       = ⊥
+
+encode-nf′ : ∀ {Γ A} → Γ ⊢ A nf′ → (Σ `Type (λ B → (Γ ∋ B) × (Γ ⊢ B ⇒ A sp′))) ⊎ code-nf′ Γ A
+encode-nf′ (sp n D)     = inl ⟨ _ , ⟨ n , D ⟩ ⟩
+encode-nf′ (`λ D)       = inr D
+encode-nf′ `⟨ D₁ , D₂ ⟩ = inr ⟨ D₁ , D₂ ⟩
+encode-nf′ (`inl D)     = inr (inl D)
+encode-nf′ (`inr D)     = inr (inr D)
+encode-nf′ `tt          = inr tt
+
 -- conversion lemmas
 ne⇒sp′ : ∀ {Γ B C} → Γ ⊢ B ne → Γ ⊢ B ⇒ C sp′ → Σ `Type (λ A → (Γ ∋ A) × (Γ ⊢ A ⇒ C sp′))
 nf⇒nf′ : ∀ {Γ A} → Γ ⊢ A nf → Γ ⊢ A nf′

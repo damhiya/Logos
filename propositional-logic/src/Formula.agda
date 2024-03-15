@@ -1,11 +1,12 @@
 {-# OPTIONS --safe --cubical #-}
 
 open import Cubical.Foundations.Prelude hiding (_,_)
+open import Cubical.Data.Sum
 open import Cubical.Data.Empty
 
 module Formula (TypeVar : Type) where
 
-infix 4 _∋_ _∋Z_ _∋S_
+infix 4 _∋_
 infixl 5 _,_
 
 data `Type : Type where
@@ -20,18 +21,17 @@ data Ctx : Type where
   ∙ : Ctx
   _,_ : Ctx → `Type → Ctx
 
-data _∋_ (Γ : Ctx) (A : `Type) : Type
-_∋Z_ _∋S_ : Ctx → `Type → Type
+data _∋_ : Ctx → `Type → Type where
+  Z  : ∀ {Γ A}           → Γ , A ∋ A
+  S_ : ∀ {Γ A B} → Γ ∋ A → Γ , B ∋ A
 
-∙     ∋Z A = ⊥
-Γ , B ∋Z A = B ≡ A
+code-∋ : Ctx → `Type → Type
+code-∋ ∙       A = ⊥
+code-∋ (Γ , B) A = (B ≡ A) ⊎ (Γ ∋ A)
 
-∙       ∋S A = ⊥
-(Γ , B) ∋S A = Γ ∋ A
-
-data _∋_ Γ A where
-  Z  : Γ ∋Z A → Γ ∋ A
-  S_ : Γ ∋S A → Γ ∋ A
+encode-∋ : ∀ {Γ A} → Γ ∋ A → code-∋ Γ A
+encode-∋ Z     = inl refl
+encode-∋ (S n) = inr n
 
 infixr 30 `¬_
 

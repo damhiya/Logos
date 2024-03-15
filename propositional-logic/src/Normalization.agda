@@ -22,24 +22,24 @@ adm-# n = completeness _ (# n)
 adm-· : ∀ {Γ A B} → Γ ⊢ A `→ B nf → Γ ⊢ A nf → Γ ⊢ B nf
 adm-· D₁ D₂ = soundness D₁
                (soundness (wk-nf ↑ D₂)
-                 (completeness _ ((# S Z refl) · completeness _ (# Z refl))))
+                 (completeness _ ((# S Z) · completeness _ (# Z))))
 
 adm-`fst : ∀ {Γ A B} → Γ ⊢ A `× B nf → Γ ⊢ A nf
-adm-`fst D = soundness D (completeness _ (`fst (# Z refl)))
+adm-`fst D = soundness D (completeness _ (`fst (# Z)))
 
 adm-`snd : ∀ {Γ A B} → Γ ⊢ A `× B nf → Γ ⊢ B nf
-adm-`snd D = soundness D (completeness _ (`snd (# Z refl)))
+adm-`snd D = soundness D (completeness _ (`snd (# Z)))
 
 adm-`case : ∀ {Γ A B C} → Γ ⊢ A `+ B nf → Γ , A ⊢ C nf → Γ , B ⊢ C nf → Γ ⊢ C nf
 adm-`case D₀ D₁ D₂ = soundness D₀
                       (soundness (wk-nf ↑ (`λ D₁))
                         (soundness (wk-nf ↑ (wk-nf ↑ (`λ D₂)))
-                          (`case (# S S Z refl)
-                                 (completeness _ ((# S S Z refl) · completeness _ (# Z refl)))
-                                 (completeness _ ((# S Z refl)   · completeness _ (# Z refl))))))
+                          (`case (# S S Z)
+                                 (completeness _ ((# S S Z) · completeness _ (# Z)))
+                                 (completeness _ ((# S Z)   · completeness _ (# Z))))))
 
 adm-`absurd : ∀ {Γ C} → Γ ⊢ `0 nf → Γ ⊢ C nf
-adm-`absurd D = soundness D (`absurd (# Z refl))
+adm-`absurd D = soundness D (`absurd (# Z))
 
 -- normalizer
 normalize : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A nf
@@ -58,5 +58,4 @@ normalize (`absurd D)      = adm-`absurd (normalize D)
 -- the system is consistent
 consistency : ∙ ⊢ `0 → ⊥
 consistency D with nf⇒nf′ (normalize D)
-... | sp (Z ()) D
-... | sp (S ()) D
+... | sp () D

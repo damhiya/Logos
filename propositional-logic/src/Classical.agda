@@ -13,7 +13,7 @@ open import SpinalVerification TypeVar
 open import Normalization TypeVar
 
 lem-irrefutable : ∀ {Γ A} → Γ ⊢ `¬ `¬ (A `+ `¬ A)
-lem-irrefutable = `λ ((# Z refl) · `inr (`λ ((# S Z refl) · `inl (# Z refl))))
+lem-irrefutable = `λ ((# Z) · `inr (`λ ((# S Z) · `inl (# Z))))
 
 classic-consistency : ∀ {A} → ∙ , A `+ `¬ A ⊢ `0 → ⊥
 classic-consistency D = consistency (lem-irrefutable · (`λ D))
@@ -29,19 +29,18 @@ code-` P `0       = ⊥
 encode-` : ∀ P A → ` P ≡ A → code-` P A
 encode-` P A p = subst (code-` P) p refl
 
+∙∋-⊥ : ∀ {A} → ∙ ∋ A → ⊥
+∙∋-⊥ ()
+
+`⇒`0-⊥ : ∀ {Γ P} → Γ ⊢ ` P ⇒ `0 sp′ → ⊥
+`⇒`0-⊥ ()
+
 lem-not-provable : ∀ {P} → ∙ ⊢ (` P) `+ `¬ (` P) → ⊥
 lem-not-provable D with encode-nf′ (nf⇒nf′ (normalize D))
-... | inl ⟨ A , ⟨ Z () , _ ⟩ ⟩
-... | inl ⟨ A , ⟨ S () , _ ⟩ ⟩
-... | inr (inl (sp (Z ()) _))
-... | inr (inl (sp (S ()) _))
+... | inl ⟨ A , ⟨ () , _ ⟩ ⟩
+... | inr (inl (sp () _))
 ... | inr (inr D′) with encode-nf′ D′
-... | inl ⟨ _ , ⟨ Z () , D ⟩ ⟩
-... | inl ⟨ _ , ⟨ S () , D ⟩ ⟩
-... | inr (sp (Z p) (sp-`case _ _)) = ⊥-rec (encode-` _ _ p)
-... | inr (sp (Z p)  sp-`absurd)    = ⊥-rec (encode-` _ _ p)
-... | inr (sp (Z p) (sp-· _ _))     = ⊥-rec (encode-` _ _ p)
-... | inr (sp (Z p) (sp-`fst _))    = ⊥-rec (encode-` _ _ p)
-... | inr (sp (Z p) (sp-`snd _))    = ⊥-rec (encode-` _ _ p)
-... | inr (sp (S (Z ())) D)
-... | inr (sp (S (S ())) D)
+...   | inl ⟨ _ , ⟨ () , _ ⟩ ⟩
+...   | inr (sp n D″) with encode-∋ n
+...     | inl p = ⊥-rec (`⇒`0-⊥ (subst (_ ⊢_⇒ `0 sp′) (sym p) D″) )
+...     | inr n = ⊥-rec (∙∋-⊥ n)

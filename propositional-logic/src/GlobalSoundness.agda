@@ -16,14 +16,16 @@ HSubst : `Type → Ctx → Ctx → Type
 HSubst A Γ Δ = ∀ {B} → Γ ∋ B → ((A ≡ B) × (Δ ⊢ A nf′)) ⊎ (Δ ∋ B)
 
 _∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A (Γ , A) Γ
-(D ∷ids) (Z p) = inl ⟨ p , D ⟩
-(D ∷ids) (S n) = inr n
+(D ∷ids) n with encode-∋ n
+... | inl p = inl ⟨ p , D ⟩
+... | inr n = inr n
 
 ⇑_ : ∀ {A Γ Δ B} → HSubst A Γ Δ → HSubst A (Γ , B) (Δ , B)
-(⇑ σ) (Z p) = inr (Z p)
-(⇑ σ) (S n) with σ n
-...            | inl ⟨ p , D ⟩ = inl ⟨ p , wk-nf′ ↑ D ⟩
-...            | inr n         = inr (S n)
+(⇑ σ) n with encode-∋ n
+...        | inl p                    = inr (subst (_ , _ ∋_) p Z)
+...        | inr n with σ n
+...                   | inl ⟨ p , D ⟩ = inl ⟨ p , wk-nf′ ↑ D ⟩
+...                   | inr n         = inr (S n)
 
 hsubst-sp′    : ∀ {Γ Δ B C} A → HSubst A Γ Δ → Γ ⊢ B ⇒ C sp′ → Δ ⊢ B ⇒ C sp′
 hsubst-nf′    : ∀ {Γ Δ C} A → HSubst A Γ Δ → Γ ⊢ C nf′ → Δ ⊢ C nf′

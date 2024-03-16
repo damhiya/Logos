@@ -2,7 +2,7 @@
 
 open import Cubical.Foundations.Prelude hiding (_,_)
 
-module GlobalCompleteness (TypeVar : Type) where
+module HereditarySubstitution.GlobalCompleteness (TypeVar : Type) where
 
 open import Formula TypeVar
 open import Verification TypeVar

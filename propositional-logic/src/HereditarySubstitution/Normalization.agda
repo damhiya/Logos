@@ -2,7 +2,7 @@
 
 open import Cubical.Foundations.Prelude hiding (_,_)
 
-module Normalization (TypeVar : Type) where
+module HereditarySubstitution.Normalization (TypeVar : Type) where
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
@@ -10,8 +10,8 @@ open import Cubical.Data.Sum
 open import Formula TypeVar
 open import Verification TypeVar
 open import Weakening TypeVar
-open import GlobalCompleteness TypeVar
-open import GlobalSoundness TypeVar
+open import HereditarySubstitution.GlobalCompleteness TypeVar
+open import HereditarySubstitution.GlobalSoundness TypeVar
 open import SpinalVerification TypeVar
 open import Derivation TypeVar
 

@@ -2,14 +2,13 @@
 
 open import Cubical.Foundations.Prelude hiding (_,_)
 
-module GlobalSoundness (TypeVar : Type) where
+module HereditarySubstitution.GlobalSoundness (TypeVar : Type) where
 
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Cubical.Data.Sum
 open import Formula TypeVar
 open import Verification TypeVar
 open import Weakening TypeVar
-open import GlobalCompleteness TypeVar
 open import SpinalVerification TypeVar
 
 HSubst : `Type → Ctx → Ctx → Type

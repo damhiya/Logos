@@ -2,7 +2,7 @@
 
 open import Cubical.Foundations.Prelude hiding (_,_)
 
-module Classical (TypeVar : Type) where
+module Extra.Classical (TypeVar : Type) where
 
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum
@@ -10,7 +10,7 @@ open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Formula TypeVar
 open import Derivation TypeVar
 open import SpinalVerification TypeVar
-open import Normalization TypeVar
+open import HereditarySubstitution.Normalization TypeVar
 
 lem-irrefutable : ∀ {Γ A} → Γ ⊢ `¬ `¬ (A `+ `¬ A)
 lem-irrefutable = `λ ((# Z) · `inr (`λ ((# S Z) · `inl (# Z))))

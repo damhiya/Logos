@@ -9,7 +9,6 @@ open import Cubical.Data.Sum
 open import Formula TypeVar
 open import Verification TypeVar
 open import Weakening TypeVar
-open import SpinalVerification TypeVar
 
 HSubst : `Type → Ctx → Ctx → Type
 HSubst A Γ Δ = ∀ {B} → Γ ∋ B → ((A ≡ B) × (Δ ⊢ A nf′)) ⊎ (Δ ∋ B)

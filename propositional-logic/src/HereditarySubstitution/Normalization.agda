@@ -12,7 +12,6 @@ open import Verification TypeVar
 open import Weakening TypeVar
 open import HereditarySubstitution.GlobalCompleteness TypeVar
 open import HereditarySubstitution.GlobalSoundness TypeVar
-open import SpinalVerification TypeVar
 open import Derivation TypeVar
 
 -- some admissible rules

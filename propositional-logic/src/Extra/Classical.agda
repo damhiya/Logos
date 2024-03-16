@@ -9,7 +9,7 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Formula TypeVar
 open import Derivation TypeVar
-open import SpinalVerification TypeVar
+open import Verification TypeVar
 open import HereditarySubstitution.Normalization TypeVar
 
 lem-irrefutable : ∀ {Γ A} → Γ ⊢ `¬ `¬ (A `+ `¬ A)

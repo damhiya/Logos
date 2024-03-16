@@ -51,6 +51,38 @@ data _≡βη_ : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A → Set where
   η0 : ∀ {Γ} {M : Γ ⊢ `0} →
         M ≡βη `absurd M
 
+  comm-case-· : ∀ {Γ A B C D} {L : Γ ⊢ A `+ B} {M₁ : Γ , A ⊢ C `→ D} {M₂ : Γ , B ⊢ C `→ D} {N : Γ ⊢ C} →
+                (`case L M₁ M₂) · N ≡βη `case L (M₁ · wk ↑ N) (M₂ · wk ↑ N)
+
+  comm-case-fst : ∀ {Γ A B C D} {L : Γ ⊢ A `+ B} {M₁ : Γ , A ⊢ C `× D} {M₂ : Γ , B ⊢ C `× D} →
+                  `fst (`case L M₁ M₂) ≡βη `case L (`fst M₁) (`fst M₂)
+
+  comm-case-snd : ∀ {Γ A B C D} {L : Γ ⊢ A `+ B} {M₁ : Γ , A ⊢ C `× D} {M₂ : Γ , B ⊢ C `× D} →
+                  `snd (`case L M₁ M₂) ≡βη `case L (`snd M₁) (`snd M₂)
+
+  comm-case-case : ∀ {Γ A B C D E}
+                     {L : Γ ⊢ A `+ B} {M₁ : Γ , A ⊢ C `+ D} {M₂ : Γ , B ⊢ C `+ D} {N₁ : Γ , C ⊢ E} {N₂ : Γ , D ⊢ E} →
+                   `case (`case L M₁ M₂) N₁ N₂ ≡βη `case L (`case M₁ (wk (⇑ʷ ↑) N₁) (wk (⇑ʷ ↑) N₂))
+                                                           (`case M₂ (wk (⇑ʷ ↑) N₁) (wk (⇑ʷ ↑) N₂))
+
+  comm-case-absurd : ∀ {Γ A B C} {L : Γ ⊢ A `+ B} {M₁ : Γ , A ⊢ `0} {M₂ : Γ , B ⊢ `0} →
+                     `absurd {C = C} (`case L M₁ M₂) ≡βη `case L (`absurd M₁) (`absurd M₂)
+
+  comm-absurd-· : ∀ {Γ A B} {M : Γ ⊢ `0} {N : Γ ⊢ A} →
+                  `absurd {C = A `→ B} M · N ≡βη `absurd M
+
+  comm-absurd-fst : ∀ {Γ A B} {M : Γ ⊢ `0} →
+                    `fst (`absurd {C = A `× B} M) ≡βη `absurd M
+
+  comm-absurd-snd : ∀ {Γ A B} {M : Γ ⊢ `0} →
+                    `snd (`absurd {C = A `× B} M) ≡βη `absurd M
+
+  comm-absurd-case : ∀ {Γ A B C} {M : Γ ⊢ `0} {N₁ : Γ , A ⊢ C} {N₂ : Γ , B ⊢ C} →
+                    `case (`absurd {C = A `+ B} M) N₁ N₂ ≡βη `absurd M
+
+  comm-absurd-absurd : ∀ {Γ C} {M : Γ ⊢ `0} →
+                       `absurd {C = C} (`absurd {C = `0} M) ≡βη `absurd M
+
   cong-λ : ∀ {Γ A B} {M₁ M₂ : Γ , A ⊢ B} →
            M₁ ≡βη M₂ →
            `λ M₁ ≡βη `λ M₂
@@ -88,4 +120,5 @@ data _≡βη_ : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A → Set where
               `case L₁ M₁ N₁ ≡βη `case L₂ M₂ N₂
 
   cong-absurd : ∀ {Γ C} {M₁ M₂ : Γ ⊢ `0} →
+                M₁ ≡βη M₂ →
                 `absurd {C = C} M₁ ≡βη `absurd M₂

@@ -1,9 +1,10 @@
 {-# OPTIONS --safe --cubical #-}
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (_,_)
 
 module Derivation (TypeVar : Type) where
 
+open import Cubical.Data.Sum
 open import Formula TypeVar
 
 infix 4 _⊢_
@@ -69,3 +70,33 @@ wk ρ (`inr D)         = `inr (wk ρ D)
 wk ρ (`case D₀ D₁ D₂) = `case (wk ρ D₀) (wk (⇑ʷ ρ) D₁) (wk (⇑ʷ ρ) D₂)
 wk ρ `tt              = `tt
 wk ρ (`absurd D)      = `absurd (wk ρ D)
+
+-- Substitution
+Subst : Ctx → Ctx → Type
+Subst Γ Δ = ∀ {A} → Γ ∋ A → Δ ⊢ A
+
+ι : ∀ {Γ} → Subst Γ Γ
+ι = #_
+
+⇑_ : ∀ {Γ Δ A} → Subst Γ Δ → Subst (Γ , A) (Δ , A)
+(⇑ σ) n with encode-∋ n
+... | inl p = subst (_ ⊢_) p (# Z)
+... | inr n = wk ↑ (σ n)
+
+_∷_ : ∀ {Γ Δ A} → Δ ⊢ A → Subst Γ Δ → Subst (Γ , A) Δ
+(M ∷ σ) n with encode-∋ n
+... | inl p = subst (_ ⊢_) p M
+... | inr n = σ n
+
+[_]_ : ∀ {Γ Δ A} → Subst Γ Δ → Γ ⊢ A → Δ ⊢ A
+[ σ ] (# n)          = σ n
+[ σ ] (`λ D)         = `λ ([ ⇑ σ ] D)
+[ σ ] (D₁ · D₂)      = ([ σ ] D₁) · ([ σ ] D₂)
+[ σ ] `⟨ D₁ , D₂ ⟩   = `⟨ [ σ ] D₁ , [ σ ] D₂ ⟩
+[ σ ] `fst D         = `fst ([ σ ] D)
+[ σ ] `snd D         = `snd ([ σ ] D)
+[ σ ] `inl D         = `inl ([ σ ] D)
+[ σ ] `inr D         = `inr ([ σ ] D)
+[ σ ] `case D₀ D₁ D₂ = `case ([ σ ] D₀) ([ ⇑ σ ] D₁) ([ ⇑ σ ] D₂)
+[ σ ] `tt            = `tt
+[ σ ] `absurd D      = `absurd ([ σ ] D)

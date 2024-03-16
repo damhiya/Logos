@@ -12,7 +12,8 @@ open import Formula TypeVar
 
 infix 4 _⊢_ne _⊢_nf _⊢_⇒_sp′ _⊢_nf′
 
--- Neutral terms and normal forms (verification)
+-- β-normal η-long forms (verification)
+-- Definition using neutral terms
 data _⊢_ne (Γ : Ctx) : `Type → Type
 data _⊢_nf (Γ : Ctx) : `Type → Type
 

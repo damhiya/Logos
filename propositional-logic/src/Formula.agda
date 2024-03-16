@@ -1,13 +1,15 @@
 {-# OPTIONS --safe --cubical #-}
 
 open import Cubical.Foundations.Prelude hiding (_,_)
-open import Cubical.Data.Sum
-open import Cubical.Data.Empty
 
 module Formula (TypeVar : Type) where
 
+open import Cubical.Data.Sum
+open import Cubical.Data.Empty
+
 infix 4 _∋_
 infixl 5 _,_
+infixr 30 `¬_
 
 data `Type : Type where
   `_   : TypeVar → `Type
@@ -16,6 +18,9 @@ data `Type : Type where
   _`+_ : `Type → `Type → `Type
   `1   : `Type
   `0   : `Type
+
+`¬_ : `Type → `Type
+`¬_ A = A `→ `0
 
 data Ctx : Type where
   ∙ : Ctx
@@ -33,7 +38,14 @@ encode-∋ : ∀ {Γ A} → Γ ∋ A → code-∋ Γ A
 encode-∋ Z     = inl refl
 encode-∋ (S n) = inr n
 
-infixr 30 `¬_
+-- Weakening
+Wk : Ctx → Ctx → Type
+Wk Γ Δ = ∀ {A} → Γ ∋ A → Δ ∋ A
 
-`¬_ : `Type → `Type
-`¬_ A = A `→ `0
+⇑ʷ_ : ∀ {Γ Δ A} → Wk Γ Δ → Wk (Γ , A) (Δ , A)
+(⇑ʷ ρ) n with encode-∋ n
+... | inl p = subst (_ , _ ∋_) p Z
+... | inr n = S (ρ n)
+
+↑ : ∀ {Γ A} → Wk Γ (Γ , A)
+↑ n = S n

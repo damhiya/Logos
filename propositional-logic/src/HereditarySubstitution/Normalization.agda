@@ -9,7 +9,6 @@ open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Cubical.Data.Sum
 open import Formula TypeVar
 open import Verification TypeVar
-open import Weakening TypeVar
 open import HereditarySubstitution.GlobalCompleteness TypeVar
 open import HereditarySubstitution.GlobalSoundness TypeVar
 open import Derivation TypeVar

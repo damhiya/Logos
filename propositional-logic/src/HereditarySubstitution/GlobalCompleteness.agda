@@ -6,7 +6,6 @@ module HereditarySubstitution.GlobalCompleteness (TypeVar : Type) where
 
 open import Formula TypeVar
 open import Verification TypeVar
-open import Weakening TypeVar
 
 completeness : ∀ {Γ} A → Γ ⊢ A ne → Γ ⊢ A nf
 completeness (` P)    D = ne D

@@ -9,7 +9,6 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
 open import Formula TypeVar
-open import Weakening TypeVar
 
 infix 4 _⊢_ne _⊢_nf _⊢_⇒_sp′ _⊢_nf′
 

@@ -55,3 +55,17 @@ data _⊢_ (Γ : Ctx) : `Type → Type where
   `absurd : ∀ {C} →
             Γ ⊢ `0 →
             Γ ⊢ C
+
+-- Weakening
+wk : ∀ {Γ Δ A} → Wk Γ Δ → Γ ⊢ A → Δ ⊢ A
+wk ρ (# n)            = # ρ n
+wk ρ (`λ D)           = `λ wk (⇑ʷ ρ) D
+wk ρ (D₁ · D₂)        = wk ρ D₁ · wk ρ D₂
+wk ρ `⟨ D₁ , D₂ ⟩     = `⟨ wk ρ D₁ , wk ρ D₂ ⟩
+wk ρ (`fst D)         = `fst (wk ρ D)
+wk ρ (`snd D)         = `snd (wk ρ D)
+wk ρ (`inl D)         = `inl (wk ρ D)
+wk ρ (`inr D)         = `inr (wk ρ D)
+wk ρ (`case D₀ D₁ D₂) = `case (wk ρ D₀) (wk (⇑ʷ ρ) D₁) (wk (⇑ʷ ρ) D₂)
+wk ρ `tt              = `tt
+wk ρ (`absurd D)      = `absurd (wk ρ D)

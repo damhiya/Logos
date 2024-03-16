@@ -1,21 +1,20 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import Cubical.Foundations.Prelude
+module Verification (TypeVar : Set) where
 
-module Verification (TypeVar : Type) where
-
-open import Cubical.Data.Sum
-open import Cubical.Data.Empty
-open import Cubical.Data.Unit
-open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
+open import Data.Sum
+open import Data.Empty
+open import Data.Unit
+open import Data.Product renaming (_,_ to ⟨_,_⟩)
+open import Relation.Binary.PropositionalEquality
 open import Formula TypeVar
 
 infix 4 _⊢_ne _⊢_nf _⊢_⇒_sp′ _⊢_nf′
 
 -- β-normal η-long forms (verification)
 -- Definition using neutral terms
-data _⊢_ne (Γ : Ctx) : `Type → Type
-data _⊢_nf (Γ : Ctx) : `Type → Type
+data _⊢_ne (Γ : Ctx) : `Type → Set
+data _⊢_nf (Γ : Ctx) : `Type → Set
 
 data _⊢_ne Γ where
   #_ : ∀ {A} →
@@ -60,8 +59,8 @@ data _⊢_nf Γ where
             Γ ⊢ C nf
 
 -- Alternative definition of normal forms using "spine"
-data _⊢_⇒_sp′ (Γ : Ctx) : `Type → `Type → Type
-data _⊢_nf′ (Γ : Ctx) : `Type → Type
+data _⊢_⇒_sp′ (Γ : Ctx) : `Type → `Type → Set
+data _⊢_nf′ (Γ : Ctx) : `Type → Set
 
 data _⊢_⇒_sp′ Γ where
   sp-id      : ∀ {P} →
@@ -104,37 +103,37 @@ data _⊢_nf′ Γ where
   `tt : Γ ⊢ `1 nf′
 
 -- Dependent pattern matching lemmas
-code-sp′ : Ctx → `Type → `Type → Type
+code-sp′ : Ctx → `Type → `Type → Set
 code-sp′ Γ (` P)    C = C ≡ ` P
 code-sp′ Γ (A `→ B) C = (Γ ⊢ A nf′) × (Γ ⊢ B ⇒ C sp′)
 code-sp′ Γ (A `× B) C = (Γ ⊢ A ⇒ C sp′) ⊎ (Γ ⊢ B ⇒ C sp′)
 code-sp′ Γ (A `+ B) C = (Γ , A ⊢ C nf′) × (Γ , B ⊢ C nf′)
 code-sp′ Γ `1       C = ⊥
-code-sp′ Γ `0       C = Unit
+code-sp′ Γ `0       C = ⊤
 
 encode-sp′ : ∀ {Γ A C} → Γ ⊢ A ⇒ C sp′ → code-sp′ Γ A C
 encode-sp′  sp-id = refl
 encode-sp′ (sp-`case D₁ D₂) = ⟨ D₁ , D₂ ⟩
 encode-sp′  sp-`absurd = tt
 encode-sp′ (sp-· D₁ E) = ⟨ D₁ , E ⟩
-encode-sp′ (sp-`fst E) = inl E
-encode-sp′ (sp-`snd E) = inr E
+encode-sp′ (sp-`fst E) = inj₁ E
+encode-sp′ (sp-`snd E) = inj₂ E
 
-code-nf′ : Ctx → `Type → Type
+code-nf′ : Ctx → `Type → Set
 code-nf′ Γ (` P)    = ⊥
 code-nf′ Γ (A `→ B) = Γ , A ⊢ B nf′
 code-nf′ Γ (A `× B) = (Γ ⊢ A nf′) × (Γ ⊢ B nf′)
 code-nf′ Γ (A `+ B) = (Γ ⊢ A nf′) ⊎ (Γ ⊢ B nf′)
-code-nf′ Γ `1       = Unit
+code-nf′ Γ `1       = ⊤
 code-nf′ Γ `0       = ⊥
 
 encode-nf′ : ∀ {Γ A} → Γ ⊢ A nf′ → (Σ `Type (λ B → (Γ ∋ B) × (Γ ⊢ B ⇒ A sp′))) ⊎ code-nf′ Γ A
-encode-nf′ (sp n D)     = inl ⟨ _ , ⟨ n , D ⟩ ⟩
-encode-nf′ (`λ D)       = inr D
-encode-nf′ `⟨ D₁ , D₂ ⟩ = inr ⟨ D₁ , D₂ ⟩
-encode-nf′ (`inl D)     = inr (inl D)
-encode-nf′ (`inr D)     = inr (inr D)
-encode-nf′ `tt          = inr tt
+encode-nf′ (sp n D)     = inj₁ ⟨ _ , ⟨ n , D ⟩ ⟩
+encode-nf′ (`λ D)       = inj₂ D
+encode-nf′ `⟨ D₁ , D₂ ⟩ = inj₂ ⟨ D₁ , D₂ ⟩
+encode-nf′ (`inl D)     = inj₂ (inj₁ D)
+encode-nf′ (`inr D)     = inj₂ (inj₂ D)
+encode-nf′ `tt          = inj₂ tt
 
 -- Conversion lemmas
 ne⇒sp′ : ∀ {Γ B C} → Γ ⊢ B ne → Γ ⊢ B ⇒ C sp′ → Σ `Type (λ A → (Γ ∋ A) × (Γ ⊢ A ⇒ C sp′))

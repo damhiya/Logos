@@ -1,28 +1,27 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import Cubical.Foundations.Prelude hiding (_,_)
+module HereditarySubstitution.GlobalSoundness (TypeVar : Set ) where
 
-module HereditarySubstitution.GlobalSoundness (TypeVar : Type) where
-
-open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
-open import Cubical.Data.Sum
+open import Data.Product renaming (_,_ to ⟨_,_⟩)
+open import Data.Sum
+open import Relation.Binary.PropositionalEquality
 open import Formula TypeVar
 open import Verification TypeVar
 
-HSubst : `Type → Ctx → Ctx → Type
+HSubst : `Type → Ctx → Ctx → Set
 HSubst A Γ Δ = ∀ {B} → Γ ∋ B → ((A ≡ B) × (Δ ⊢ A nf′)) ⊎ (Δ ∋ B)
 
 _∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A (Γ , A) Γ
 (D ∷ids) n with encode-∋ n
-... | inl p = inl ⟨ p , D ⟩
-... | inr n = inr n
+... | inj₁ p = inj₁ ⟨ p , D ⟩
+... | inj₂ n = inj₂ n
 
 ⇑_ : ∀ {A Γ Δ B} → HSubst A Γ Δ → HSubst A (Γ , B) (Δ , B)
 (⇑ σ) n with encode-∋ n
-...        | inl p                    = inr (subst (_ , _ ∋_) p Z)
-...        | inr n with σ n
-...                   | inl ⟨ p , D ⟩ = inl ⟨ p , wk-nf′ ↑ D ⟩
-...                   | inr n         = inr (S n)
+...        | inj₁ p                    = inj₂ (subst (_ , _ ∋_) p Z)
+...        | inj₂ n with σ n
+...                   | inj₁ ⟨ p , D ⟩ = inj₁ ⟨ p , wk-nf′ ↑ D ⟩
+...                   | inj₂ n         = inj₂ (S n)
 
 hsubst-sp′    : ∀ {Γ Δ B C} A → HSubst A Γ Δ → Γ ⊢ B ⇒ C sp′ → Δ ⊢ B ⇒ C sp′
 hsubst-nf′    : ∀ {Γ Δ C} A → HSubst A Γ Δ → Γ ⊢ C nf′ → Δ ⊢ C nf′
@@ -44,8 +43,8 @@ hsubst-sp′ A σ (sp-`snd E)      = sp-`snd (hsubst-sp′ A σ E)
 --   hsubst-sp′ with (A := A), (E := decreased D)
 --   reduce-nf′ with (A := A)
 hsubst-nf′ A σ (sp n E) with σ n
-... | inl ⟨ p , D ⟩          = reduce-nf′ A D (subst (_ ⊢_⇒ _ sp′) (sym p) (hsubst-sp′ A σ E))
-... | inr m                  = sp m (hsubst-sp′ A σ E)
+... | inj₁ ⟨ p , D ⟩          = reduce-nf′ A D (subst (_ ⊢_⇒ _ sp′) (sym p) (hsubst-sp′ A σ E))
+... | inj₂ m                  = sp m (hsubst-sp′ A σ E)
 hsubst-nf′ A σ (`λ D)        = `λ hsubst-nf′ A (⇑ σ) D
 hsubst-nf′ A σ `⟨ D₁ , D₂ ⟩  = `⟨ hsubst-nf′ A σ D₁ , hsubst-nf′ A σ D₂ ⟩
 hsubst-nf′ A σ (`inl D)      = `inl (hsubst-nf′ A σ D)
@@ -70,8 +69,8 @@ reduce-nf′ A         (sp n D)               E                   = sp n (reduce
 reduce-nf′ .(A `→ B) (`λ_   {A} {B} D₁)     E with encode-sp′ E
 ...                                              | ⟨ D₂ , E ⟩   = reduce-nf′ B (hsubst-nf′ A (D₂ ∷ids) D₁) E
 reduce-nf′ .(A `× B) (`⟨_,_⟩ {A} {B} D₁ D₂) E with encode-sp′ E
-...                                              | inl E        = reduce-nf′ A D₁ E
-...                                              | inr E        = reduce-nf′ B D₂ E
+...                                              | inj₁ E        = reduce-nf′ A D₁ E
+...                                              | inj₂ E        = reduce-nf′ B D₂ E
 reduce-nf′ .(A `+ B) (`inl  {A} {B} D)      E with encode-sp′ E
 ...                                              | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ A (D ∷ids) D₁
 reduce-nf′ .(A `+ B) (`inr  {A} {B} D)      E with encode-sp′ E

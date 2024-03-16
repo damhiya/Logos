@@ -1,2 +1,2 @@
-depend: cubical
+depend: standard-library
 include: src

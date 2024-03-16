@@ -1,15 +1,14 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import Cubical.Foundations.Prelude hiding (_,_)
+module Derivation (TypeVar : Set) where
 
-module Derivation (TypeVar : Type) where
-
-open import Cubical.Data.Sum
+open import Relation.Binary.PropositionalEquality hiding ([_])
+open import Data.Sum
 open import Formula TypeVar
 
 infix 4 _⊢_
 
-data _⊢_ (Γ : Ctx) : `Type → Type where
+data _⊢_ (Γ : Ctx) : `Type → Set where
   -- hypothesis
   #_ : ∀ {A} →
        Γ ∋ A →
@@ -72,7 +71,7 @@ wk ρ `tt              = `tt
 wk ρ (`absurd D)      = `absurd (wk ρ D)
 
 -- Substitution
-Subst : Ctx → Ctx → Type
+Subst : Ctx → Ctx → Set
 Subst Γ Δ = ∀ {A} → Γ ∋ A → Δ ⊢ A
 
 ι : ∀ {Γ} → Subst Γ Γ
@@ -80,13 +79,13 @@ Subst Γ Δ = ∀ {A} → Γ ∋ A → Δ ⊢ A
 
 ⇑_ : ∀ {Γ Δ A} → Subst Γ Δ → Subst (Γ , A) (Δ , A)
 (⇑ σ) n with encode-∋ n
-... | inl p = subst (_ ⊢_) p (# Z)
-... | inr n = wk ↑ (σ n)
+... | inj₁ p = subst (_ ⊢_) p (# Z)
+... | inj₂ n = wk ↑ (σ n)
 
 _∷_ : ∀ {Γ Δ A} → Δ ⊢ A → Subst Γ Δ → Subst (Γ , A) Δ
 (M ∷ σ) n with encode-∋ n
-... | inl p = subst (_ ⊢_) p M
-... | inr n = σ n
+... | inj₁ p = subst (_ ⊢_) p M
+... | inj₂ n = σ n
 
 [_]_ : ∀ {Γ Δ A} → Subst Γ Δ → Γ ⊢ A → Δ ⊢ A
 [ σ ] (# n)          = σ n

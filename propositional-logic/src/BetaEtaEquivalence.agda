@@ -1,15 +1,13 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import Cubical.Foundations.Prelude hiding (_,_)
-
-module BetaEtaEquivalence (TypeVar : Type) where
+module BetaEtaEquivalence (TypeVar : Set) where
 
 open import Formula TypeVar
 open import Derivation TypeVar
 
 infix 4 _≡βη_
 
-data _≡βη_ : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A → Type where
+data _≡βη_ : ∀ {Γ A} → Γ ⊢ A → Γ ⊢ A → Set where
 
   refl-βη : ∀ {Γ A} {M : Γ ⊢ A} →
             M ≡βη M

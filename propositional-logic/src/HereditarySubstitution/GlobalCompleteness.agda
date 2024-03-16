@@ -1,8 +1,6 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import Cubical.Foundations.Prelude hiding (_,_)
-
-module HereditarySubstitution.GlobalCompleteness (TypeVar : Type) where
+module HereditarySubstitution.GlobalCompleteness (TypeVar : Set) where
 
 open import Formula TypeVar
 open import Verification TypeVar

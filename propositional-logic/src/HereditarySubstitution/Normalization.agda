@@ -1,12 +1,10 @@
-{-# OPTIONS --safe --cubical #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import Cubical.Foundations.Prelude hiding (_,_)
+module HereditarySubstitution.Normalization (TypeVar : Set) where
 
-module HereditarySubstitution.Normalization (TypeVar : Type) where
+open import Data.Empty
+open import Data.Product renaming (_,_ to ⟨_,_⟩)
 
-open import Cubical.Data.Empty
-open import Cubical.Data.Sigma renaming (_,_ to ⟨_,_⟩)
-open import Cubical.Data.Sum
 open import Formula TypeVar
 open import Verification TypeVar
 open import HereditarySubstitution.GlobalCompleteness TypeVar

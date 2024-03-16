@@ -29,22 +29,13 @@ data _∋_ : Ctx → `Type → Set where
   Z  : ∀ {Γ A}           → Γ , A ∋ A
   S_ : ∀ {Γ A B} → Γ ∋ A → Γ , B ∋ A
 
-code-∋ : Ctx → `Type → Set
-code-∋ ∙       A = ⊥
-code-∋ (Γ , B) A = (B ≡ A) ⊎ (Γ ∋ A)
-
-encode-∋ : ∀ {Γ A} → Γ ∋ A → code-∋ Γ A
-encode-∋ Z     = inj₁ refl
-encode-∋ (S n) = inj₂ n
-
 -- Weakening
 Wk : Ctx → Ctx → Set
 Wk Γ Δ = ∀ {A} → Γ ∋ A → Δ ∋ A
 
 ⇑ʷ_ : ∀ {Γ Δ A} → Wk Γ Δ → Wk (Γ , A) (Δ , A)
-(⇑ʷ ρ) n with encode-∋ n
-... | inj₁ p = subst (_ , _ ∋_) p Z
-... | inj₂ n = S (ρ n)
+(⇑ʷ ρ) Z = Z
+(⇑ʷ ρ) (S n) = S (ρ n)
 
 ↑ : ∀ {Γ A} → Wk Γ (Γ , A)
 ↑ n = S n

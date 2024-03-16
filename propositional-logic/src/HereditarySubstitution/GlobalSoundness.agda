@@ -12,16 +12,14 @@ HSubst : `Type → Ctx → Ctx → Set
 HSubst A Γ Δ = ∀ {B} → Γ ∋ B → ((A ≡ B) × (Δ ⊢ A nf′)) ⊎ (Δ ∋ B)
 
 _∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A (Γ , A) Γ
-(D ∷ids) n with encode-∋ n
-... | inj₁ p = inj₁ ⟨ p , D ⟩
-... | inj₂ n = inj₂ n
+(D ∷ids) Z     = inj₁ ⟨ refl , D ⟩
+(D ∷ids) (S n) = inj₂ n
 
 ⇑_ : ∀ {A Γ Δ B} → HSubst A Γ Δ → HSubst A (Γ , B) (Δ , B)
-(⇑ σ) n with encode-∋ n
-...        | inj₁ p                    = inj₂ (subst (_ , _ ∋_) p Z)
-...        | inj₂ n with σ n
-...                   | inj₁ ⟨ p , D ⟩ = inj₁ ⟨ p , wk-nf′ ↑ D ⟩
-...                   | inj₂ n         = inj₂ (S n)
+(⇑ σ) Z                      = inj₂ Z
+(⇑ σ) (S n) with σ n
+...         | inj₁ ⟨ p , D ⟩ = inj₁ ⟨ p , wk-nf′ ↑ D ⟩
+...         | inj₂ n         = inj₂ (S n)
 
 hsubst-sp′    : ∀ {Γ Δ B C} A → HSubst A Γ Δ → Γ ⊢ B ⇒ C sp′ → Δ ⊢ B ⇒ C sp′
 hsubst-nf′    : ∀ {Γ Δ C} A → HSubst A Γ Δ → Γ ⊢ C nf′ → Δ ⊢ C nf′
@@ -65,16 +63,12 @@ reduce-sp′ B (sp-`snd D)      E = sp-`snd (reduce-sp′ B D E)
 --   reduce-nf′ with (A := decreased A)
 --   reduce-sp′ with (B := A)           (D := decreased D)
 --   hsubst-nf′ with (A := decreased A)
-reduce-nf′ A         (sp n D)               E                   = sp n (reduce-sp′ A D E)
-reduce-nf′ .(A `→ B) (`λ_   {A} {B} D₁)     E with encode-sp′ E
-...                                              | ⟨ D₂ , E ⟩   = reduce-nf′ B (hsubst-nf′ A (D₂ ∷ids) D₁) E
-reduce-nf′ .(A `× B) (`⟨_,_⟩ {A} {B} D₁ D₂) E with encode-sp′ E
-...                                              | inj₁ E        = reduce-nf′ A D₁ E
-...                                              | inj₂ E        = reduce-nf′ B D₂ E
-reduce-nf′ .(A `+ B) (`inl  {A} {B} D)      E with encode-sp′ E
-...                                              | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ A (D ∷ids) D₁
-reduce-nf′ .(A `+ B) (`inr  {A} {B} D)      E with encode-sp′ E
-...                                              | ⟨ D₁ , D₂ ⟩  = hsubst-nf′ B (D ∷ids) D₂
+reduce-nf′ A         (sp n D)               E                = sp n (reduce-sp′ A D E)
+reduce-nf′ .(A `→ B) (`λ_   {A} {B} D₁)     (sp-· D₂ E)      = reduce-nf′ B (hsubst-nf′ A (D₂ ∷ids) D₁) E
+reduce-nf′ .(A `× B) (`⟨_,_⟩ {A} {B} D₁ D₂) (sp-`fst E)      = reduce-nf′ A D₁ E
+reduce-nf′ .(A `× B) (`⟨_,_⟩ {A} {B} D₁ D₂) (sp-`snd E)      = reduce-nf′ B D₂ E
+reduce-nf′ .(A `+ B) (`inl  {A} {B} D)      (sp-`case D₁ D₂) = hsubst-nf′ A (D ∷ids) D₁
+reduce-nf′ .(A `+ B) (`inr  {A} {B} D)      (sp-`case D₁ D₂) = hsubst-nf′ B (D ∷ids) D₂
 
 -- The global soundness theorem, or hereditary substitution
 soundness′ : ∀ {Γ A B} → Γ ⊢ A nf′ → Γ , A ⊢ B nf′ → Γ ⊢ B nf′

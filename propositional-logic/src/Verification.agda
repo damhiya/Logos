@@ -102,39 +102,6 @@ data _⊢_nf′ Γ where
          Γ ⊢ A `+ B nf′
   `tt : Γ ⊢ `1 nf′
 
--- Dependent pattern matching lemmas
-code-sp′ : Ctx → `Type → `Type → Set
-code-sp′ Γ (` P)    C = C ≡ ` P
-code-sp′ Γ (A `→ B) C = (Γ ⊢ A nf′) × (Γ ⊢ B ⇒ C sp′)
-code-sp′ Γ (A `× B) C = (Γ ⊢ A ⇒ C sp′) ⊎ (Γ ⊢ B ⇒ C sp′)
-code-sp′ Γ (A `+ B) C = (Γ , A ⊢ C nf′) × (Γ , B ⊢ C nf′)
-code-sp′ Γ `1       C = ⊥
-code-sp′ Γ `0       C = ⊤
-
-encode-sp′ : ∀ {Γ A C} → Γ ⊢ A ⇒ C sp′ → code-sp′ Γ A C
-encode-sp′  sp-id = refl
-encode-sp′ (sp-`case D₁ D₂) = ⟨ D₁ , D₂ ⟩
-encode-sp′  sp-`absurd = tt
-encode-sp′ (sp-· D₁ E) = ⟨ D₁ , E ⟩
-encode-sp′ (sp-`fst E) = inj₁ E
-encode-sp′ (sp-`snd E) = inj₂ E
-
-code-nf′ : Ctx → `Type → Set
-code-nf′ Γ (` P)    = ⊥
-code-nf′ Γ (A `→ B) = Γ , A ⊢ B nf′
-code-nf′ Γ (A `× B) = (Γ ⊢ A nf′) × (Γ ⊢ B nf′)
-code-nf′ Γ (A `+ B) = (Γ ⊢ A nf′) ⊎ (Γ ⊢ B nf′)
-code-nf′ Γ `1       = ⊤
-code-nf′ Γ `0       = ⊥
-
-encode-nf′ : ∀ {Γ A} → Γ ⊢ A nf′ → (Σ `Type (λ B → (Γ ∋ B) × (Γ ⊢ B ⇒ A sp′))) ⊎ code-nf′ Γ A
-encode-nf′ (sp n D)     = inj₁ ⟨ _ , ⟨ n , D ⟩ ⟩
-encode-nf′ (`λ D)       = inj₂ D
-encode-nf′ `⟨ D₁ , D₂ ⟩ = inj₂ ⟨ D₁ , D₂ ⟩
-encode-nf′ (`inl D)     = inj₂ (inj₁ D)
-encode-nf′ (`inr D)     = inj₂ (inj₂ D)
-encode-nf′ `tt          = inj₂ tt
-
 -- Conversion lemmas
 ne⇒sp′ : ∀ {Γ B C} → Γ ⊢ B ne → Γ ⊢ B ⇒ C sp′ → Σ `Type (λ A → (Γ ∋ A) × (Γ ⊢ A ⇒ C sp′))
 nf⇒nf′ : ∀ {Γ A} → Γ ⊢ A nf → Γ ⊢ A nf′

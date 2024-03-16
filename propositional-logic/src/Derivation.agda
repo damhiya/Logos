@@ -78,14 +78,12 @@ Subst Γ Δ = ∀ {A} → Γ ∋ A → Δ ⊢ A
 ι = #_
 
 ⇑_ : ∀ {Γ Δ A} → Subst Γ Δ → Subst (Γ , A) (Δ , A)
-(⇑ σ) n with encode-∋ n
-... | inj₁ p = subst (_ ⊢_) p (# Z)
-... | inj₂ n = wk ↑ (σ n)
+(⇑ σ) Z     = # Z
+(⇑ σ) (S n) = wk ↑ (σ n)
 
 _∷_ : ∀ {Γ Δ A} → Δ ⊢ A → Subst Γ Δ → Subst (Γ , A) Δ
-(M ∷ σ) n with encode-∋ n
-... | inj₁ p = subst (_ ⊢_) p M
-... | inj₂ n = σ n
+(M ∷ σ) Z     = M
+(M ∷ σ) (S n) = σ n
 
 [_]_ : ∀ {Γ Δ A} → Subst Γ Δ → Γ ⊢ A → Δ ⊢ A
 [ σ ] (# n)          = σ n

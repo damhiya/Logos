@@ -32,9 +32,9 @@ data _⊢_ne Γ where
          Γ ⊢ B ne
 
 data _⊢_nf Γ where
-  ne : ∀ {P} →
-       Γ ⊢ ` P ne →
-       Γ ⊢ ` P nf
+  ne` : ∀ {P} →
+        Γ ⊢ ` P ne →
+        Γ ⊢ ` P nf
   `λ_ : ∀ {A B} →
         Γ , A ⊢ B nf →
         Γ ⊢ A `→ B nf
@@ -111,7 +111,7 @@ ne⇒sp′ (D₁ · D₂) E = ne⇒sp′ D₁ (sp-· (nf⇒nf′ D₂) E)
 ne⇒sp′ (`fst D)  E = ne⇒sp′ D (sp-`fst E)
 ne⇒sp′ (`snd D)  E = ne⇒sp′ D (sp-`snd E)
 
-nf⇒nf′ (ne D) with ne⇒sp′ D sp-id
+nf⇒nf′ (ne` D) with ne⇒sp′ D sp-id
 ... | ⟨ A , ⟨ n , E ⟩ ⟩ = sp n E
 nf⇒nf′ (`λ D)           = `λ nf⇒nf′ D
 nf⇒nf′ `⟨ D₁ , D₂ ⟩     = `⟨ nf⇒nf′ D₁ , nf⇒nf′ D₂ ⟩
@@ -126,7 +126,7 @@ nf⇒nf′ (`absurd {C = C} D) with ne⇒sp′ D (sp-`absurd {C = C})
 sp′⇒nf : ∀ {Γ A C} → Γ ⊢ A ne → Γ ⊢ A ⇒ C sp′ → Γ ⊢ C nf
 nf′⇒nf : ∀ {Γ A} → Γ ⊢ A nf′ → Γ ⊢ A nf
 
-sp′⇒nf D sp-id            = ne D
+sp′⇒nf D sp-id            = ne` D
 sp′⇒nf D (sp-`case E₁ E₂) = `case D (nf′⇒nf E₁) (nf′⇒nf E₂)
 sp′⇒nf D sp-`absurd       = `absurd D
 sp′⇒nf D (sp-· E₁ E₂)     = sp′⇒nf (D · (nf′⇒nf E₁)) E₂
@@ -149,7 +149,7 @@ wk-ne ρ (D · E) = wk-ne ρ D · wk-nf ρ E
 wk-ne ρ (`fst D) = `fst (wk-ne ρ D)
 wk-ne ρ (`snd D) = `snd (wk-ne ρ D)
 
-wk-nf ρ (ne D) = ne (wk-ne ρ D)
+wk-nf ρ (ne` D) = ne` (wk-ne ρ D)
 wk-nf ρ (`λ D) = `λ wk-nf (⇑ʷ ρ) D
 wk-nf ρ `⟨ D , E ⟩ = `⟨ wk-nf ρ D , wk-nf ρ E ⟩
 wk-nf ρ (`inl D) = `inl (wk-nf ρ D)

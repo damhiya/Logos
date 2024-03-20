@@ -10,6 +10,7 @@ open import Formula TypeVar
 open import Derivation TypeVar
 open import Verification TypeVar
 open import HereditarySubstitution.Normalization TypeVar
+open import Extra.Consistency TypeVar
 
 lem-irrefutable : ∀ {Γ A} → Γ ⊢ `¬ `¬ (A `+ `¬ A)
 lem-irrefutable = `λ ((# Z) · `inr (`λ ((# S Z) · `inl (# Z))))

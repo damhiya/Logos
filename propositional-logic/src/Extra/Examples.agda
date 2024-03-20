@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-module HereditarySubstitution.Examples (TypeVar : Set) where
+module Extra.Examples (TypeVar : Set) where
 
 open import Relation.Binary.PropositionalEquality
 open import Formula TypeVar

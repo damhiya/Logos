@@ -50,8 +50,3 @@ normalize (`inr D)         = `inr (normalize D)
 normalize (`case D₀ D₁ D₂) = adm-`case (normalize D₀) (normalize D₁) (normalize D₂)
 normalize `tt              = `tt
 normalize (`absurd D)      = adm-`absurd (normalize D)
-
--- the system is consistent
-consistency : ∙ ⊢ `0 → ⊥
-consistency D with nf⇒nf′ (normalize D)
-... | sp () D

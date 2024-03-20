@@ -9,9 +9,9 @@ open import Relation.Binary.PropositionalEquality
 open import Statics TypeVar hiding (⇑_)
 
 HSubst : `Type → Ctx → Ctx → Set
-HSubst A Γ Δ = ∀ {B} → Γ ∋ B → ((A ≡ B) × (Δ ⊢ A nf′)) ⊎ (Δ ∋ B)
+HSubst A Γ Δ = ∀ {B} → Δ ∋ B → ((A ≡ B) × (Γ ⊢ A nf′)) ⊎ (Γ ∋ B)
 
-_∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A (Γ , A) Γ
+_∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A Γ (Γ , A)
 (D ∷ids) Z     = inj₁ ⟨ refl , D ⟩
 (D ∷ids) (S n) = inj₂ n
 
@@ -21,8 +21,8 @@ _∷ids : ∀ {A Γ} → Γ ⊢ A nf′ → HSubst A (Γ , A) Γ
 ...         | inj₁ ⟨ p , D ⟩ = inj₁ ⟨ p , wk-nf′ ↑ D ⟩
 ...         | inj₂ n         = inj₂ (S n)
 
-hsubst-sp′    : ∀ {Γ Δ B C} A → HSubst A Γ Δ → Γ ⊢ B ⇒ C sp′ → Δ ⊢ B ⇒ C sp′
-hsubst-nf′    : ∀ {Γ Δ C} A → HSubst A Γ Δ → Γ ⊢ C nf′ → Δ ⊢ C nf′
+hsubst-sp′    : ∀ {Γ Δ B C} A → HSubst A Γ Δ → Δ ⊢ B ⇒ C sp′ → Γ ⊢ B ⇒ C sp′
+hsubst-nf′    : ∀ {Γ Δ C} A → HSubst A Γ Δ → Δ ⊢ C nf′ → Γ ⊢ C nf′
 reduce-sp′    : ∀ {Γ A C} B → Γ ⊢ A ⇒ B sp′ → Γ ⊢ B ⇒ C sp′ → Γ ⊢ A ⇒ C sp′
 reduce-nf′    : ∀ {Γ C} A → Γ ⊢ A nf′ → Γ ⊢ A ⇒ C sp′ → Γ ⊢ C nf′
 

@@ -58,7 +58,7 @@ data _⊢_ (Γ : Ctx) : `Type → Set where
             Γ ⊢ C
 
 -- Weakening
-wk : ∀ {Γ Δ A} → Wk Γ Δ → Γ ⊢ A → Δ ⊢ A
+wk : ∀ {Γ Δ A} → Wk Γ Δ → Δ ⊢ A → Γ ⊢ A
 wk ρ (# n)            = # ρ n
 wk ρ (`λ D)           = `λ wk (⇑ʷ ρ) D
 wk ρ (D₁ · D₂)        = wk ρ D₁ · wk ρ D₂
@@ -73,7 +73,7 @@ wk ρ (`absurd D)      = `absurd (wk ρ D)
 
 -- Substitution
 Subst : Ctx → Ctx → Set
-Subst Γ Δ = ∀ {A} → Γ ∋ A → Δ ⊢ A
+Subst Γ Δ = ∀ {A} → Δ ∋ A → Γ ⊢ A
 
 ι : ∀ {Γ} → Subst Γ Γ
 ι = #_
@@ -82,11 +82,11 @@ Subst Γ Δ = ∀ {A} → Γ ∋ A → Δ ⊢ A
 (⇑ σ) Z     = # Z
 (⇑ σ) (S n) = wk ↑ (σ n)
 
-_∷_ : ∀ {Γ Δ A} → Δ ⊢ A → Subst Γ Δ → Subst (Γ , A) Δ
+_∷_ : ∀ {Γ Δ A} → Γ ⊢ A → Subst Γ Δ → Subst Γ (Δ , A)
 (M ∷ σ) Z     = M
 (M ∷ σ) (S n) = σ n
 
-[_]_ : ∀ {Γ Δ A} → Subst Γ Δ → Γ ⊢ A → Δ ⊢ A
+[_]_ : ∀ {Γ Δ A} → Subst Γ Δ → Δ ⊢ A → Γ ⊢ A
 [ σ ] (# n)          = σ n
 [ σ ] (`λ D)         = `λ ([ ⇑ σ ] D)
 [ σ ] (D₁ · D₂)      = ([ σ ] D₁) · ([ σ ] D₂)

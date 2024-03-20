@@ -31,11 +31,11 @@ data _∋_ : Ctx → `Type → Set where
 
 -- Weakening
 Wk : Ctx → Ctx → Set
-Wk Γ Δ = ∀ {A} → Γ ∋ A → Δ ∋ A
+Wk Γ Δ = ∀ {A} → Δ ∋ A → Γ ∋ A
 
 ⇑ʷ_ : ∀ {Γ Δ A} → Wk Γ Δ → Wk (Γ , A) (Δ , A)
 (⇑ʷ ρ) Z = Z
 (⇑ʷ ρ) (S n) = S (ρ n)
 
-↑ : ∀ {Γ A} → Wk Γ (Γ , A)
+↑ : ∀ {Γ A} → Wk (Γ , A) Γ
 ↑ n = S n

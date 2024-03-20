@@ -142,8 +142,8 @@ nf′⇒nf (`inr D)      = `inr (nf′⇒nf D)
 nf′⇒nf `tt           = `tt
 
 -- Weakening for normal forms
-wk-ne : ∀ {Γ Δ A} → Wk Γ Δ → Γ ⊢ A ne → Δ ⊢ A ne
-wk-nf : ∀ {Γ Δ A} → Wk Γ Δ → Γ ⊢ A nf → Δ ⊢ A nf
+wk-ne : ∀ {Γ Δ A} → Wk Γ Δ → Δ ⊢ A ne → Γ ⊢ A ne
+wk-nf : ∀ {Γ Δ A} → Wk Γ Δ → Δ ⊢ A nf → Γ ⊢ A nf
 
 wk-ne ρ (# n) = # ρ n
 wk-ne ρ (D · E) = wk-ne ρ D · wk-nf ρ E
@@ -159,8 +159,8 @@ wk-nf ρ (`case D E F) = `case (wk-ne ρ D) (wk-nf (⇑ʷ ρ) E) (wk-nf (⇑ʷ �
 wk-nf ρ `tt = `tt
 wk-nf ρ (`absurd D) = `absurd (wk-ne ρ D)
 
-wk-sp′ : ∀ {Γ Δ A B} → Wk Γ Δ → Γ ⊢ A ⇒ B sp′ → Δ ⊢ A ⇒ B sp′
-wk-nf′ : ∀ {Γ Δ A} → Wk Γ Δ → Γ ⊢ A nf′ → Δ ⊢ A nf′
+wk-sp′ : ∀ {Γ Δ A B} → Wk Γ Δ → Δ ⊢ A ⇒ B sp′ → Γ ⊢ A ⇒ B sp′
+wk-nf′ : ∀ {Γ Δ A} → Wk Γ Δ → Δ ⊢ A nf′ → Γ ⊢ A nf′
 
 wk-sp′ ρ sp-id = sp-id
 wk-sp′ ρ (sp-`case D₁ D₂) = sp-`case (wk-nf′ (⇑ʷ ρ) D₁) (wk-nf′ (⇑ʷ ρ) D₂)

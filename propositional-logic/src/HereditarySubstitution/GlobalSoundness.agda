@@ -1,12 +1,12 @@
 {-# OPTIONS --safe --without-K #-}
 
-module HereditarySubstitution.GlobalSoundness (TypeVar : Set ) where
+module HereditarySubstitution.GlobalSoundness (TypeVar : Set) where
 
 open import Data.Product renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum
 open import Relation.Binary.PropositionalEquality
-open import Formula TypeVar
-open import Verification TypeVar
+
+open import Statics TypeVar hiding (⇑_)
 
 HSubst : `Type → Ctx → Ctx → Set
 HSubst A Γ Δ = ∀ {B} → Γ ∋ B → ((A ≡ B) × (Δ ⊢ A nf′)) ⊎ (Δ ∋ B)

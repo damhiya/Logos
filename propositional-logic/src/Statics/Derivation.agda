@@ -1,10 +1,11 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Derivation (TypeVar : Set) where
+module Statics.Derivation (TypeVar : Set) where
 
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Data.Sum
-open import Formula TypeVar
+
+open import Statics.Formula TypeVar
 
 infix 4 _⊢_
 

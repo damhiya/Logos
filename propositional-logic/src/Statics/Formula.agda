@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Formula (TypeVar : Set) where
+module Statics.Formula (TypeVar : Set) where
 
 open import Data.Sum
 open import Data.Empty

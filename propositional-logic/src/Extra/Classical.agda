@@ -6,9 +6,8 @@ open import Data.Empty
 open import Data.Sum
 open import Data.Product renaming (_,_ to ⟨_,_⟩)
 open import Relation.Binary.PropositionalEquality
-open import Formula TypeVar
-open import Derivation TypeVar
-open import Verification TypeVar
+
+open import Statics TypeVar
 open import HereditarySubstitution.Normalization TypeVar
 open import Extra.Consistency TypeVar
 

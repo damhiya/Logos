@@ -1,13 +1,14 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Verification (TypeVar : Set) where
+module Statics.Verification (TypeVar : Set) where
 
 open import Data.Sum
 open import Data.Empty
 open import Data.Unit
 open import Data.Product renaming (_,_ to ⟨_,_⟩)
 open import Relation.Binary.PropositionalEquality
-open import Formula TypeVar
+
+open import Statics.Formula TypeVar
 
 infix 4 _⊢_ne _⊢_nf _⊢_⇒_sp′ _⊢_nf′
 

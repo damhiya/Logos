@@ -2,8 +2,7 @@
 
 module HereditarySubstitution.GlobalCompleteness (TypeVar : Set) where
 
-open import Formula TypeVar
-open import Verification TypeVar
+open import Statics TypeVar
 
 completeness : ∀ {Γ} A → Γ ⊢ A ne → Γ ⊢ A nf
 completeness (` P)    D = ne` D

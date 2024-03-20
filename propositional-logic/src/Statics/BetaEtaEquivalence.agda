@@ -1,9 +1,9 @@
 {-# OPTIONS --safe --without-K #-}
 
-module BetaEtaEquivalence (TypeVar : Set) where
+module Statics.BetaEtaEquivalence (TypeVar : Set) where
 
-open import Formula TypeVar
-open import Derivation TypeVar
+open import Statics.Formula TypeVar
+open import Statics.Derivation TypeVar
 
 infix 4 _≡βη_
 

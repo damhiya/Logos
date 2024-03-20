@@ -5,11 +5,9 @@ module HereditarySubstitution.Normalization (TypeVar : Set) where
 open import Data.Empty
 open import Data.Product renaming (_,_ to ⟨_,_⟩)
 
-open import Formula TypeVar
-open import Verification TypeVar
+open import Statics TypeVar
 open import HereditarySubstitution.GlobalCompleteness TypeVar
 open import HereditarySubstitution.GlobalSoundness TypeVar
-open import Derivation TypeVar
 
 -- some admissible rules
 adm-# : ∀ {Γ A} → Γ ∋ A → Γ ⊢ A nf

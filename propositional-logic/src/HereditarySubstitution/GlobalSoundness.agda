@@ -71,8 +71,8 @@ reduce-nf′ .(A `+ B) (`inl   {A} {B} D)     (sp-`case D₁ D₂) = hsubst-nf�
 reduce-nf′ .(A `+ B) (`inr   {A} {B} D)     (sp-`case D₁ D₂) = hsubst-nf′ B (D ∷ι) D₂
 
 -- The global soundness theorem, or hereditary substitution
-soundness′ : ∀ {Γ A B} → Γ ⊢ A nf′ → Γ , A ⊢ B nf′ → Γ ⊢ B nf′
-soundness′ D E = hsubst-nf′ _ (D ∷ι) E
+hsubst′ : ∀ {Γ A B} → Γ ⊢ A nf′ → Γ , A ⊢ B nf′ → Γ ⊢ B nf′
+hsubst′ D E = hsubst-nf′ _ (D ∷ι) E
 
-soundness : ∀ {Γ A B} → Γ ⊢ A nf → Γ , A ⊢ B nf → Γ ⊢ B nf
-soundness D E = nf′⇒nf (soundness′ (nf⇒nf′ D) (nf⇒nf′ E))
+hsubst : ∀ {Γ A B} → Γ ⊢ A nf → Γ , A ⊢ B nf → Γ ⊢ B nf
+hsubst D E = nf′⇒nf (hsubst′ (nf⇒nf′ D) (nf⇒nf′ E))

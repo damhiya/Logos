@@ -9,6 +9,7 @@ open import Data.Product renaming (_,_ to ⟨_,_⟩)
 open import Relation.Binary.PropositionalEquality
 
 open import Statics.Formula TypeVar
+open import Statics.Derivation TypeVar
 
 infix 4 _⊢_ne _⊢_nf _⊢_⇒_sp′ _⊢_nf′
 
@@ -175,3 +176,20 @@ wk-nf′ ρ `⟨ D₁ , D₂ ⟩ = `⟨ wk-nf′ ρ D₁ , wk-nf′ ρ D₂ ⟩
 wk-nf′ ρ (`inl D) = `inl (wk-nf′ ρ D)
 wk-nf′ ρ (`inr D) = `inr (wk-nf′ ρ D)
 wk-nf′ ρ `tt = `tt
+
+⌈_⌉ne : ∀ {Γ A} → Γ ⊢ A ne → Γ ⊢ A
+⌈_⌉nf : ∀ {Γ A} → Γ ⊢ A nf → Γ ⊢ A
+
+⌈ # x     ⌉ne = # x
+⌈ D₁ · D₂ ⌉ne = ⌈ D₁ ⌉ne · ⌈ D₂ ⌉nf
+⌈ `fst D  ⌉ne = `fst ⌈ D ⌉ne
+⌈ `snd D  ⌉ne = `snd ⌈ D ⌉ne
+
+⌈ ne` D          ⌉nf = ⌈ D ⌉ne
+⌈ `λ D           ⌉nf = `λ ⌈ D ⌉nf
+⌈ `⟨ D₁ , D₂ ⟩   ⌉nf = `⟨ ⌈ D₁ ⌉nf , ⌈ D₂ ⌉nf ⟩
+⌈ `inl D         ⌉nf = `inl ⌈ D ⌉nf
+⌈ `inr D         ⌉nf = `inr ⌈ D ⌉nf
+⌈ `case D₀ D₁ D₂ ⌉nf = `case ⌈ D₀ ⌉ne ⌈ D₁ ⌉nf ⌈ D₂ ⌉nf
+⌈ `tt            ⌉nf = `tt
+⌈ `absurd D      ⌉nf = `absurd ⌈ D ⌉ne

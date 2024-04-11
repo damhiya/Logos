@@ -1,2 +1,15 @@
 *.agdai
 .direnv
+
+_CoqProject
+Makefile.coq
+Makefile.coq.conf
+.Makefile.coq.d
+
+*.vo
+*.vos
+*.vok
+*.aux
+*.glob
+.lia.cache
+.nia.cache

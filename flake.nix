@@ -5,17 +5,33 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
-        agda = pkgs.agda.withPackages
-          (pkgs: with pkgs; [ standard-library cubical ]);
-        buildInputs = [ agda ];
-      in {
+        agda = pkgs.agda.withPackages (
+          pkgs: with pkgs; [
+            standard-library
+            cubical
+          ]
+        );
+        coqBuildInputs = with pkgs.coqPackages_8_18; [
+          coq
+          stdpp
+        ];
+        buildInputs = [ agda ] ++ coqBuildInputs;
+      in
+      {
         devShell = pkgs.mkShell {
-          buildInputs = [ agda ];
+          inherit buildInputs;
           nativeBuildInputs = [ ];
         };
-      });
+      }
+    );
 }

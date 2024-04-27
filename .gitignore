@@ -13,3 +13,6 @@ Makefile.coq.conf
 *.glob
 .lia.cache
 .nia.cache
+
+*.lpo
+*.lp

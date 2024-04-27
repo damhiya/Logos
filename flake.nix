@@ -25,7 +25,7 @@
           coq
           stdpp
         ];
-        buildInputs = [ agda pkgs.teyjus ] ++ coqBuildInputs;
+        buildInputs = [ agda pkgs.teyjus pkgs.rlwrap ] ++ coqBuildInputs;
       in
       {
         devShell = pkgs.mkShell {

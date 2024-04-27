@@ -8,7 +8,6 @@ type unit ty.
 type empty ty.
 
 kind tm type.
-type anno (tm -> ty -> tm).
 type lam ((tm -> tm) -> tm).
 type app (tm -> tm -> tm).
 type pair (tm -> tm -> tm).
@@ -19,6 +18,7 @@ type inr (tm -> tm).
 type case (tm -> (tm -> tm) -> (tm -> tm) -> tm).
 type tt tm.
 type absurd (tm -> tm).
+type anno (tm -> ty -> tm).
 
 exportdef check (tm -> ty -> o).
 exportdef infer (tm -> ty -> o).

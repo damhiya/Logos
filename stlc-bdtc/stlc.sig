@@ -20,5 +20,6 @@ type tt tm.
 type absurd (tm -> tm).
 type anno (tm -> ty -> tm).
 
+exportdef var   (tm -> ty -> o).
 exportdef check (tm -> ty -> o).
 exportdef infer (tm -> ty -> o).

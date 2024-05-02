@@ -1,4 +1,4 @@
-module stlc.
+module stlc_hoas.
 
 kind ty type.
 type fn (ty -> ty -> ty).

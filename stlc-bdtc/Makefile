@@ -1,13 +1,13 @@
-all: stlc.lp
+all: stlc_hoas.lp
 
-stlc.lpo: stlc.sig stlc.mod
-	tjcc stlc
+stlc_hoas.lpo: stlc_hoas.sig stlc_hoas.mod
+	tjcc stlc_hoas
 
-stlc.lp: stlc.lpo
-	tjlink stlc
+stlc_hoas.lp: stlc_hoas.lpo
+	tjlink stlc_hoas
 
 run: all
-	rlwrap tjsim stlc
+	rlwrap tjsim stlc_hoas
 
 clean:
 	rm -rf *.lp *.lpo

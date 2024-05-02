@@ -1,4 +1,4 @@
-sig stlc.
+sig stlc_hoas.
 
 kind ty type.
 type fn (ty -> ty -> ty).

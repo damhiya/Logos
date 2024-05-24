@@ -5,12 +5,14 @@ module CallByValue.Properties where
 open import Syntax
 open import CallByValue
 open import Typing
+open import Data.Empty
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
+open import Relation.Binary.PropositionalEquality.Core
 
 private
   variable
     Γ : Ctx
-    M M′ : Tm
+    M M′ M″ : Tm
     A : Ty
 
 type-preservation : M ⟶ M′ → Γ ⊢ M ⦂ A → Γ ⊢ M′ ⦂ A
@@ -33,3 +35,15 @@ progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) | done V          = step
 
 type-safety : ∙ ⊢ M ⦂ A → M ⟶* M′ → Progress M′
 type-safety M R = progress (type-preservation* R M)
+
+value-normal : Value M → Normal M
+value-normal (ƛ M) ()
+
+deterministic : M ⟶ M′ → M ⟶ M″ → M′ ≡ M″
+deterministic (β V₁)    (β V₂)    = refl
+deterministic (β V)     (ξ₂ _ R)  = ⊥-elim (value-normal V R)
+deterministic (ξ₁ R₁)   (ξ₁ R₂)   = cong (_· _) (deterministic R₁ R₂)
+deterministic (ξ₁ R)    (ξ₂ V _)  = ⊥-elim (value-normal V R)
+deterministic (ξ₂ _ R)  (β V)     = ⊥-elim (value-normal V R)
+deterministic (ξ₂ V _)  (ξ₁ R)    = ⊥-elim (value-normal V R)
+deterministic (ξ₂ _ R₁) (ξ₂ _ R₂) = cong (_ ·_) (deterministic R₁ R₂)

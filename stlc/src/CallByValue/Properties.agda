@@ -24,12 +24,12 @@ type-preservation* (R ◅ Rs) M = type-preservation* Rs (type-preservation R M)
 
 progress : ∙ ⊢ M ⦂ A → Progress M
 progress {M = # x}       (# ())
-progress {M = ƛ M}       (ƛ ⊢M)                                    = done (vƛ _)
+progress {M = ƛ M}       (ƛ ⊢M)                                   = done (ƛ M)
 progress {M = M · N}     (⊢M · ⊢N) with progress ⊢M
-progress {M = M · N}     (⊢M · ⊢N) | step M′ R                     = step (M′ · N) (ξ₁ R)
-progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (vƛ M) with progress ⊢N
-progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (vƛ M) | step N′ R       = step ((ƛ M) · N′) (ξ₂ (vƛ M) R)
-progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (vƛ M) | done V          = step (M [ N ]) (β V)
+progress {M = M · N}     (⊢M · ⊢N) | step R                       = step (ξ₁ R)
+progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) with progress ⊢N
+progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) | step R          = step (ξ₂ (ƛ M) R)
+progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) | done V          = step (β V)
 
 type-safety : ∙ ⊢ M ⦂ A → M ⟶* M′ → Progress M′
 type-safety M R = progress (type-preservation* R M)

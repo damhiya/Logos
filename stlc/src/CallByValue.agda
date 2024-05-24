@@ -5,10 +5,11 @@ module CallByValue where
 open import Syntax
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 
+infixr 6  ƛ_
 infix 4 _⟶_
 
 data Value : Tm → Set where
-  vƛ : ∀ M → Value (ƛ M)
+  ƛ_ : ∀ M → Value (ƛ M)
 
 data _⟶_ : Tm → Tm → Set where
 
@@ -29,5 +30,5 @@ _⟶*_ : Tm → Tm → Set
 _⟶*_ = Star _⟶_
 
 data Progress (M : Tm) : Set where
-  step : ∀ M′ → M ⟶ M′ → Progress M
+  step : ∀ {M′} → M ⟶ M′ → Progress M
   done : Value M → Progress M

@@ -7,7 +7,7 @@ open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Nullary.Negation.Core
 
 infixr 6  ƛ_
-infix 4 _⟶_
+infix 4 _⟶_ _⟶*_
 
 data Value : Tm → Set where
   ƛ_ : ∀ M → Value (ƛ M)

@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-module CallByValue where
+module CallByValue.Operational where
 
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Nullary.Negation.Core

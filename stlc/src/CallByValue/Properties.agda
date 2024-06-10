@@ -10,7 +10,7 @@ open import Relation.Binary.PropositionalEquality.Core
 open import Syntax
 open import Typing
 open import Substitution.Properties
-open import CallByValue
+open import CallByValue.Operational
 
 private
   variable

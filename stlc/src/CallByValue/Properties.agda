@@ -14,17 +14,15 @@ open import CallByValue.Operational
 
 private
   variable
-    G : ℕ
-    Γ : Ctx G
-    M M′ M″ : Tm G
+    M M′ M″ : Tm 0
     A : Ty
 
-type-preservation : M ⟶ M′ → Γ ⊢ M ⦂ A → Γ ⊢ M′ ⦂ A
+type-preservation : M ⟶ M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
 type-preservation (β V)    ((ƛ M) · N) = ⊢-[] M N
 type-preservation (ξ₁ R)   (M · N)     = type-preservation R M · N
 type-preservation (ξ₂ V R) (M · N)     = M · type-preservation R N
 
-type-preservation* : M ⟶* M′ → Γ ⊢ M ⦂ A → Γ ⊢ M′ ⦂ A
+type-preservation* : M ⟶* M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
 type-preservation* ε        M = M
 type-preservation* (R ◅ Rs) M = type-preservation* Rs (type-preservation R M)
 

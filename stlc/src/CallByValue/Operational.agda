@@ -12,16 +12,16 @@ open import Substitution
 infixr 6  ƛ_
 infix 4 _⟶_ _⟶*_
 
-data Val (G : ℕ) : Set where
-  ƛ_ : Tm (suc G) → Val G
+data Val : Set where
+  ƛ_ : Tm 1 → Val
 
-Val⇒Tm : ∀ {G} → Val G → Tm G
+Val⇒Tm : Val → Tm 0
 Val⇒Tm (ƛ M) = ƛ M
 
-data Value {G} : Tm G → Set where
+data Value : Tm 0 → Set where
   ƛ_ : ∀ M → Value (ƛ M)
 
-data _⟶_ {G} : Tm G → Tm G → Set where
+data _⟶_ : Tm 0 → Tm 0 → Set where
 
   β : ∀ {M N} →
       Value N →
@@ -36,15 +36,15 @@ data _⟶_ {G} : Tm G → Tm G → Set where
        N ⟶ N′ →
        M · N ⟶ M · N′
 
-_⟶*_ : ∀ {G} → Tm G → Tm G → Set
+_⟶*_ : Tm 0 → Tm 0 → Set
 _⟶*_ = Star _⟶_
 
-data Progress {G} (M : Tm G) : Set where
+data Progress (M : Tm 0) : Set where
   step : ∀ {M′} → M ⟶ M′ → Progress M
   done : Value M → Progress M
 
-Normal : ∀ {G} → Tm G → Set
+Normal : Tm 0 → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)
 
-_↓_ : ∀ {G} → Tm G → Val G → Set
+_↓_ : Tm 0 → Val → Set
 M ↓ V = M ⟶* Val⇒Tm V

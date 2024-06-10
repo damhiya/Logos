@@ -3,6 +3,8 @@
 module Substitution.Properties where
 
 open import Data.Nat.Base
+open import Data.Fin.Base
+open import Relation.Binary.PropositionalEquality.Core
 
 open import Syntax
 open import Typing
@@ -62,3 +64,12 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 
 ⊢-[] : Γ , A ⊢ M ⦂ B → Γ ⊢ N ⦂ A → Γ ⊢ M [ N ] ⦂ B
 ⊢-[] M N = ⊢ₛ-[]ₛ (⊢ₛ-,ₛ ⊢ₛ-ιₛ N) M
+
+⇑ι=ι : (∀ x → σ x ≡ # x) → (∀ x → (⇑ₛ σ) x ≡ # x)
+⇑ι=ι σ=ι zero    = refl
+⇑ι=ι σ=ι (suc x) = cong _[ suc ]ᵣ (σ=ι x)
+
+[ι]ₛ : (∀ x → σ x ≡ # x) → ∀ M → M [ σ ]ₛ ≡ M
+[ι]ₛ σ=ι (# x)   = σ=ι x
+[ι]ₛ σ=ι (ƛ M)   = cong ƛ_ ([ι]ₛ (⇑ι=ι σ=ι) M)
+[ι]ₛ σ=ι (M · N) = cong₂ _·_ ([ι]ₛ σ=ι M) ([ι]ₛ σ=ι N)

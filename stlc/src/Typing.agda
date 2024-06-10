@@ -4,6 +4,7 @@ module Typing where
 
 open import Syntax
 open import Data.Nat.Base
+open import Data.Fin.Base
 
 infix  20 #_
 infixl 7  _·_
@@ -15,17 +16,17 @@ data Ty : Set where
   ⋆ : Ty
   _⇒_ : Ty → Ty → Ty
 
-data Ctx : Set where
-  ∙ : Ctx
-  _,_ : Ctx → Ty → Ctx
+data Ctx : ℕ → Set where
+  ∙ : Ctx zero
+  _,_ : ∀ {G} → Ctx G → Ty → Ctx (suc G)
 
-data _∋_⦂_ : Ctx → ℕ → Ty → Set where
-  Z  : ∀ {Γ A}                 → Γ , A ∋ zero  ⦂ A
-  S_ : ∀ {Γ A B x} → Γ ∋ x ⦂ A → Γ , B ∋ suc x ⦂ A
+data _∋_⦂_ : ∀ {G} → Ctx G → Fin G → Ty → Set where
+  Z  : ∀ {G} {Γ : Ctx G} {A}                 → Γ , A ∋ zero  ⦂ A
+  S_ : ∀ {G} {Γ : Ctx G} {A B x} → Γ ∋ x ⦂ A → Γ , B ∋ suc x ⦂ A
 
-data _⊢_⦂_ : Ctx → Tm → Ty → Set where
+data _⊢_⦂_ {G} : Ctx G → Tm G → Ty → Set where
 
-  #_ : ∀ {Γ A x} →
+  #_ : ∀ {Γ x A} →
        Γ ∋ x ⦂ A →
        Γ ⊢ # x ⦂ A
 
@@ -38,20 +39,24 @@ data _⊢_⦂_ : Ctx → Tm → Ty → Set where
         Γ ⊢ N ⦂ A →
         Γ ⊢ M · N ⦂ B
 
-_⊢ᵣ_⦂_ : Ctx → Rename → Ctx → Set
+private
+  variable
+    G D : ℕ
+
+_⊢ᵣ_⦂_ : Ctx G → Rename G D → Ctx D → Set
 Γ ⊢ᵣ ρ ⦂ Δ = ∀ {x A} → Δ ∋ x ⦂ A → Γ ∋ ρ x ⦂ A
 
-_⊢ₛ_⦂_ : Ctx → Subst → Ctx → Set
+_⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 Γ ⊢ₛ σ ⦂ Δ = ∀ {x A} → Δ ∋ x ⦂ A → Γ ⊢ σ x ⦂ A
 
 -- typing lemmas
 private
   variable
-    Γ Δ : Ctx
-    M N : Tm
+    Γ Δ : Ctx G
+    M N : Tm G
     A B : Ty
-    ρ : Rename
-    σ : Subst
+    ρ : Rename G D
+    σ : Subst G D
 
 ⊢ᵣ-ιᵣ : Γ ⊢ᵣ ιᵣ ⦂ Γ
 ⊢ᵣ-ιᵣ x = x

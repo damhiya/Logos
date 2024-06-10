@@ -9,10 +9,10 @@ open import Relation.Nullary.Negation.Core
 infixr 6  ƛ_
 infix 4 _⟶_ _⟶*_
 
-data Value : Tm → Set where
+data Value {G} : Tm G → Set where
   ƛ_ : ∀ M → Value (ƛ M)
 
-data _⟶_ : Tm → Tm → Set where
+data _⟶_ {G} : Tm G → Tm G → Set where
 
   β : ∀ {M N} →
       Value N →
@@ -27,12 +27,12 @@ data _⟶_ : Tm → Tm → Set where
        N ⟶ N′ →
        M · N ⟶ M · N′
 
-_⟶*_ : Tm → Tm → Set
+_⟶*_ : ∀ {G} → Tm G → Tm G → Set
 _⟶*_ = Star _⟶_
 
-data Progress (M : Tm) : Set where
+data Progress {G} (M : Tm G) : Set where
   step : ∀ {M′} → M ⟶ M′ → Progress M
   done : Value M → Progress M
 
-Normal : Tm → Set
+Normal : ∀ {G} → Tm G → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)

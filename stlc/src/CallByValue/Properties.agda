@@ -6,13 +6,15 @@ open import Syntax
 open import CallByValue
 open import Typing
 open import Data.Empty
+open import Data.Nat.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.PropositionalEquality.Core
 
 private
   variable
-    Γ : Ctx
-    M M′ M″ : Tm
+    G : ℕ
+    Γ : Ctx G
+    M M′ M″ : Tm G
     A : Ty
 
 type-preservation : M ⟶ M′ → Γ ⊢ M ⦂ A → Γ ⊢ M′ ⦂ A

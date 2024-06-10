@@ -9,9 +9,11 @@ open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Function.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.PropositionalEquality.Core
+open import Relation.Unary using (_∈_)
 
 open import Syntax
 open import Substitution
+open import Substitution.Properties
 open import Typing
 open import CallByValue.Operational
 
@@ -24,12 +26,50 @@ V⟦_⟧ : Ty → Val → Set
 E⟦_⟧ : Ty → Tm 0 → Set
 
 V⟦ ⋆     ⟧ M     = ⊥
-V⟦ A ⇒ B ⟧ (ƛ M) = ∀ {V : Val} → V⟦ A ⟧ V → E⟦ B ⟧ (M [ Val⇒Tm V ])
+V⟦ A ⇒ B ⟧ (ƛ M) = ∀ {V : Val} → V ∈ V⟦ A ⟧ → M [ Val⇒Tm V ] ∈ E⟦ B ⟧
 
-E⟦ A ⟧ M = Σ[ V ∈ Val ] (M ↓ V) × V⟦ A ⟧ V
+E⟦ A ⟧ M = Σ[ V ∈ Val ] M ↓ V × V ∈ V⟦ A ⟧
 
 G⟦_⟧ : ∀ {G} → Ctx G → VSubst G → Set
-G⟦ Γ ⟧ γ = ∀ {x A} → Γ ∋ x ⦂ A → V⟦ A ⟧ (γ x)
+G⟦ Γ ⟧ γ = ∀ {x A} → Γ ∋ x ⦂ A → γ x ∈ V⟦ A ⟧
 
 _⊨_⦂_ : ∀ {G} → Ctx G → Tm G → Ty → Set
-Γ ⊨ M ⦂ A = ∀ {γ} → G⟦ Γ ⟧ γ → E⟦ A ⟧ (M [ Val⇒Tm ∘ γ ]ₛ)
+Γ ⊨ M ⦂ A = ∀ {γ} → γ ∈ G⟦ Γ ⟧ → M [ Val⇒Tm ∘ γ ]ₛ ∈ E⟦ A ⟧
+
+private
+  variable
+    G : ℕ
+    Γ : Ctx G
+    M N : Tm G
+    V : Val
+    A B : Ty
+
+V⇒E : V ∈ V⟦ A ⟧ → Val⇒Tm V ∈ E⟦ A ⟧
+V⇒E {V = V} x = ⟨ V , ⟨ ε , x ⟩ ⟩
+
+compat-# : ∀ x → Γ ∋ x ⦂ A → Γ ⊨ # x ⦂ A
+compat-# x Γ∋x Γ∋γ = V⇒E (Γ∋γ Γ∋x)
+
+compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
+compat-ƛ M ⊢M Γ∋γ = ⟨ _ , ⟨ ε , {!!} ⟩ ⟩
+
+compat-· : ∀ M N → Γ ⊨ M ⦂ A ⇒ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
+compat-· M N ⊨M ⊨N Γ∋γ = {!!}
+
+soundness : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
+soundness (# x)   (# Γ∋x)   = compat-# x Γ∋x
+soundness (ƛ M)   (ƛ ⊢M)    = compat-ƛ M (soundness M ⊢M)
+soundness (M · N) (⊢M · ⊢N) = compat-· M N (soundness M ⊢M) (soundness N ⊢N)
+
+ιv : VSubst 0
+ιv ()
+
+ιv∈G⟦∙⟧ : ιv ∈ G⟦ ∙ ⟧
+ιv∈G⟦∙⟧ ()
+
+ιv=ι : ∀ x → Val⇒Tm (ιv x) ≡ # x
+ιv=ι ()
+
+termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V
+termination {M = M} ⊢M with soundness _ ⊢M ιv∈G⟦∙⟧
+... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) ([ι]ₛ ιv=ι M) s ⟩

@@ -2,13 +2,15 @@
 
 module CallByValue.Properties where
 
-open import Syntax
-open import CallByValue
-open import Typing
 open import Data.Empty
 open import Data.Nat.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.PropositionalEquality.Core
+
+open import Syntax
+open import Typing
+open import Substitution.Properties
+open import CallByValue
 
 private
   variable

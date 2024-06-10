@@ -2,9 +2,11 @@
 
 module CallByValue where
 
-open import Syntax
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Nullary.Negation.Core
+
+open import Syntax
+open import Substitution
 
 infixr 6  ƛ_
 infix 4 _⟶_ _⟶*_

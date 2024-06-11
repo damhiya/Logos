@@ -10,7 +10,7 @@ open import Syntax
 open import Substitution
 
 infixr 6  ƛ_
-infix 4 _⟶_ _⟶*_
+infix 4 _⟶_ _⟶*_ _↓_
 
 data Val : Set where
   ƛ_ : Tm 1 → Val

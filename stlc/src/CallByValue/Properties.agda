@@ -5,9 +5,11 @@ module CallByValue.Properties where
 open import Data.Empty
 open import Data.Nat.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
 open import Relation.Binary.PropositionalEquality.Core
 
 open import Syntax
+open import Substitution
 open import Typing
 open import Substitution.Properties
 open import CallByValue.Operational
@@ -16,6 +18,29 @@ private
   variable
     M M′ M″ : Tm 0
     A : Ty
+
+Value[Val⇒Tm_] : ∀ M → Value (Val⇒Tm M)
+Value[Val⇒Tm ƛ M ] = ƛ M
+
+ξ₁* : ∀ {M M′ N} → M ⟶* M′ → M · N ⟶* M′ · N
+ξ₁* ε        = ε
+ξ₁* (R ◅ Rs) = ξ₁ R ◅ ξ₁* Rs
+
+ξ₂* : ∀ {M N N′} → Value M → N ⟶* N′ → M · N ⟶* M · N′
+ξ₂* V ε        = ε
+ξ₂* V (R ◅ Rs) = ξ₂ V R ◅ ξ₂* V Rs
+
+ƛ↓ : ∀ {M} → ƛ M ↓ ƛ M
+ƛ↓ = ε
+
+·↓ : ∀ {M₁ M₁′ M₂ V₂ V} → M₁ ↓ ƛ M₁′ → M₂ ↓ V₂ → M₁′ [ Val⇒Tm V₂ ] ↓ V → M₁ · M₂ ↓ V
+·↓ {M₁ = M₁} {M₁′ = M₁′} {M₂ = M₂} {V₂ = V₂} {V = V} R₁ R₂ R₃ = begin
+  M₁      · M₂        ⟶*⟨ ξ₁* R₁             ⟩
+  (ƛ M₁′) · M₂        ⟶*⟨ ξ₂* (ƛ M₁′) R₂     ⟩
+  (ƛ M₁′) · Val⇒Tm V₂ ⟶⟨ β Value[Val⇒Tm V₂ ] ⟩
+  M₁′ [ Val⇒Tm V₂ ]   ⟶*⟨ R₃                 ⟩
+  Val⇒Tm V            ∎
+  where open StarReasoning _⟶_
 
 type-preservation : M ⟶ M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
 type-preservation (β V)    ((ƛ M) · N) = ⊢-[] M N

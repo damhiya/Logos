@@ -8,6 +8,7 @@ open import Data.Nat.Base
 open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Function.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
 open import Relation.Binary.PropositionalEquality.Core
 open import Relation.Unary using (_∈_)
 
@@ -16,6 +17,7 @@ open import Substitution
 open import Substitution.Properties
 open import Typing
 open import CallByValue.Operational
+open import CallByValue.Properties
 
 infix 4 _⊨_⦂_
 
@@ -40,21 +42,32 @@ private
   variable
     G : ℕ
     Γ : Ctx G
-    M N : Tm G
+    M M′ N : Tm G
     V : Val
     A B : Ty
 
 V⇒E : V ∈ V⟦ A ⟧ → Val⇒Tm V ∈ E⟦ A ⟧
 V⇒E {V = V} x = ⟨ V , ⟨ ε , x ⟩ ⟩
 
+expand-closed : M ∈ E⟦ A ⟧ → M′ ⟶* M → M′ ∈ E⟦ A ⟧
+expand-closed ⟨ V , ⟨ Rs₁ , V∈V⟦A⟧ ⟩ ⟩ Rs₂ = ⟨ V , ⟨ Rs₂ ◅◅ Rs₁ , V∈V⟦A⟧ ⟩ ⟩
+
 compat-# : ∀ x → Γ ∋ x ⦂ A → Γ ⊨ # x ⦂ A
 compat-# x Γ∋x Γ∋γ = V⇒E (Γ∋γ Γ∋x)
 
 compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
-compat-ƛ M ⊢M Γ∋γ = ⟨ _ , ⟨ ε , {!!} ⟩ ⟩
+compat-ƛ M ⊨M Γ∋γ = ⟨ _ , ⟨ ε , (λ V → {!!}) ⟩ ⟩
+
+lemma-· : M ∈ E⟦ A ⇒ B ⟧ → N ∈ E⟦ A ⟧ → M · N ∈ E⟦ B ⟧
+lemma-· {M = M} {N = N} ⟨ ƛ M′ , ⟨ Rs₁ , ƛM′∈V⟦A⇒B⟧ ⟩ ⟩ ⟨ V , ⟨ Rs₂ , V∈V⟦B⟧ ⟩ ⟩ = expand-closed (ƛM′∈V⟦A⇒B⟧ V∈V⟦B⟧) (begin
+  M      · N        ⟶*⟨ ξ₁* Rs₁           ⟩
+  (ƛ M′) · N        ⟶*⟨ ξ₂* (ƛ M′) Rs₂    ⟩
+  (ƛ M′) · Val⇒Tm V ⟶⟨ β Value[Val⇒Tm V ] ⟩
+  M′ [ Val⇒Tm V ]   ∎)
+  where open StarReasoning _⟶_
 
 compat-· : ∀ M N → Γ ⊨ M ⦂ A ⇒ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
-compat-· M N ⊨M ⊨N Γ∋γ = {!!}
+compat-· M N ⊨M ⊨N Γ∋γ = lemma-· (⊨M Γ∋γ) (⊨N Γ∋γ)
 
 soundness : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
 soundness (# x)   (# Γ∋x)   = compat-# x Γ∋x

@@ -21,8 +21,8 @@ open import CallByValue.Properties
 
 infix 4 _⊨_⦂_
 
-VSubst : ℕ → Set
-VSubst G = Fin G → Val
+Env : ℕ → Set
+Env G = Fin G → Val
 
 V⟦_⟧ : Ty → Val → Set
 E⟦_⟧ : Ty → Tm 0 → Set
@@ -32,7 +32,7 @@ V⟦ A ⇒ B ⟧ (ƛ M) = ∀ {V : Val} → V ∈ V⟦ A ⟧ → M [ Val⇒Tm V 
 
 E⟦ A ⟧ M = Σ[ V ∈ Val ] M ↓ V × V ∈ V⟦ A ⟧
 
-G⟦_⟧ : ∀ {G} → Ctx G → VSubst G → Set
+G⟦_⟧ : ∀ {G} → Ctx G → Env G → Set
 G⟦ Γ ⟧ γ = ∀ {x A} → Γ ∋ x ⦂ A → γ x ∈ V⟦ A ⟧
 
 _⊨_⦂_ : ∀ {G} → Ctx G → Tm G → Ty → Set
@@ -56,7 +56,7 @@ compat-# : ∀ x → Γ ∋ x ⦂ A → Γ ⊨ # x ⦂ A
 compat-# x Γ∋x Γ∋γ = V⇒E (Γ∋γ Γ∋x)
 
 compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
-compat-ƛ M ⊨M Γ∋γ = ⟨ _ , ⟨ ε , (λ V → {!!}) ⟩ ⟩
+compat-ƛ M ⊨M {γ} Γ∋γ = ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ) , ⟨ ε , (λ {V} V∈V⟦A⟧ → {!!}) ⟩ ⟩
 
 lemma-· : M ∈ E⟦ A ⇒ B ⟧ → N ∈ E⟦ A ⟧ → M · N ∈ E⟦ B ⟧
 lemma-· {M = M} {N = N} ⟨ ƛ M′ , ⟨ Rs₁ , ƛM′∈V⟦A⇒B⟧ ⟩ ⟩ ⟨ V , ⟨ Rs₂ , V∈V⟦B⟧ ⟩ ⟩ = expand-closed (ƛM′∈V⟦A⇒B⟧ V∈V⟦B⟧) (begin
@@ -74,15 +74,15 @@ soundness (# x)   (# Γ∋x)   = compat-# x Γ∋x
 soundness (ƛ M)   (ƛ ⊢M)    = compat-ƛ M (soundness M ⊢M)
 soundness (M · N) (⊢M · ⊢N) = compat-· M N (soundness M ⊢M) (soundness N ⊢N)
 
-ιv : VSubst 0
-ιv ()
+∙ₑ : Env 0
+∙ₑ ()
 
-ιv∈G⟦∙⟧ : ιv ∈ G⟦ ∙ ⟧
-ιv∈G⟦∙⟧ ()
+∙ₑ∈G⟦∙⟧ : ∙ₑ ∈ G⟦ ∙ ⟧
+∙ₑ∈G⟦∙⟧ ()
 
-ιv=ι : ∀ x → Val⇒Tm (ιv x) ≡ # x
-ιv=ι ()
+∙ₑ=ι : ∀ x → Val⇒Tm (∙ₑ x) ≡ # x
+∙ₑ=ι ()
 
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V
-termination {M = M} ⊢M with soundness _ ⊢M ιv∈G⟦∙⟧
-... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) ([ι]ₛ ιv=ι M) s ⟩
+termination {M = M} ⊢M with soundness _ ⊢M ∙ₑ∈G⟦∙⟧
+... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) ([ι]ₛ ∙ₑ=ι M) s ⟩

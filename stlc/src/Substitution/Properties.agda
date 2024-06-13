@@ -4,6 +4,7 @@ module Substitution.Properties where
 
 open import Data.Nat.Base
 open import Data.Fin.Base
+open import Function.Base
 open import Relation.Binary.PropositionalEquality using (_≗_)
 open import Relation.Binary.PropositionalEquality.Core
 open import Relation.Binary.PropositionalEquality.Properties
@@ -102,14 +103,18 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 []ₛ-cong-≗ H (M · N) = cong₂ _·_ ([]ₛ-cong-≗ H M) ([]ₛ-cong-≗ H N)
 
 -- identity substitution
-⇑ι=ι : (∀ x → σ x ≡ # x) → (∀ x → (⇑ₛ σ) x ≡ # x)
-⇑ι=ι σ=ι zero    = refl
-⇑ι=ι σ=ι (suc x) = cong _[ suc ]ᵣ (σ=ι x)
+⇑ₛιₛ≗ιₛ : ⇑ₛ (ιₛ {G = G}) ≗ ιₛ
+⇑ₛιₛ≗ιₛ zero    = refl
+⇑ₛιₛ≗ιₛ (suc x) = refl
 
-[ι]ₛ : (∀ x → σ x ≡ # x) → ∀ M → M [ σ ]ₛ ≡ M
-[ι]ₛ σ=ι (# x)   = σ=ι x
-[ι]ₛ σ=ι (ƛ M)   = cong ƛ_ ([ι]ₛ (⇑ι=ι σ=ι) M)
-[ι]ₛ σ=ι (M · N) = cong₂ _·_ ([ι]ₛ σ=ι M) ([ι]ₛ σ=ι N)
+[]ₛ-ιₛ-id : ∀ (M : Tm G) → M [ ιₛ ]ₛ ≡ M
+[]ₛ-ιₛ-id (# x)   = refl
+[]ₛ-ιₛ-id (ƛ M)   = cong ƛ_ $ begin
+  M [ ⇑ₛ ιₛ ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛιₛ≗ιₛ M ⟩
+  M [ ιₛ ]ₛ    ≡⟨ []ₛ-ιₛ-id M ⟩
+  M            ∎
+  where open ≡-Reasoning
+[]ₛ-ιₛ-id (M · N) = cong₂ _·_ ([]ₛ-ιₛ-id M) ([]ₛ-ιₛ-id N)
 
 -- commutation
 rename-subst-comm : ∀ {σ : Subst G D} {ρ₁ : Rename (suc D) D} {ρ₂ : Rename (suc G) G} →

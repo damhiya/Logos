@@ -9,6 +9,7 @@ open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Function.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
+open import Relation.Binary.PropositionalEquality using (_≗_)
 open import Relation.Binary.PropositionalEquality.Core
 open import Relation.Binary.PropositionalEquality.Properties
 open import Relation.Unary using (_∈_)
@@ -74,7 +75,8 @@ compat-ƛ {B = B} M ⊨M {γ} Γ∋γ = ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]�
     M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ                     ≡⟨ []ₛ-cong-≗ (λ { zero → refl; (suc x) → refl}) M ⟩
     M [ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V ]ₛ              ≡⟨ []ₛ-cong-≗ (λ { zero → refl
                                                                   ; (suc x) → begin
-                                                                    Val⇒Tm (γ x)                                   ≡˘⟨ [ι]ₛ (λ x → refl) (Val⇒Tm (γ x)) ⟩
+                                                                    Val⇒Tm (γ x)                                   ≡˘⟨ []ₛ-ιₛ-id (Val⇒Tm (γ x)) ⟩
+                                                                    Val⇒Tm (γ x) [ ιₛ ]ₛ                           ≡⟨⟩
                                                                     Val⇒Tm (γ x) [ (ren ↑ᵣ) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡˘⟨ [-]ₛ[-]ₛ≡[-∘ₛ-]ₛ (Val⇒Tm (γ x)) ⟩
                                                                     Val⇒Tm (γ x) [ ren ↑ᵣ ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡˘⟨ cong _[ ιₛ ,ₛ Val⇒Tm V ]ₛ (ren-apply {M = Val⇒Tm (γ x)} {ρ = ↑ᵣ}) ⟩
                                                                     Val⇒Tm (γ x) [ ↑ᵣ ]ᵣ [ ιₛ ,ₛ Val⇒Tm V ]ₛ       ∎
@@ -110,9 +112,16 @@ soundness (M · N) (⊢M · ⊢N) = compat-· M N (soundness M ⊢M) (soundness 
 ∙ₑ∈G⟦∙⟧ : ∙ₑ ∈ G⟦ ∙ ⟧
 ∙ₑ∈G⟦∙⟧ ()
 
-∙ₑ=ι : ∀ x → Val⇒Tm (∙ₑ x) ≡ # x
-∙ₑ=ι ()
+∙ₑ≗ιₛ : Val⇒Tm ∘ ∙ₑ ≗ ιₛ
+∙ₑ≗ιₛ ()
 
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V
 termination {M = M} ⊢M with soundness _ ⊢M ∙ₑ∈G⟦∙⟧
-... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) ([ι]ₛ ∙ₑ=ι M) s ⟩
+... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) lemma s ⟩
+  where
+    open ≡-Reasoning
+    lemma : M [ Val⇒Tm ∘ ∙ₑ ]ₛ ≡ M
+    lemma = begin
+      M [ Val⇒Tm ∘ ∙ₑ ]ₛ ≡⟨ []ₛ-cong-≗ ∙ₑ≗ιₛ M ⟩
+      M [ ιₛ ]ₛ          ≡⟨ []ₛ-ιₛ-id M        ⟩
+      M                  ∎

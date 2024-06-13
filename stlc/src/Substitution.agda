@@ -15,7 +15,7 @@ Subst G D = Fin D → Tm G
 
 private
   variable
-    G D : ℕ
+    G D E : ℕ
 
 ιᵣ : Rename G G
 ιᵣ = λ x → x
@@ -27,6 +27,9 @@ private
 ⇑ᵣ ρ = λ { zero    → zero
          ; (suc n) → suc (ρ n)
          }
+
+_∘ᵣ_ : Rename D E → Rename G D → Rename G E
+ρ₁ ∘ᵣ ρ₂ = λ x → ρ₂ (ρ₁ x)
 
 _[_]ᵣ : Tm D → Rename G D → Tm G
 (# x)   [ ρ ]ᵣ = # ρ x
@@ -53,6 +56,9 @@ _[_]ₛ : Tm D → Subst G D → Tm G
 (# x)   [ σ ]ₛ = σ x
 (ƛ M)   [ σ ]ₛ = ƛ M [ ⇑ₛ σ ]ₛ
 (M · N) [ σ ]ₛ = M [ σ ]ₛ · N [ σ ]ₛ
+
+_∘ₛ_ : Subst D E → Subst G D → Subst G E
+σ₁ ∘ₛ σ₂ = λ x → σ₁ x [ σ₂ ]ₛ
 
 _[_] : Tm (suc G) → Tm G → Tm G
 M [ N ] = M [ ιₛ ,ₛ N ]ₛ

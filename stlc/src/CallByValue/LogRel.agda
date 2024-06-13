@@ -10,6 +10,7 @@ open import Function.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
 open import Relation.Binary.PropositionalEquality.Core
+open import Relation.Binary.PropositionalEquality.Properties
 open import Relation.Unary using (_∈_)
 
 open import Syntax
@@ -43,6 +44,7 @@ private
     G : ℕ
     Γ : Ctx G
     M M′ N : Tm G
+    γ : Env G
     V : Val
     A B : Ty
 
@@ -55,8 +57,28 @@ expand-closed ⟨ V , ⟨ Rs₁ , V∈V⟦A⟧ ⟩ ⟩ Rs₂ = ⟨ V , ⟨ Rs₂
 compat-# : ∀ x → Γ ∋ x ⦂ A → Γ ⊨ # x ⦂ A
 compat-# x Γ∋x Γ∋γ = V⇒E (Γ∋γ Γ∋x)
 
+_,ₑ_ : Env G → Val → Env (suc G)
+γ ,ₑ V = λ { zero    → V
+           ; (suc x) → γ x
+           }
+
+,ₑ∈G⟦⟧ : γ ∈ G⟦ Γ ⟧ → V ∈ V⟦ A ⟧ → γ ,ₑ V ∈ G⟦ Γ , A ⟧
+,ₑ∈G⟦⟧ γ∈G⟦Γ⟧ V∈V⟦A⟧ Z     = V∈V⟦A⟧
+,ₑ∈G⟦⟧ γ∈G⟦Γ⟧ V∈V⟦A⟧ (S Γ∋x) = γ∈G⟦Γ⟧ Γ∋x
+
 compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
-compat-ƛ M ⊨M {γ} Γ∋γ = ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ) , ⟨ ε , (λ {V} V∈V⟦A⟧ → {!!}) ⟩ ⟩
+compat-ƛ {B = B} M ⊨M {γ} Γ∋γ = ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ) , ⟨ ε , (λ {V} V∈V⟦A⟧ →
+  subst
+    (_∈ E⟦ B ⟧)
+    (begin
+    M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ                     ≡⟨ {!!} ⟩
+    M [ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V ]ₛ              ≡⟨ {!!} ⟩
+    M [ (⇑ₛ (Val⇒Tm ∘ γ)) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡⟨ {!!} ⟩
+    M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡⟨⟩
+    M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ Val⇒Tm V ]          ∎)
+    (⊨M (,ₑ∈G⟦⟧ Γ∋γ V∈V⟦A⟧)))
+  ⟩ ⟩
+  where open ≡-Reasoning
 
 lemma-· : M ∈ E⟦ A ⇒ B ⟧ → N ∈ E⟦ A ⟧ → M · N ∈ E⟦ B ⟧
 lemma-· {M = M} {N = N} ⟨ ƛ M′ , ⟨ Rs₁ , ƛM′∈V⟦A⇒B⟧ ⟩ ⟩ ⟨ V , ⟨ Rs₂ , V∈V⟦B⟧ ⟩ ⟩ = expand-closed (ƛM′∈V⟦A⇒B⟧ V∈V⟦B⟧) (begin

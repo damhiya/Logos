@@ -39,6 +39,9 @@ _[_]ᵣ : Tm D → Rename G D → Tm G
 ιₛ : Subst G G
 ιₛ = #_
 
+ren : Rename G D → Subst G D
+ren ρ = λ x → # ρ x
+
 ↑ₛ : Subst (suc G) G
 ↑ₛ = λ x → # (suc x)
 

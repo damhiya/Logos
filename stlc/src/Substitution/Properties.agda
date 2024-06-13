@@ -155,3 +155,13 @@ rename-subst-comm {G} {D} {σ} {ρ₁} {ρ₂} H (M · N) = cong₂ _·_ (rename
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ      ∎)
   where open ≡-Reasoning
 [-]ₛ[-]ₛ≡[-∘ₛ-]ₛ (M · N) = cong₂ _·_ ([-]ₛ[-]ₛ≡[-∘ₛ-]ₛ M) ([-]ₛ[-]ₛ≡[-∘ₛ-]ₛ N)
+
+-- rename to subst
+ren-apply : M [ ρ ]ᵣ ≡ M [ ren ρ ]ₛ
+ren-apply {M = # x}         = refl
+ren-apply {M = ƛ M} {ρ = ρ} = cong ƛ_ (begin
+  M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ ren-apply ⟩
+  M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≡ₛ (λ { zero → refl ; (suc x) → refl}) M ⟩
+  M [ ⇑ₛ ren ρ ]ₛ   ∎)
+  where open ≡-Reasoning
+ren-apply {M = M · N}       = cong₂ _·_ ren-apply ren-apply

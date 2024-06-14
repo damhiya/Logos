@@ -26,6 +26,9 @@ infix 4 _⊨_⦂_
 Env : ℕ → Set
 Env G = Fin G → Val
 
+Env⇒Subst : ∀ {G} → Env G → Subst 0 G
+Env⇒Subst γ = Val⇒Tm ∘ γ
+
 V⟦_⟧ : Ty → Val → Set
 E⟦_⟧ : Ty → Tm 0 → Set
 
@@ -38,7 +41,7 @@ G⟦_⟧ : ∀ {G} → Ctx G → Env G → Set
 G⟦ Γ ⟧ γ = ∀ {x A} → Γ ∋ x ⦂ A → γ x ∈ V⟦ A ⟧
 
 _⊨_⦂_ : ∀ {G} → Ctx G → Tm G → Ty → Set
-Γ ⊨ M ⦂ A = ∀ {γ} → γ ∈ G⟦ Γ ⟧ → M [ Val⇒Tm ∘ γ ]ₛ ∈ E⟦ A ⟧
+Γ ⊨ M ⦂ A = ∀ {γ} → γ ∈ G⟦ Γ ⟧ → M [ Env⇒Subst γ ]ₛ ∈ E⟦ A ⟧
 
 private
   variable
@@ -67,27 +70,27 @@ _,ₑ_ : Env G → Val → Env (suc G)
 ,ₑ∈G⟦⟧ γ∈G⟦Γ⟧ V∈V⟦A⟧ Z     = V∈V⟦A⟧
 ,ₑ∈G⟦⟧ γ∈G⟦Γ⟧ V∈V⟦A⟧ (S Γ∋x) = γ∈G⟦Γ⟧ Γ∋x
 
-Val⇒Tm-,ₑ-,ₛ : Val⇒Tm ∘ (γ ,ₑ V) ≗ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V
-Val⇒Tm-,ₑ-,ₛ zero    = refl
-Val⇒Tm-,ₑ-,ₛ (suc x) = refl
+Env⇒Subst-,ₑ-,ₛ : Env⇒Subst (γ ,ₑ V) ≗ Env⇒Subst γ ,ₛ Val⇒Tm V
+Env⇒Subst-,ₑ-,ₛ zero    = refl
+Env⇒Subst-,ₑ-,ₛ (suc x) = refl
 
 compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
 compat-ƛ {B = B} M ⊨M {γ} Γ∋γ =
-  ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ)
+  ⟨ ƛ (M [ ⇑ₛ Env⇒Subst γ ]ₛ)
   , ⟨ ε
     , (λ {V} V∈V⟦A⟧ → subst (_∈ E⟦ B ⟧) (sym $ lemma V) (⊨M (,ₑ∈G⟦⟧ Γ∋γ V∈V⟦A⟧)))
     ⟩
   ⟩
   where
     open ≡-Reasoning
-    lemma : ∀ V → M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ Val⇒Tm V ] ≡ M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ
+    lemma : ∀ V → M [ ⇑ₛ Env⇒Subst γ ]ₛ [ Val⇒Tm V ] ≡ M [ Env⇒Subst (γ ,ₑ V) ]ₛ
     lemma V = begin
-      M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ Val⇒Tm V ]          ≡⟨⟩
-      M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M                      ⟩
-      M [ (⇑ₛ (Val⇒Tm ∘ γ)) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟩
-      M [ ((Val⇒Tm ∘ γ) ∘ₛ ιₛ) ,ₛ Val⇒Tm V ]ₛ      ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
-      M [ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V ]ₛ              ≡˘⟨ []ₛ-cong-≗ Val⇒Tm-,ₑ-,ₛ M            ⟩
-      M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ                     ∎
+      M [ ⇑ₛ Env⇒Subst γ ]ₛ [ Val⇒Tm V ]          ≡⟨⟩
+      M [ ⇑ₛ Env⇒Subst γ ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M                      ⟩
+      M [ (⇑ₛ Env⇒Subst γ) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟩
+      M [ (Env⇒Subst γ ∘ₛ ιₛ) ,ₛ Val⇒Tm V ]ₛ      ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
+      M [ Env⇒Subst γ ,ₛ Val⇒Tm V ]ₛ              ≡˘⟨ []ₛ-cong-≗ Env⇒Subst-,ₑ-,ₛ M         ⟩
+      M [ Env⇒Subst (γ ,ₑ V) ]ₛ                   ∎
 
 compat-· : ∀ M N → Γ ⊨ M ⦂ A ⇒ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
 compat-· M N ⊨M ⊨N Γ∋γ = lemma _ _ (⊨M Γ∋γ) (⊨N Γ∋γ)
@@ -111,7 +114,7 @@ soundness (M · N) (⊢M · ⊢N) = compat-· M N (soundness M ⊢M) (soundness 
 ∙ₑ∈G⟦∙⟧ : ∙ₑ ∈ G⟦ ∙ ⟧
 ∙ₑ∈G⟦∙⟧ ()
 
-∙ₑ≗ιₛ : Val⇒Tm ∘ ∙ₑ ≗ ιₛ
+∙ₑ≗ιₛ : Env⇒Subst ∙ₑ ≗ ιₛ
 ∙ₑ≗ιₛ ()
 
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V
@@ -119,8 +122,8 @@ termination {M = M} ⊢M with soundness _ ⊢M ∙ₑ∈G⟦∙⟧
 ... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) lemma s ⟩
   where
     open ≡-Reasoning
-    lemma : M [ Val⇒Tm ∘ ∙ₑ ]ₛ ≡ M
+    lemma : M [ Env⇒Subst ∙ₑ ]ₛ ≡ M
     lemma = begin
-      M [ Val⇒Tm ∘ ∙ₑ ]ₛ ≡⟨ []ₛ-cong-≗ ∙ₑ≗ιₛ M ⟩
-      M [ ιₛ ]ₛ          ≡⟨ []ₛ-identity M     ⟩
-      M                  ∎
+      M [ Env⇒Subst ∙ₑ ]ₛ ≡⟨ []ₛ-cong-≗ ∙ₑ≗ιₛ M ⟩
+      M [ ιₛ ]ₛ           ≡⟨ []ₛ-identity M     ⟩
+      M                   ∎

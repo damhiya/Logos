@@ -117,8 +117,7 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 []ₛ-ιₛ-id (M · N) = cong₂ _·_ ([]ₛ-ιₛ-id M) ([]ₛ-ιₛ-id N)
 
 -- commutation
-rename-subst-comm : ∀ {σ : Subst G D} {ρ₁ : Rename (suc D) D} {ρ₂ : Rename (suc G) G} →
-                    (∀ x → (⇑ₛ σ) (ρ₁ x) ≡ σ x [ ρ₂ ]ᵣ) →
+rename-subst-comm : (∀ x → (⇑ₛ σ) (ρ₁ x) ≡ σ x [ ρ₂ ]ᵣ) →
                     (∀ M → M [ ρ₁ ]ᵣ [ ⇑ₛ σ ]ₛ ≡ M [ σ ]ₛ [ ρ₂ ]ᵣ)
 rename-subst-comm                             H (# x)   = H x
 rename-subst-comm {σ = σ} {ρ₁ = ρ₁} {ρ₂ = ρ₂} H (ƛ M)   = cong ƛ_ (rename-subst-comm lemma M)

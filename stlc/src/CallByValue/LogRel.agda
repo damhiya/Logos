@@ -67,39 +67,38 @@ _,ₑ_ : Env G → Val → Env (suc G)
 ,ₑ∈G⟦⟧ γ∈G⟦Γ⟧ V∈V⟦A⟧ Z     = V∈V⟦A⟧
 ,ₑ∈G⟦⟧ γ∈G⟦Γ⟧ V∈V⟦A⟧ (S Γ∋x) = γ∈G⟦Γ⟧ Γ∋x
 
-compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
-compat-ƛ {B = B} M ⊨M {γ} Γ∋γ = ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ) , ⟨ ε , (λ {V} V∈V⟦A⟧ →
-  subst
-    (_∈ E⟦ B ⟧)
-    (begin
-    M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ                     ≡⟨ []ₛ-cong-≗ (λ { zero → refl; (suc x) → refl}) M ⟩
-    M [ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V ]ₛ              ≡⟨ []ₛ-cong-≗ (λ { zero → refl
-                                                                  ; (suc x) → begin
-                                                                    Val⇒Tm (γ x)                                   ≡˘⟨ []ₛ-ιₛ-id (Val⇒Tm (γ x)) ⟩
-                                                                    Val⇒Tm (γ x) [ ιₛ ]ₛ                           ≡⟨⟩
-                                                                    Val⇒Tm (γ x) [ (ren ↑ᵣ) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡˘⟨ []ₛ-∘ₛ-compose (Val⇒Tm (γ x)) ⟩
-                                                                    Val⇒Tm (γ x) [ ren ↑ᵣ ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡˘⟨ cong _[ ιₛ ,ₛ Val⇒Tm V ]ₛ ([]ᵣ⇒[]ₛ (Val⇒Tm (γ x))) ⟩
-                                                                    Val⇒Tm (γ x) [ ↑ᵣ ]ᵣ [ ιₛ ,ₛ Val⇒Tm V ]ₛ       ∎
-                                                                  }
-                                                               ) M
-                                                  ⟩
-    M [ (⇑ₛ (Val⇒Tm ∘ γ)) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡˘⟨ []ₛ-∘ₛ-compose M ⟩
-    M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡⟨⟩
-    M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ Val⇒Tm V ]          ∎)
-    (⊨M (,ₑ∈G⟦⟧ Γ∋γ V∈V⟦A⟧)))
-  ⟩ ⟩
-  where open ≡-Reasoning
+Val⇒Tm-,ₑ-,ₛ : Val⇒Tm ∘ (γ ,ₑ V) ≗ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V
+Val⇒Tm-,ₑ-,ₛ zero    = refl
+Val⇒Tm-,ₑ-,ₛ (suc x) = refl
 
-lemma-· : M ∈ E⟦ A ⇒ B ⟧ → N ∈ E⟦ A ⟧ → M · N ∈ E⟦ B ⟧
-lemma-· {M = M} {N = N} ⟨ ƛ M′ , ⟨ Rs₁ , ƛM′∈V⟦A⇒B⟧ ⟩ ⟩ ⟨ V , ⟨ Rs₂ , V∈V⟦B⟧ ⟩ ⟩ = expand-closed (ƛM′∈V⟦A⇒B⟧ V∈V⟦B⟧) (begin
-  M      · N        ⟶*⟨ ξ₁* Rs₁           ⟩
-  (ƛ M′) · N        ⟶*⟨ ξ₂* (ƛ M′) Rs₂    ⟩
-  (ƛ M′) · Val⇒Tm V ⟶⟨ β Value[Val⇒Tm V ] ⟩
-  M′ [ Val⇒Tm V ]   ∎)
-  where open StarReasoning _⟶_
+compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
+compat-ƛ {B = B} M ⊨M {γ} Γ∋γ =
+  ⟨ ƛ (M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ)
+  , ⟨ ε
+    , (λ {V} V∈V⟦A⟧ → subst (_∈ E⟦ B ⟧) (sym $ lemma V) (⊨M (,ₑ∈G⟦⟧ Γ∋γ V∈V⟦A⟧)))
+    ⟩
+  ⟩
+  where
+    open ≡-Reasoning
+    lemma : ∀ V → M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ Val⇒Tm V ] ≡ M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ
+    lemma V = begin
+      M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ Val⇒Tm V ]          ≡⟨⟩
+      M [ ⇑ₛ (Val⇒Tm ∘ γ) ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M                      ⟩
+      M [ (⇑ₛ (Val⇒Tm ∘ γ)) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟩
+      M [ ((Val⇒Tm ∘ γ) ∘ₛ ιₛ) ,ₛ Val⇒Tm V ]ₛ      ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
+      M [ (Val⇒Tm ∘ γ) ,ₛ Val⇒Tm V ]ₛ              ≡˘⟨ []ₛ-cong-≗ Val⇒Tm-,ₑ-,ₛ M            ⟩
+      M [ Val⇒Tm ∘ (γ ,ₑ V) ]ₛ                     ∎
 
 compat-· : ∀ M N → Γ ⊨ M ⦂ A ⇒ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
-compat-· M N ⊨M ⊨N Γ∋γ = lemma-· (⊨M Γ∋γ) (⊨N Γ∋γ)
+compat-· M N ⊨M ⊨N Γ∋γ = lemma _ _ (⊨M Γ∋γ) (⊨N Γ∋γ)
+  where
+    open StarReasoning _⟶_
+    lemma : ∀ M N → M ∈ E⟦ A ⇒ B ⟧ → N ∈ E⟦ A ⟧ → M · N ∈ E⟦ B ⟧
+    lemma M N ⟨ ƛ M′ , ⟨ Rs₁ , ƛM′∈V⟦A⇒B⟧ ⟩ ⟩ ⟨ V , ⟨ Rs₂ , V∈V⟦B⟧ ⟩ ⟩ = expand-closed (ƛM′∈V⟦A⇒B⟧ V∈V⟦B⟧) $ begin
+      M      · N        ⟶*⟨ ξ₁* Rs₁           ⟩
+      (ƛ M′) · N        ⟶*⟨ ξ₂* (ƛ M′) Rs₂    ⟩
+      (ƛ M′) · Val⇒Tm V ⟶⟨ β Value[Val⇒Tm V ] ⟩
+      M′ [ Val⇒Tm V ]   ∎
 
 soundness : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
 soundness (# x)   (# Γ∋x)   = compat-# x Γ∋x
@@ -123,5 +122,5 @@ termination {M = M} ⊢M with soundness _ ⊢M ∙ₑ∈G⟦∙⟧
     lemma : M [ Val⇒Tm ∘ ∙ₑ ]ₛ ≡ M
     lemma = begin
       M [ Val⇒Tm ∘ ∙ₑ ]ₛ ≡⟨ []ₛ-cong-≗ ∙ₑ≗ιₛ M ⟩
-      M [ ιₛ ]ₛ          ≡⟨ []ₛ-ιₛ-id M        ⟩
+      M [ ιₛ ]ₛ          ≡⟨ []ₛ-identity M     ⟩
       M                  ∎

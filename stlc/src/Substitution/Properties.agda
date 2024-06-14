@@ -18,6 +18,7 @@ infix 4 _⊢ᵣ_⦂_ _⊢ₛ_⦂_
 private
   variable
     G D : ℕ
+    M N : Tm G
     ρ ρ₁ ρ₂ : Rename G D
     σ σ₁ σ₂ : Subst G D
 
@@ -48,6 +49,10 @@ private
 ⇑ₛ-cong-≗ : σ₁ ≗ σ₂ → ⇑ₛ σ₁ ≗ ⇑ₛ σ₂
 ⇑ₛ-cong-≗ H zero    = refl
 ⇑ₛ-cong-≗ H (suc x) = cong _[ ↑ᵣ ]ᵣ (H x)
+
+,ₛ-cong-≗ : σ₁ ≗ σ₂ → σ₁ ,ₛ M ≗ σ₂ ,ₛ M
+,ₛ-cong-≗ H zero    = refl
+,ₛ-cong-≗ H (suc x) = H x
 
 []ₛ-cong-≗ : σ₁ ≗ σ₂ → _[ σ₁ ]ₛ ≗ _[ σ₂ ]ₛ
 []ₛ-cong-≗ H (# x)   = H x
@@ -96,14 +101,20 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
 ⇑ₛιₛ≗ιₛ zero    = refl
 ⇑ₛιₛ≗ιₛ (suc x) = refl
 
-[]ₛ-ιₛ-id : ∀ (M : Tm G) → M [ ιₛ ]ₛ ≡ M
-[]ₛ-ιₛ-id (# x)   = refl
-[]ₛ-ιₛ-id (ƛ M)   = cong ƛ_ $ begin
+[]ₛ-identity : ∀ (M : Tm G) → M [ ιₛ ]ₛ ≡ M
+[]ₛ-identity (# x)   = refl
+[]ₛ-identity (ƛ M)   = cong ƛ_ $ begin
   M [ ⇑ₛ ιₛ ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛιₛ≗ιₛ M ⟩
-  M [ ιₛ ]ₛ    ≡⟨ []ₛ-ιₛ-id M ⟩
+  M [ ιₛ ]ₛ    ≡⟨ []ₛ-identity M       ⟩
   M            ∎
   where open ≡-Reasoning
-[]ₛ-ιₛ-id (M · N) = cong₂ _·_ ([]ₛ-ιₛ-id M) ([]ₛ-ιₛ-id N)
+[]ₛ-identity (M · N) = cong₂ _·_ ([]ₛ-identity M) ([]ₛ-identity N)
+
+∘ₛ-identityˡ : ιₛ ∘ₛ σ ≗ σ
+∘ₛ-identityˡ x = refl
+
+∘ₛ-identityʳ : σ ∘ₛ ιₛ ≗ σ
+∘ₛ-identityʳ {σ = σ} x = []ₛ-identity (σ x)
 
 -- rename to subst
 ren-⇑ᵣ-⇑ₛ : ren (⇑ᵣ ρ) ≗ ⇑ₛ ren ρ
@@ -119,10 +130,18 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   where open ≡-Reasoning
 []ᵣ⇒[]ₛ         (M · N) = cong₂ _·_ ([]ᵣ⇒[]ₛ M) ([]ᵣ⇒[]ₛ N)
 
+⇑ₛ-,ₛ-compose : (⇑ₛ σ₁) ∘ₛ (σ₂ ,ₛ M) ≗ (σ₁ ∘ₛ σ₂) ,ₛ M
+⇑ₛ-,ₛ-compose zero    = refl
+⇑ₛ-,ₛ-compose {σ₁ = σ₁} {σ₂ = σ₂} {M = M} (suc x) = begin
+  σ₁ x [ ↑ᵣ ]ᵣ [ σ₂ ,ₛ M ]ₛ       ≡⟨ cong _[ σ₂ ,ₛ M ]ₛ ([]ᵣ⇒[]ₛ (σ₁ x)) ⟩
+  σ₁ x [ ren ↑ᵣ ]ₛ [ σ₂ ,ₛ M ]ₛ   ≡⟨ []ₛ-∘ₛ-compose (σ₁ x)               ⟩
+  σ₁ x [ (ren ↑ᵣ) ∘ₛ (σ₂ ,ₛ M) ]ₛ ≡⟨⟩
+  σ₁ x [ σ₂ ]ₛ ∎
+  where open ≡-Reasoning
+
 private
   variable
     Γ Δ : Ctx G
-    M N : Tm G
     A B : Ty
 
 -- typing for Rename/Subst

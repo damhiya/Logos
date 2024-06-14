@@ -51,8 +51,8 @@ type-preservation* : M ⟶* M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
 type-preservation* ε        M = M
 type-preservation* (R ◅ Rs) M = type-preservation* Rs (type-preservation R M)
 
+-- well-typedness is not necessary
 progress : ∙ ⊢ M ⦂ A → Progress M
-progress {M = # x}       (# ())
 progress {M = ƛ M}       (ƛ ⊢M)                                   = done (ƛ M)
 progress {M = M · N}     (⊢M · ⊢N) with progress ⊢M
 progress {M = M · N}     (⊢M · ⊢N) | step R                       = step (ξ₁ R)
@@ -63,14 +63,14 @@ progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) | done V          = step
 type-safety : ∙ ⊢ M ⦂ A → M ⟶* M′ → Progress M′
 type-safety M R = progress (type-preservation* R M)
 
-value-normal : Value M → Normal M
-value-normal (ƛ M) ()
+Value⇒Normal : Value M → Normal M
+Value⇒Normal (ƛ M) ()
 
 deterministic : M ⟶ M′ → M ⟶ M″ → M′ ≡ M″
 deterministic (β V₁)    (β V₂)    = refl
-deterministic (β V)     (ξ₂ _ R)  = ⊥-elim (value-normal V R)
+deterministic (β V)     (ξ₂ _ R)  = ⊥-elim (Value⇒Normal V R)
 deterministic (ξ₁ R₁)   (ξ₁ R₂)   = cong (_· _) (deterministic R₁ R₂)
-deterministic (ξ₁ R)    (ξ₂ V _)  = ⊥-elim (value-normal V R)
-deterministic (ξ₂ _ R)  (β V)     = ⊥-elim (value-normal V R)
-deterministic (ξ₂ V _)  (ξ₁ R)    = ⊥-elim (value-normal V R)
+deterministic (ξ₁ R)    (ξ₂ V _)  = ⊥-elim (Value⇒Normal V R)
+deterministic (ξ₂ _ R)  (β V)     = ⊥-elim (Value⇒Normal V R)
+deterministic (ξ₂ V _)  (ξ₁ R)    = ⊥-elim (Value⇒Normal V R)
 deterministic (ξ₂ _ R₁) (ξ₂ _ R₂) = cong (_ ·_) (deterministic R₁ R₂)

@@ -120,8 +120,8 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 rename-subst-comm : ∀ {σ : Subst G D} {ρ₁ : Rename (suc D) D} {ρ₂ : Rename (suc G) G} →
                     (∀ x → (⇑ₛ σ) (ρ₁ x) ≡ σ x [ ρ₂ ]ᵣ) →
                     (∀ M → M [ ρ₁ ]ᵣ [ ⇑ₛ σ ]ₛ ≡ M [ σ ]ₛ [ ρ₂ ]ᵣ)
-rename-subst-comm {G} {D} {σ} {ρ₁} {ρ₂} H (# x)   = H x
-rename-subst-comm {G} {D} {σ} {ρ₁} {ρ₂} H (ƛ M)   = cong ƛ_ (rename-subst-comm lemma M)
+rename-subst-comm                             H (# x)   = H x
+rename-subst-comm {σ = σ} {ρ₁ = ρ₁} {ρ₂ = ρ₂} H (ƛ M)   = cong ƛ_ (rename-subst-comm lemma M)
   where
     open ≡-Reasoning
     lemma : ∀ x → (⇑ₛ ⇑ₛ σ) ((⇑ᵣ ρ₁) x) ≡ (⇑ₛ σ) x [ ⇑ᵣ ρ₂ ]ᵣ
@@ -135,7 +135,7 @@ rename-subst-comm {G} {D} {σ} {ρ₁} {ρ₂} H (ƛ M)   = cong ƛ_ (rename-sub
       (σ x) [ ↑ᵣ ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ    ≡˘⟨ []ᵣ-∘ᵣ-compose (σ x) ⟩
       (σ x) [ ↑ᵣ ]ᵣ [ ⇑ᵣ ρ₂ ]ᵣ    ≡⟨⟩
       (⇑ₛ σ) (suc x) [ ⇑ᵣ ρ₂ ]ᵣ   ∎
-rename-subst-comm {G} {D} {σ} {ρ₁} {ρ₂} H (M · N) = cong₂ _·_ (rename-subst-comm H M) (rename-subst-comm H N)
+rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-subst-comm H M) (rename-subst-comm H N)
 
 -- substitution composition
 ⇑ₛ-distrib-∘ₛ : ⇑ₛ (σ₁ ∘ₛ σ₂) ≗ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂)
@@ -149,19 +149,19 @@ rename-subst-comm {G} {D} {σ} {ρ₁} {ρ₂} H (M · N) = cong₂ _·_ (rename
 
 []ₛ-∘ₛ-compose : ∀ M → M [ σ₁ ]ₛ [ σ₂ ]ₛ ≡ M [ σ₁ ∘ₛ σ₂ ]ₛ
 []ₛ-∘ₛ-compose (# x)   = refl
-[]ₛ-∘ₛ-compose {σ₁ = σ₁} {σ₂ = σ₂} (ƛ M)   = cong ƛ_ (begin
+[]ₛ-∘ₛ-compose {σ₁ = σ₁} {σ₂ = σ₂} (ƛ M)   = cong ƛ_ $ begin
   M [ ⇑ₛ σ₁ ]ₛ [ ⇑ₛ σ₂ ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M                  ⟩
   M [ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂) ]ₛ ≡˘⟨ []ₛ-cong-≗ ⇑ₛ-distrib-∘ₛ M ⟩
-  M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ      ∎)
+  M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ      ∎
   where open ≡-Reasoning
 []ₛ-∘ₛ-compose (M · N) = cong₂ _·_ ([]ₛ-∘ₛ-compose M) ([]ₛ-∘ₛ-compose N)
 
 -- rename to subst
-ren-apply : M [ ρ ]ᵣ ≡ M [ ren ρ ]ₛ
-ren-apply {M = # x}         = refl
-ren-apply {M = ƛ M} {ρ = ρ} = cong ƛ_ (begin
-  M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ ren-apply ⟩
+[]ᵣ⇒[]ₛ : ∀ M → M [ ρ ]ᵣ ≡ M [ ren ρ ]ₛ
+[]ᵣ⇒[]ₛ         (# x)   = refl
+[]ᵣ⇒[]ₛ {ρ = ρ} (ƛ M)   = cong ƛ_ $ begin
+  M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ []ᵣ⇒[]ₛ M ⟩
   M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≗ (λ { zero → refl ; (suc x) → refl}) M ⟩
-  M [ ⇑ₛ ren ρ ]ₛ   ∎)
+  M [ ⇑ₛ ren ρ ]ₛ   ∎
   where open ≡-Reasoning
-ren-apply {M = M · N}       = cong₂ _·_ ren-apply ren-apply
+[]ᵣ⇒[]ₛ         (M · N) = cong₂ _·_ ([]ᵣ⇒[]ₛ M) ([]ᵣ⇒[]ₛ N)

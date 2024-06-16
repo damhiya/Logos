@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-module CallByValue.Operational where
+module CallByValue.Dynamics where
 
 open import Data.Nat.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive

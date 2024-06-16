@@ -10,7 +10,7 @@ open import Relation.Binary.PropositionalEquality.Core
 open import Relation.Binary.PropositionalEquality.Properties
 
 open import Syntax
-open import Typing
+open import Statics
 open import Substitution
 
 infix 4 _⊢ᵣ_⦂_ _⊢ₛ_⦂_

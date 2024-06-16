@@ -10,9 +10,9 @@ open import Relation.Binary.PropositionalEquality.Core
 
 open import Syntax
 open import Substitution
-open import Typing
+open import Statics
 open import Substitution.Properties
-open import CallByValue.Operational
+open import CallByValue.Dynamics
 
 private
   variable

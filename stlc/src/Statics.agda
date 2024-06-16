@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Typing where
+module Statics where
 
 open import Syntax
 open import Data.Nat.Base

@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 
-module CallByValue.LogRel where
+module CallByValue.Semantics where
 
 open import Data.Empty
 open import Data.Fin.Base
@@ -17,8 +17,8 @@ open import Relation.Unary using (_∈_)
 open import Syntax
 open import Substitution
 open import Substitution.Properties
-open import Typing
-open import CallByValue.Operational
+open import Statics
+open import CallByValue.Dynamics
 open import CallByValue.Properties
 
 infix 4 _⊨_⦂_

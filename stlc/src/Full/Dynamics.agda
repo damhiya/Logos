@@ -2,7 +2,6 @@
 
 module Full.Dynamics where
 
-open import Data.Nat.Base
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Nullary.Negation.Core
 
@@ -10,8 +9,9 @@ open import Syntax
 open import Substitution
 open import Statics
 
-infix 4 _⟶_ _⟶*_
+infix 4 _⟶_ _⟼_ _⟶*_
 
+-- Full β-reduction
 data _⟶_ {G} : Tm G → Tm G → Set where
 
   β : ∀ {M N} →
@@ -28,6 +28,16 @@ data _⟶_ {G} : Tm G → Tm G → Set where
   ξƛ : ∀ {M M′} →
        M ⟶ M′ →
        ƛ M ⟶ ƛ M′
+
+-- Weak head β-reduction
+data _⟼_ {G} : Tm G → Tm G → Set where
+
+  β : ∀ {M N} →
+      (ƛ M) · N ⟼ M [ N ]
+
+  ξ·₁ : ∀ {M M′ N} →
+        M ⟼ M′ →
+        M · N ⟼ M′ · N
 
 _⟶*_ : ∀ {G} → Tm G → Tm G → Set
 _⟶*_ = Star _⟶_

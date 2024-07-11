@@ -139,6 +139,43 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   σ₁ x [ σ₂ ]ₛ ∎
   where open ≡-Reasoning
 
+-- commutation
+∘ₛ-distrib-,ₛ : (σ₁ ,ₛ M) ∘ₛ σ₂ ≗ (σ₁ ∘ₛ σ₂) ,ₛ (M [ σ₂ ]ₛ)
+∘ₛ-distrib-,ₛ zero    = refl
+∘ₛ-distrib-,ₛ (suc x) = refl
+
+[]ₛ-[]ₛ-comm : ∀ M → M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ ≡ M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]
+[]ₛ-[]ₛ-comm {σ₁ = σ₁} {N = N} {σ₂ = σ₂} M = begin
+  M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ                         ≡⟨ []ₛ-∘ₛ-compose M                       ⟩
+  M [ (σ₁ ,ₛ N) ∘ₛ σ₂ ]ₛ                         ≡⟨ []ₛ-cong-≗ ∘ₛ-distrib-,ₛ M             ⟩
+  M [ (σ₁ ∘ₛ σ₂) ,ₛ (N [ σ₂ ]ₛ) ]ₛ               ≡˘⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
+  M [ ((σ₁ ∘ₛ σ₂) ∘ₛ ιₛ) ,ₛ (N [ σ₂ ]ₛ) ]ₛ       ≡˘⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟩
+  M [ (⇑ₛ (σ₁ ∘ₛ σ₂)) ∘ₛ (ιₛ ,ₛ (N [ σ₂ ]ₛ)) ]ₛ  ≡˘⟨ []ₛ-∘ₛ-compose M                      ⟩
+  M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]             ∎
+  where open ≡-Reasoning
+
+[]-[]ₛ-comm : ∀ M → M [ N ] [ σ ]ₛ ≡ M [ ⇑ₛ σ ]ₛ [ N [ σ ]ₛ ]
+[]-[]ₛ-comm M = []ₛ-[]ₛ-comm M
+
+[]ₛ-[]ᵣ-comm : ∀ M → M [ σ ,ₛ N ]ₛ [ ρ ]ᵣ ≡ M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ρ ]ᵣ ]
+[]ₛ-[]ᵣ-comm {σ = σ} {N = N} {ρ = ρ} M = begin
+  M [ σ ,ₛ N ]ₛ [ ρ ]ᵣ                    ≡⟨ []ᵣ⇒[]ₛ (M [ σ ,ₛ N ]ₛ)                                ⟩
+  M [ σ ,ₛ N ]ₛ [ ren ρ ]ₛ                ≡⟨ []ₛ-[]ₛ-comm M                                         ⟩
+  M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ren ρ ]ₛ ] ≡˘⟨ cong (λ N → M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N ]) ([]ᵣ⇒[]ₛ N) ⟩
+  M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ρ ]ᵣ ]     ∎
+  where open ≡-Reasoning
+
+[]-[]ᵣ-comm : ∀ M → M [ N ] [ ρ ]ᵣ ≡ M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]
+[]-[]ᵣ-comm {N = N} {ρ = ρ} M = begin
+  M [ N ] [ ρ ]ᵣ                 ≡⟨ []ₛ-[]ᵣ-comm M ⟩
+  M [ ⇑ₛ ren ρ ]ₛ [ N [ ρ ]ᵣ ]   ≡˘⟨ cong _[ N [ ρ ]ᵣ ] (begin
+                                       M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ []ᵣ⇒[]ₛ M              ⟩
+                                       M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≗ ren-⇑ᵣ-⇑ₛ M ⟩
+                                       M [ ⇑ₛ ren ρ ]ₛ   ∎)
+                                   ⟩
+  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]       ∎
+  where open ≡-Reasoning
+
 private
   variable
     Γ Δ : Ctx G

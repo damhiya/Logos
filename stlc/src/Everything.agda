@@ -2,6 +2,7 @@
 
 module Everything where
 
+import RelationReasoning
 import Syntax
 import Statics
 import Substitution
@@ -11,4 +12,3 @@ import CallByValue.Properties
 import CallByValue.Semantics
 import Full.Dynamics
 import Full.Semantics
-import RelationReasoning

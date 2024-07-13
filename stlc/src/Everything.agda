@@ -11,4 +11,5 @@ import CallByValue.Dynamics
 import CallByValue.Properties
 import CallByValue.Semantics
 import Full.Dynamics
+import Full.Properties
 import Full.Semantics

@@ -178,7 +178,7 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
 
 private
   variable
-    Γ Δ : Ctx G
+    Γ Δ Δ′ Δ″ : Ctx G
     A B : Ty
 
 -- typing for Rename/Subst
@@ -198,6 +198,9 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 ⊢ᵣ-⇑ᵣ : Γ ⊢ᵣ ρ ⦂ Δ → Γ , A ⊢ᵣ ⇑ᵣ ρ ⦂ Δ , A
 ⊢ᵣ-⇑ᵣ ρ Z     = Z
 ⊢ᵣ-⇑ᵣ ρ (S x) = S (ρ x)
+
+⊢ᵣ-∘ᵣ : Δ′ ⊢ᵣ ρ₁ ⦂ Δ → Δ″ ⊢ᵣ ρ₂ ⦂ Δ′ → Δ″ ⊢ᵣ (ρ₁ ∘ᵣ ρ₂) ⦂ Δ
+⊢ᵣ-∘ᵣ ⊢ρ₁ ⊢ρ₂ x = ⊢ρ₂ (⊢ρ₁ x)
 
 ⊢ᵣ-[]ᵣ : Γ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⦂ A → Γ ⊢ M [ ρ ]ᵣ ⦂ A
 ⊢ᵣ-[]ᵣ ρ (# x)   = # ρ x

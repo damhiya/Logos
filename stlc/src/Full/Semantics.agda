@@ -25,7 +25,7 @@ Normalizable M = ∃[ M′ ] (M ⟶* Nf⇒Tm M′)
 HN : ∀ {D} → Ctx D → Ty → Tm D → Set
 HN {D} Δ ⋆       = λ M → Normalizable M
 HN {D} Δ (A ⇒ B) = λ M → ∀ {D′} {Δ′ : Ctx D′} (ρ : Rename D′ D) N →
-                         Δ′ ⊢ᵣ ρ ⦂ Δ → N ∈ HN Δ′ A → HN Δ′ B (M [ ρ ]ᵣ · N)
+                         Δ′ ⊢ᵣ ρ ⦂ Δ → N ∈ HN Δ′ A → M [ ρ ]ᵣ · N ∈ HN Δ′ B 
 
 HNₛ : ∀ {D G} → Ctx D → Ctx G → Subst D G → Set
 HNₛ Δ Γ γ = ∀ {x A} → Γ ∋ x ⦂ A → γ x ∈ HN Δ A
@@ -69,17 +69,17 @@ Normalizable-mono {D′ = D′} {M = M} ρ ⟨ M′ , R ⟩ =
   ⟩
   where open StarReasoning (_⟶_ {D′})
 
-HN-mono : ∀ (ρ : Rename D′ D) → Δ′ ⊢ᵣ ρ ⦂ Δ → HN Δ A M → HN Δ′ A (M [ ρ ]ᵣ)
+HN-mono : ∀ (ρ : Rename D′ D) → Δ′ ⊢ᵣ ρ ⦂ Δ → M ∈ HN Δ A → M [ ρ ]ᵣ ∈ HN Δ′ A 
 HN-mono {A = ⋆}             ρ ⊢ρ HN[M] = Normalizable-mono ρ HN[M]
-HN-mono {A = A ⇒ B} {M = M} ρ ⊢ρ HN[M] {Δ′ = Δ′} ρ′ N ⊢ρ′ HN[N] = HN[M₂·N]
+HN-mono {M = M} {A = A ⇒ B} ρ ⊢ρ HN[M] {Δ′ = Δ′} ρ′ N ⊢ρ′ HN[N] = HN[M₂·N]
   where
     p : M [ ρ ]ᵣ [ ρ′ ]ᵣ ≡ M [ ρ ∘ᵣ ρ′ ]ᵣ
     p = []ᵣ-∘ᵣ-compose M
 
-    HN[M₁·N] : HN Δ′ B (M [ ρ ∘ᵣ ρ′ ]ᵣ · N)
+    HN[M₁·N] : M [ ρ ∘ᵣ ρ′ ]ᵣ · N ∈ HN Δ′ B 
     HN[M₁·N] = HN[M] (ρ ∘ᵣ ρ′) N (⊢ᵣ-∘ᵣ ⊢ρ ⊢ρ′) HN[N]
 
-    HN[M₂·N] : HN Δ′ B (M [ ρ ]ᵣ [ ρ′ ]ᵣ · N)
+    HN[M₂·N] : M [ ρ ]ᵣ [ ρ′ ]ᵣ · N ∈ HN Δ′ B 
     HN[M₂·N] = subst (λ M′ → HN Δ′ B (M′ · N)) (sym p) HN[M₁·N]
 
 ⟼⊆⟶ : M ⟼ M′ → M ⟶ M′
@@ -98,7 +98,7 @@ HN-head-expand : M′ ⟼ M → M ∈ HN Δ A → M′ ∈ HN Δ A
 HN-head-expand {A = ⋆} R ⟨ N , Rs ⟩ = ⟨ N , ⟼⊆⟶ R ◅ Rs ⟩
 HN-head-expand {M′ = M′} {M = M} {A = A ⇒ B} R HN[M] {_} {Δ′} ρ N ⊢ρ HN[N] = HN-head-expand {Δ = Δ′} {A = B} R′ HN[M·N]
   where
-    HN[M·N] : HN Δ′ B ((M [ ρ ]ᵣ) · N)
+    HN[M·N] : (M [ ρ ]ᵣ) · N ∈ HN Δ′ B 
     HN[M·N] = HN[M] ρ N ⊢ρ HN[N]
 
     R′ : M′ [ ρ ]ᵣ · N ⟼ M [ ρ ]ᵣ · N

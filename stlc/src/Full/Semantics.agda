@@ -109,7 +109,7 @@ compat-# : ∀ A x → Γ ∋ x ⦂ A → Γ ⊨ # x ⦂ A
 compat-# A x Γ∋x Δ γ γ∈Γ = γ∈Γ Γ∋x
 
 compat-ƛ : ∀ A B M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A ⇒ B
-compat-ƛ A B M ⊨M {D} Δ γ γ∈Γ {D′} {Δ′} ρ N ⊢ρ HN[N] =
+compat-ƛ {Γ = Γ} A B M ⊨M {D} Δ γ γ∈Γ {D′} {Δ′} ρ N ⊢ρ HN[N] =
   HN-head-expand {Δ = Δ′} {A = B} R (⊨M Δ′ γ′ γ′∈ΓA)
   where
     open ≡-UpToReasoning (_⟼_ {D′})
@@ -119,19 +119,36 @@ compat-ƛ A B M ⊨M {D} Δ γ γ∈Γ {D′} {Δ′} ρ N ⊢ρ HN[N] =
     R : (ƛ (M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ)) · N ⟼ M [ γ′ ]ₛ
     R = begin
       (ƛ (M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ)) · N ⟶⟨ β ⟩
-      M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ [ N ]                ≡⟨ {!!} ⟩
-      M [ ⇑ₛ γ ]ₛ [ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ {!!} ⟩
-      M [ ((⇑ₛ γ) ∘ₛ ren (⇑ᵣ ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡⟨ {!!} ⟩
-      M [ (⇑ₛ (γ ∘ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ      ≡⟨ {!!} ⟩
-      M [ ((γ ∘ₛ ren ρ) ∘ₛ ιₛ) ,ₛ N ]ₛ           ≡⟨ {!!} ⟩
+      M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ [ N ]                ≡⟨ cong _[ N ] ([]ᵣ⇒[]ₛ (M [ ⇑ₛ γ ]ₛ)) ⟩
+      M [ ⇑ₛ γ ]ₛ [ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ cong _[ N ] ([]ₛ-∘ₛ-compose M) ⟩
+      M [ (⇑ₛ γ) ∘ₛ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M ⟩
+      M [ ((⇑ₛ γ) ∘ₛ ren (⇑ᵣ ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡⟨ []ₛ-cong-≗ (∘ₛ-cong-≗₁ (∘ₛ-cong-≗₂ (⇑ₛ γ) ren-⇑ᵣ-⇑ₛ) (ιₛ ,ₛ N)) M ⟩
+      M [ ((⇑ₛ γ) ∘ₛ (⇑ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡˘⟨ []ₛ-cong-≗ (∘ₛ-cong-≗₁ ⇑ₛ-distrib-∘ₛ (ιₛ ,ₛ N)) M ⟩
+      M [ (⇑ₛ (γ ∘ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ      ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M ⟩
+      M [ ((γ ∘ₛ ren ρ) ∘ₛ ιₛ) ,ₛ N ]ₛ           ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
       M [ (γ ∘ₛ ren ρ) ,ₛ N ]ₛ                   ≡⟨⟩
       M [ γ′ ]ₛ                                  ∎
 
     γ′∈ΓA : γ′ ∈ HNₛ Δ′ (Γ , A)
-    γ′∈ΓA = {!!}
+    γ′∈ΓA Z = HN[N]
+    γ′∈ΓA (S_ {A = B} {x = x} Γ∋x) = subst (λ M → HN Δ′ B M) p (HN-mono {A = B} ρ ⊢ρ (γ∈Γ Γ∋x))
+      where
+      p : γ x [ ρ ]ᵣ ≡ γ x [ ren ρ ]ₛ
+      p = []ᵣ⇒[]ₛ (γ x)
 
 compat-· : ∀ A B M N → Γ ⊨ M ⦂ A ⇒ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
-compat-· = {!!}
+compat-· A B M N ⊨M ⊨N {D} Δ γ γ∈Γ = subst (λ M → M · (N [ γ ]ₛ) ∈ HN Δ B) ([]ᵣ-identity (M [ γ ]ₛ)) HN[M·N]
+  where
+    open ≡-UpToReasoning (_⟼_ {D})
+
+    HN[M] : M [ γ ]ₛ ∈ HN Δ (A ⇒ B)
+    HN[M] = ⊨M Δ γ γ∈Γ
+
+    HN[N] : N [ γ ]ₛ ∈ HN Δ A
+    HN[N] = ⊨N Δ γ γ∈Γ
+
+    HN[M·N] : M [ γ ]ₛ [ ιᵣ ]ᵣ · N [ γ ]ₛ ∈ HN Δ B
+    HN[M·N] = HN[M] ιᵣ (N [ γ ]ₛ) ⊢ᵣ-ιᵣ HN[N]
 
 fundamental : Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
 fundamental {M = # x}   (#_  {A = A} ⊢x)            = compat-# A x ⊢x

@@ -15,12 +15,16 @@ open import Substitution
 
 infix 4 _⊢ᵣ_⦂_ _⊢ₛ_⦂_
 
+≗-elim : ∀ {a b} {A : Set a} {B : Set b} {f g : A → B} →
+         f ≗ g → ∀ {x y} → x ≡ y → f x ≡ g y
+≗-elim H {x} .{x} refl = H x
+
 private
   variable
-    G D : ℕ
+    G G′ G″ D : ℕ
     M N : Tm G
     ρ ρ₁ ρ₂ : Rename G D
-    σ σ₁ σ₂ : Subst G D
+    σ σ₁ σ₁′ σ₂ σ₂′ : Subst G D
 
 -- Rename core lemmas
 ⇑ᵣ-cong-≗ : ρ₁ ≗ ρ₂ → ⇑ᵣ ρ₁ ≗ ⇑ᵣ ρ₂
@@ -58,6 +62,15 @@ private
 []ₛ-cong-≗ H (# x)   = H x
 []ₛ-cong-≗ H (ƛ M)   = cong ƛ_ ([]ₛ-cong-≗ (⇑ₛ-cong-≗ H) M)
 []ₛ-cong-≗ H (M · N) = cong₂ _·_ ([]ₛ-cong-≗ H M) ([]ₛ-cong-≗ H N)
+
+∘ₛ-cong-≗ : σ₁ ≗ σ₁′ → σ₂ ≗ σ₂′ → σ₁ ∘ₛ σ₂ ≗ σ₁′ ∘ₛ σ₂′
+∘ₛ-cong-≗ H₁ H₂ x = ≗-elim ([]ₛ-cong-≗ H₂) (H₁ x)
+
+∘ₛ-cong-≗₁ : σ₁ ≗ σ₁′ → ∀ (σ₂ : Subst G′ G) → σ₁ ∘ₛ σ₂ ≗ σ₁′ ∘ₛ σ₂
+∘ₛ-cong-≗₁ H σ₂ = ∘ₛ-cong-≗ H (λ _ → refl)
+
+∘ₛ-cong-≗₂ : ∀ (σ₁ : Subst G″ G′) → σ₂ ≗ σ₂′ → σ₁ ∘ₛ σ₂ ≗ σ₁ ∘ₛ σ₂′
+∘ₛ-cong-≗₂ σ₁ H = ∘ₛ-cong-≗ {σ₁ = σ₁} (λ _ → refl) H
 
 rename-subst-comm : (∀ x → (⇑ₛ σ) (ρ₁ x) ≡ σ x [ ρ₂ ]ᵣ) →
                     (∀ M → M [ ρ₁ ]ᵣ [ ⇑ₛ σ ]ₛ ≡ M [ σ ]ₛ [ ρ₂ ]ᵣ)
@@ -97,6 +110,19 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
 []ₛ-∘ₛ-compose (M · N) = cong₂ _·_ ([]ₛ-∘ₛ-compose M) ([]ₛ-∘ₛ-compose N)
 
 -- identity substitution
+⇑ᵣιᵣ≗ιᵣ : ⇑ᵣ (ιᵣ {G = G}) ≗ ιᵣ
+⇑ᵣιᵣ≗ιᵣ zero    = refl
+⇑ᵣιᵣ≗ιᵣ (suc x) = refl
+
+[]ᵣ-identity : ∀ (M : Tm G) → M [ ιᵣ ]ᵣ ≡ M
+[]ᵣ-identity (# x) = refl
+[]ᵣ-identity (ƛ M) = cong ƛ_ $ begin
+  M [ ⇑ᵣ ιᵣ ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣιᵣ≗ιᵣ M ⟩
+  M [ ιᵣ ]ᵣ    ≡⟨ []ᵣ-identity M ⟩
+  M            ∎
+  where open ≡-Reasoning
+[]ᵣ-identity (M · N) = cong₂ _·_ ([]ᵣ-identity M) ([]ᵣ-identity N)
+
 ⇑ₛιₛ≗ιₛ : ⇑ₛ (ιₛ {G = G}) ≗ ιₛ
 ⇑ₛιₛ≗ιₛ zero    = refl
 ⇑ₛιₛ≗ιₛ (suc x) = refl

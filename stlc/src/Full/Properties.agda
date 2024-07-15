@@ -52,3 +52,13 @@ Ne⇒Tm-[]ᵣ-comm (# x)   = refl
 Ne⇒Tm-[]ᵣ-comm (M · N) = cong₂ _·_ (Ne⇒Tm-[]ᵣ-comm M) (Nf⇒Tm-[]ᵣ-comm N)
 Nf⇒Tm-[]ᵣ-comm (ne M)  = Ne⇒Tm-[]ᵣ-comm M
 Nf⇒Tm-[]ᵣ-comm (ƛ M)   = cong ƛ_ (Nf⇒Tm-[]ᵣ-comm M)
+
+[]ᵣ-Ne⇒Tm : ∀ M₁ M₂ → M₁ [ ρ ]ᵣ ≡ Ne⇒Tm M₂ → ∃[ M ] M₁ ≡ Ne⇒Tm M × M₂ ≡ M Ne[ ρ ]ᵣ
+[]ᵣ-Nf⇒Tm : ∀ M₁ M₂ → M₁ [ ρ ]ᵣ ≡ Nf⇒Tm M₂ → ∃[ M ] M₁ ≡ Nf⇒Tm M × M₂ ≡ M Nf[ ρ ]ᵣ
+[]ᵣ-Ne⇒Tm (# x₁)    (# x₂)    p = ⟨ # x₁ , ⟨ refl , cong #_ (sym (#-inj p)) ⟩ ⟩
+[]ᵣ-Ne⇒Tm (M₁ · N₁) (M₂ · N₂) p with []ᵣ-Ne⇒Tm M₁ M₂ (·-inj₁ p) | []ᵣ-Nf⇒Tm N₁ N₂ (·-inj₂ p)
+...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ | ⟨ N , ⟨ q₁ , q₂ ⟩ ⟩ = ⟨ M · N , ⟨ cong₂ _·_ p₁ q₁ , cong₂ _·_ p₂ q₂ ⟩ ⟩
+[]ᵣ-Nf⇒Tm M₁        (ne M₂)   p with []ᵣ-Ne⇒Tm M₁ M₂ p
+...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ = ⟨ ne M , ⟨ p₁ , cong ne p₂ ⟩ ⟩
+[]ᵣ-Nf⇒Tm (ƛ M₁)    (ƛ M₂)    p with []ᵣ-Nf⇒Tm M₁ M₂ (ƛ-inj p)
+...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ = ⟨ ƛ M , ⟨ cong ƛ_ p₁ , cong ƛ_ p₂ ⟩ ⟩

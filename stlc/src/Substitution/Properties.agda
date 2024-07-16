@@ -142,7 +142,14 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
 ∘ₛ-identityʳ : σ ∘ₛ ιₛ ≗ σ
 ∘ₛ-identityʳ {σ = σ} x = []ₛ-identity (σ x)
 
+↑ₛ,ₛ#zero≗ιₛ : ↑ₛ {G} ,ₛ (# zero) ≗ ιₛ
+↑ₛ,ₛ#zero≗ιₛ zero    = refl
+↑ₛ,ₛ#zero≗ιₛ (suc x) = refl
+
 -- rename to subst
+ren-↑ᵣ-↑ₛ : ren (↑ᵣ {G}) ≗ ↑ₛ
+ren-↑ᵣ-↑ₛ x = refl
+
 ren-⇑ᵣ-⇑ₛ : ren (⇑ᵣ ρ) ≗ ⇑ₛ ren ρ
 ren-⇑ᵣ-⇑ₛ zero    = refl
 ren-⇑ᵣ-⇑ₛ (suc x) = refl
@@ -200,6 +207,20 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
                                        M [ ⇑ₛ ren ρ ]ₛ   ∎)
                                    ⟩
   M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]       ∎
+  where open ≡-Reasoning
+
+-- some derived lemmas
+[⇑ᵣ↑ᵣ]ᵣ[#zero]≗id : ∀ (M : Tm (suc G)) → M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ] ≡ M
+[⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M = begin
+  M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ]            ≡⟨ cong _[ # zero ] ([]ᵣ⇒[]ₛ M)              ⟩
+  M [ ren (⇑ᵣ ↑ᵣ) ]ₛ [ # zero ]      ≡⟨ cong _[ # zero ] ([]ₛ-cong-≗ ren-⇑ᵣ-⇑ₛ M) ⟩
+  M [ ⇑ₛ (ren ↑ᵣ) ]ₛ [ # zero ]      ≡⟨⟩
+  M [ ⇑ₛ ↑ₛ ]ₛ [ # zero ]            ≡⟨ []ₛ-∘ₛ-compose M                          ⟩
+  M [ (⇑ₛ ↑ₛ) ∘ₛ (ιₛ ,ₛ (# zero)) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M                ⟩
+  M [ (↑ₛ ∘ₛ ιₛ) ,ₛ (# zero) ]ₛ      ≡⟨⟩
+  M [ ↑ₛ ,ₛ (# zero) ]ₛ              ≡⟨ []ₛ-cong-≗ ↑ₛ,ₛ#zero≗ιₛ M                 ⟩
+  M [ ιₛ ]ₛ                          ≡⟨ []ₛ-identity M ⟩
+  M                                  ∎
   where open ≡-Reasoning
 
 private

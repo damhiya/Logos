@@ -6,15 +6,18 @@ open import Data.Empty
 open import Data.Nat.Base
 open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Relation.Binary.PropositionalEquality.Core
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
 
 open import Syntax
 open import Substitution
+open import Substitution.Properties
 open import Full.Dynamics
 
 private
   variable
     G D : ℕ
-    M N : Tm G
+    M M′ N N′ : Tm G
     ρ : Rename G D
  
 -- Ne/Nf and Normal are equivalent
@@ -62,3 +65,33 @@ Nf⇒Tm-[]ᵣ-comm (ƛ M)   = cong ƛ_ (Nf⇒Tm-[]ᵣ-comm M)
 ...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ = ⟨ ne M , ⟨ p₁ , cong ne p₂ ⟩ ⟩
 []ᵣ-Nf⇒Tm (ƛ M₁)    (ƛ M₂)    p with []ᵣ-Nf⇒Tm M₁ M₂ (ƛ-inj p)
 ...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ = ⟨ ƛ M , ⟨ cong ƛ_ p₁ , cong ƛ_ p₂ ⟩ ⟩
+
+-- basic properties of reduction relations
+ξ·₁* : M ⟶* M′ → M · N ⟶* M′ · N
+ξ·₁* ε        = ε
+ξ·₁* (R ◅ Rs) = ξ·₁ R ◅ ξ·₁* Rs
+
+ξ·₂* : N ⟶* N′ → M · N ⟶* M · N′
+ξ·₂* ε        = ε
+ξ·₂* (R ◅ Rs) = ξ·₂ R ◅ ξ·₂* Rs
+
+ξ·* : M ⟶* M′ → N ⟶* N′ → M · N ⟶* M′ · N′
+ξ·* {G} {M} {M′} {N} {N′} Rs₁ Rs₂ = begin
+  M  · N  ⟶*⟨ ξ·₁* Rs₁ ⟩
+  M′ · N  ⟶*⟨ ξ·₂* Rs₂ ⟩
+  M′ · N′ ∎
+  where open StarReasoning (_⟶_ {G})
+
+ξƛ* : M ⟶* M′ → ƛ M ⟶* ƛ M′
+ξƛ* ε        = ε
+ξƛ* (R ◅ Rs) = ξƛ R ◅ ξƛ* Rs
+
+[]ᵣ-sim-⟶ : ∀ M {Mᵣ Mᵣ′} → Mᵣ ≡ M [ ρ ]ᵣ → Mᵣ ⟶ Mᵣ′ → ∃[ M′ ] M ⟶ M′ × Mᵣ′ ≡ M′ [ ρ ]ᵣ
+[]ᵣ-sim-⟶ ((ƛ M) · N) p β with ƛ-inj (·-inj₁ p) | ·-inj₂ p
+... | refl | refl = ⟨ M [ N ] , ⟨ β , sym ([]-[]ᵣ-comm M) ⟩ ⟩
+[]ᵣ-sim-⟶ (M · N) p (ξ·₁ Rᵣ) with []ᵣ-sim-⟶ M (·-inj₁ p) Rᵣ | ·-inj₂ p
+... | ⟨ M′ , ⟨ R , refl ⟩ ⟩ | refl = ⟨ M′ · N , ⟨ ξ·₁ R , refl ⟩ ⟩
+[]ᵣ-sim-⟶ (M · N) p (ξ·₂ Rᵣ) with ·-inj₁ p | []ᵣ-sim-⟶ N (·-inj₂ p) Rᵣ
+... | refl | ⟨ N′ , ⟨ R , refl ⟩ ⟩ = ⟨ M · N′ , ⟨ ξ·₂ R , refl ⟩ ⟩
+[]ᵣ-sim-⟶ (ƛ M) p (ξƛ Rᵣ) with []ᵣ-sim-⟶ M (ƛ-inj p) Rᵣ
+... | ⟨ M′ , ⟨ R , refl ⟩ ⟩ = ⟨ ƛ M′ , ⟨ ξƛ R , refl ⟩ ⟩

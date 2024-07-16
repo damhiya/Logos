@@ -2,6 +2,7 @@
 
 module Full.Semantics where
 
+open import Data.Fin.Base
 open import Data.Nat.Base
 open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Relation.Unary using (_∈_)
@@ -18,6 +19,9 @@ open import Full.Dynamics
 open import Full.Properties
 
 infix 4 _⊨_⦂_
+
+Neutralizable : ∀ {G} → Tm G → Set
+Neutralizable M = ∃[ M′ ] M ⟶* Ne⇒Tm M′
 
 Normalizable : ∀ {G} → Tm G → Set
 Normalizable M = ∃[ M′ ] (M ⟶* Nf⇒Tm M′)
@@ -58,6 +62,12 @@ private
                M ⟶* M′ → M [ ρ ]ᵣ ⟶* M′ [ ρ ]ᵣ
 []ᵣ-cong-⟶* ε        = ε
 []ᵣ-cong-⟶* (R ◅ Rs) = []ᵣ-cong-⟶ R ◅ []ᵣ-cong-⟶* Rs
+
+Normalizable-expand : M′ ⟶ M → Normalizable M → Normalizable M′
+Normalizable-expand R ⟨ N , Rs ⟩ = ⟨ N , R ◅ Rs ⟩
+
+Normalizable-expand* : M′ ⟶* M → Normalizable M → Normalizable M′
+Normalizable-expand* Rs′ ⟨ N , Rs ⟩ = ⟨ N , Rs′ ◅◅ Rs ⟩
 
 Normalizable-mono : ∀ (ρ : Rename D′ D) → Normalizable M → Normalizable (M [ ρ ]ᵣ)
 Normalizable-mono {D′ = D′} {M = M} ρ ⟨ M′ , R ⟩ =
@@ -154,3 +164,78 @@ fundamental : Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
 fundamental {M = # x}   (#_  {A = A} ⊢x)            = compat-# A x ⊢x
 fundamental {M = ƛ M}   (ƛ_  {A = A} {B = B} ⊢M)    = compat-ƛ A B M (fundamental ⊢M)
 fundamental {M = M · N} (_·_ {A = A} {B = B} ⊢M ⊢N) = compat-· A B M N (fundamental ⊢M) (fundamental ⊢N)
+
+-- Reification
+Normalizable-⇒-lemma : ∀ (M : Tm G) {Mz} Mz′ → Mz ≡ M [ ↑ᵣ ]ᵣ · # zero → Mz ⟶* Nf⇒Tm Mz′ → Normalizable M
+Normalizable-⇒-lemma M Mz′ p ε with Mz′
+... | ne (M′ · z) with []ᵣ-Ne⇒Tm M M′ (sym (·-inj₁ p))
+... | ⟨ M′ , ⟨ refl , _ ⟩ ⟩ = ⟨ ne M′ , ε ⟩
+Normalizable-⇒-lemma {G = G} M Mz′ p (β ◅ Rs) with M
+... | ƛ M with ƛ-inj (·-inj₁ p) | ·-inj₂ p
+... | refl | refl =
+  ⟨ ƛ Mz′
+  , begin
+      ƛ M                         ≡˘⟨ cong ƛ_ ([⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M) ⟩
+      ƛ (M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ]) ⟶*⟨ ξƛ* Rs                       ⟩
+      ƛ (Nf⇒Tm Mz′) ∎
+  ⟩
+  where open StarReasoning (_⟶_ {G})
+Normalizable-⇒-lemma M Mz′ p (ξ·₁ R ◅ Rs) with ·-inj₁ p | ·-inj₂ p
+... | refl | refl with []ᵣ-sim-⟶ M refl R
+... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ = Normalizable-expand R′ (Normalizable-⇒-lemma M′ Mz′ refl Rs)
+Normalizable-⇒-lemma M Mz′ p (ξ·₂ R ◅ Rs)  with ·-inj₂ p
+Normalizable-⇒-lemma M Mz′ p (ξ·₂ () ◅ Rs) | refl
+
+Normalizable-⇒ : ∀ (M : Tm G) → Normalizable (M [ ↑ᵣ ]ᵣ · # zero) → Normalizable M
+Normalizable-⇒ M ⟨ M′ , Rs ⟩ = Normalizable-⇒-lemma M M′ refl Rs
+
+data NN (Δ : Ctx D) : Ty → Tm D → Set where
+  #_ : ∀ {x} →
+       Δ ∋ x ⦂ A →
+       NN Δ A (# x)
+  _·_ : ∀ {A B M N} →
+        NN Δ (A ⇒ B) M →
+        Normalizable N →
+        NN Δ B (M · N)
+
+Neutralizable⇒Normalizable : Neutralizable M → Normalizable M
+Neutralizable⇒Normalizable ⟨ M′ , Rs ⟩ = ⟨ ne M′ , Rs ⟩
+
+Neutralizable-# : ∀ {x} → Neutralizable {G = G} (# x)
+Neutralizable-# {x = x} = ⟨ # x , ε ⟩
+
+Neutralizable-· : Neutralizable M → Normalizable N → Neutralizable (M · N)
+Neutralizable-· ⟨ M , RsM ⟩ ⟨ N , RsN ⟩ = ⟨ M · N , ξ·* RsM RsN ⟩
+
+NN⇒Normalizable : M ∈ NN Δ A → Neutralizable M
+NN⇒Normalizable (# x) = Neutralizable-#
+NN⇒Normalizable (M · N) = Neutralizable-· (NN⇒Normalizable M) N
+
+NN-mono : ∀ (ρ : Rename D′ D) → Δ′ ⊢ᵣ ρ ⦂ Δ → M ∈ NN Δ A → M [ ρ ]ᵣ ∈ NN Δ′ A 
+NN-mono ρ ⊢ρ (# x)           = # ⊢ρ x
+NN-mono ρ ⊢ρ (NN[M] · Nm[N]) = NN-mono ρ ⊢ρ NN[M] · Normalizable-mono ρ Nm[N]
+
+reflect : M ∈ NN Δ A → M ∈ HN Δ A
+reify   : M ∈ HN Δ A → Normalizable M
+reflect {A = ⋆}     NN[M] = Neutralizable⇒Normalizable (NN⇒Normalizable NN[M])
+reflect {A = A ⇒ B} NN[M] {Δ′ = Δ′} ρ N ⊢ρ HN[N] = reflect (NN-mono ρ ⊢ρ NN[M] · reify {Δ = Δ′} {A = A} HN[N])
+reify                 {A = ⋆}     HN[M] = HN[M]
+reify {M = M} {Δ = Δ} {A = A ⇒ B} HN[M] = Normalizable-⇒ M Nm[M·z]
+  where
+    #z : # zero ∈ HN (Δ , A) A
+    #z = reflect {Δ = Δ , A} {A = A} (# Z)
+
+    HN[M·z] : M [ ↑ᵣ ]ᵣ · # zero ∈ HN (Δ , A) B
+    HN[M·z] = HN[M] ↑ᵣ (# zero) ⊢ᵣ-↑ᵣ #z
+
+    Nm[M·z] : Normalizable (M [ ↑ᵣ ]ᵣ · # zero)
+    Nm[M·z] = reify {Δ = Δ , A} {A = B} HN[M·z]
+
+ιₛ∈HNₛ : ιₛ ∈ HNₛ Γ Γ
+ιₛ∈HNₛ {Γ = Γ} {x} {A} Γ∋x = reflect {Δ = Γ} {A = A} (# Γ∋x)
+
+normalize : Γ ⊢ M ⦂ A → Normalizable M
+normalize {Γ = Γ} {M = M} {A = A} ⊢M = subst Normalizable ([]ₛ-identity M) Nm[M]
+  where
+    Nm[M] : Normalizable (M [ ιₛ ]ₛ)
+    Nm[M] = reify {Δ = Γ} {A = A} (fundamental ⊢M Γ ιₛ ιₛ∈HNₛ)

@@ -12,7 +12,7 @@ open import Substitution
 open import Statics
 
 infixr 6 ⇄_
-infix 4 _⟶_ _⟼_ _⟶*_ _⊢_⇉_ _⊢_⇇_
+infix 4 _⟶_ _⟼_ _⟶*_ _⊢_⇉_ _⊢_⇇_ _⊢nf_⇉_ _⊢nf_⇇_ 
 
 -- Full β-reduction
 data _⟶_ {G} : Tm G → Tm G → Set where
@@ -45,7 +45,7 @@ data _⟼_ {G} : Tm G → Tm G → Set where
 _⟶*_ : ∀ {G} → Tm G → Tm G → Set
 _⟶*_ = Star _⟶_
 
--- β-normal form
+-- Typed neutral/normal form
 data _⊢_⇉_ {G} : Ctx G → Tm G → Ty → Set
 data _⊢_⇇_ {G} : Ctx G → Tm G → Ty → Set
 
@@ -70,30 +70,12 @@ data _⊢_⇇_ {G} where
        Γ , A ⊢ M ⇇ B →
        Γ ⊢ ƛ M ⇇ A ⇒ B
 
-data Ne (G : ℕ) : Set
-data Nf (G : ℕ) : Set
-
-data Ne G where
-  #_  : Fin G → Ne G
-  _·_ : Ne G → Nf G → Ne G
-
-data Nf G where
-  ne : Ne G → Nf G
-  ƛ_ : Nf (suc G) → Nf G
-
-Ne⇒Tm : ∀ {G} → Ne G → Tm G
-Nf⇒Tm : ∀ {G} → Nf G → Tm G
-Ne⇒Tm (# x)   = # x
-Ne⇒Tm (M · N) = Ne⇒Tm M · Nf⇒Tm N
-Nf⇒Tm (ne M)  = Ne⇒Tm M
-Nf⇒Tm (ƛ M)   = ƛ Nf⇒Tm M
-
-_Ne[_]ᵣ : ∀ {G D} → Ne G → Rename D G → Ne D
-_Nf[_]ᵣ : ∀ {G D} → Nf G → Rename D G → Nf D
-(# x)   Ne[ ρ ]ᵣ = # ρ x
-(M · N) Ne[ ρ ]ᵣ = M Ne[ ρ ]ᵣ · N Nf[ ρ ]ᵣ
-(ne M)  Nf[ ρ ]ᵣ = ne (M Ne[ ρ ]ᵣ)
-(ƛ M)   Nf[ ρ ]ᵣ = ƛ (M Nf[ ⇑ᵣ ρ ]ᵣ)
-
 Normal : ∀ {G} → Tm G → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)
+
+-- neutralizable/normalizable terms
+data _⊢nf_⇉_ {G} (Γ : Ctx G) (M : Tm G) (A : Ty) : Set where
+  ∃_st : ∀ M′ → M ⟶* M′ → Γ ⊢ M′ ⇉ A → Γ ⊢nf M ⇉ A
+
+data _⊢nf_⇇_ {G} (Γ : Ctx G) (M : Tm G) (A : Ty) : Set where
+  ∃_st : ∀ M′ → M ⟶* M′ → Γ ⊢ M′ ⇇ A → Γ ⊢nf M ⇇ A

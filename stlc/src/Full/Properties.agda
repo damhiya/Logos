@@ -9,64 +9,30 @@ open import Relation.Binary.PropositionalEquality.Core
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
 
+open import RelationReasoning
 open import Syntax
+open import Statics
 open import Substitution
 open import Substitution.Properties
 open import Full.Dynamics
 
 private
   variable
-    G D : ℕ
+    G D D′ : ℕ
+    Γ Δ Δ′ : Ctx G
+    A B : Ty
     M M′ N N′ : Tm G
     ρ : Rename G D
  
 -- Ne/Nf and Normal are equivalent
-Ne⇒Normal : ∀ (M : Ne G) → Normal (Ne⇒Tm M)
-Nf⇒Normal : ∀ (M : Nf G) → Normal (Nf⇒Tm M)
-Ne⇒Normal (# x)         ()
-Ne⇒Normal ((# x)   · N) (ξ·₂ R) = Nf⇒Normal N R
-Ne⇒Normal ((L · M) · N) (ξ·₁ R) = Ne⇒Normal (L · M) R
-Ne⇒Normal ((L · M) · N) (ξ·₂ R) = Nf⇒Normal N R
-Nf⇒Normal (ne M)        R       = Ne⇒Normal M R
-Nf⇒Normal (ƛ M)         (ξƛ R)  = Nf⇒Normal M R
+⊢⇉-Normal : Γ ⊢ M ⇉ A → Normal M
+⊢⇇-Normal : Γ ⊢ M ⇇ A → Normal M
+⊢⇉-Normal (⊢M · ⊢N) (ξ·₁ R) = ⊢⇉-Normal ⊢M R
+⊢⇉-Normal (⊢M · ⊢N) (ξ·₂ R) = ⊢⇇-Normal ⊢N R
+⊢⇇-Normal (⇄ ⊢M)    R       = ⊢⇉-Normal ⊢M R
+⊢⇇-Normal (ƛ ⊢M)    (ξƛ R)  = ⊢⇇-Normal ⊢M R
 
-Normal-ƛ : Normal (ƛ M) → Normal M
-Normal-ƛ Nm[ƛM] R = Nm[ƛM] (ξƛ R)
-
-Normal-·₁ : Normal (M · N) → Normal M
-Normal-·₁ Nm[M·N] R = Nm[M·N] (ξ·₁ R)
-
-Normal-·₂ : Normal (M · N) → Normal N
-Normal-·₂ Nm[M·N] R = Nm[M·N] (ξ·₂ R)
-
-Normal⇒Nf : Normal M → Σ[ M′ ∈ Nf G ] Nf⇒Tm M′ ≡ M
-Normal⇒Nf {M = # x}   Nm[#x] = ⟨ ne (# x) , refl ⟩
-Normal⇒Nf {M = ƛ M}   Nm[ƛM] with Normal⇒Nf (Normal-ƛ Nm[ƛM])
-...                          | ⟨ M′ , p ⟩ = ⟨ ƛ M′ , cong ƛ_ p ⟩
-Normal⇒Nf {M = M · N} Nm[M·N] with Normal⇒Nf (Normal-·₁ Nm[M·N])
-Normal⇒Nf {M = M · N} Nm[M·N] | ⟨ ne M′ , p ⟩ with Normal⇒Nf (Normal-·₂ Nm[M·N])
-...                                           | ⟨ N′ , q ⟩ = ⟨ ne (M′ · N′) , cong₂ _·_ p q ⟩
-Normal⇒Nf {M = M · N} Nm[M·N] | ⟨ ƛ M′ , refl ⟩ = ⊥-elim (Nm[M·N] β)
-
--- commutation
-Ne⇒Tm-[]ᵣ-comm : ∀ (M : Ne G) → ((Ne⇒Tm M) [ ρ ]ᵣ) ≡ Ne⇒Tm (M Ne[ ρ ]ᵣ)
-Nf⇒Tm-[]ᵣ-comm : ∀ (M : Nf G) → ((Nf⇒Tm M) [ ρ ]ᵣ) ≡ Nf⇒Tm (M Nf[ ρ ]ᵣ)
-Ne⇒Tm-[]ᵣ-comm (# x)   = refl
-Ne⇒Tm-[]ᵣ-comm (M · N) = cong₂ _·_ (Ne⇒Tm-[]ᵣ-comm M) (Nf⇒Tm-[]ᵣ-comm N)
-Nf⇒Tm-[]ᵣ-comm (ne M)  = Ne⇒Tm-[]ᵣ-comm M
-Nf⇒Tm-[]ᵣ-comm (ƛ M)   = cong ƛ_ (Nf⇒Tm-[]ᵣ-comm M)
-
-[]ᵣ-Ne⇒Tm : ∀ M₁ M₂ → M₁ [ ρ ]ᵣ ≡ Ne⇒Tm M₂ → ∃[ M ] M₁ ≡ Ne⇒Tm M × M₂ ≡ M Ne[ ρ ]ᵣ
-[]ᵣ-Nf⇒Tm : ∀ M₁ M₂ → M₁ [ ρ ]ᵣ ≡ Nf⇒Tm M₂ → ∃[ M ] M₁ ≡ Nf⇒Tm M × M₂ ≡ M Nf[ ρ ]ᵣ
-[]ᵣ-Ne⇒Tm (# x₁)    (# x₂)    p = ⟨ # x₁ , ⟨ refl , cong #_ (sym (#-inj p)) ⟩ ⟩
-[]ᵣ-Ne⇒Tm (M₁ · N₁) (M₂ · N₂) p with []ᵣ-Ne⇒Tm M₁ M₂ (·-inj₁ p) | []ᵣ-Nf⇒Tm N₁ N₂ (·-inj₂ p)
-...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ | ⟨ N , ⟨ q₁ , q₂ ⟩ ⟩ = ⟨ M · N , ⟨ cong₂ _·_ p₁ q₁ , cong₂ _·_ p₂ q₂ ⟩ ⟩
-[]ᵣ-Nf⇒Tm M₁        (ne M₂)   p with []ᵣ-Ne⇒Tm M₁ M₂ p
-...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ = ⟨ ne M , ⟨ p₁ , cong ne p₂ ⟩ ⟩
-[]ᵣ-Nf⇒Tm (ƛ M₁)    (ƛ M₂)    p with []ᵣ-Nf⇒Tm M₁ M₂ (ƛ-inj p)
-...                             | ⟨ M , ⟨ p₁ , p₂ ⟩ ⟩ = ⟨ ƛ M , ⟨ cong ƛ_ p₁ , cong ƛ_ p₂ ⟩ ⟩
-
--- basic properties of reduction relations
+-- Basic properties of reduction relation
 ξ·₁* : M ⟶* M′ → M · N ⟶* M′ · N
 ξ·₁* ε        = ε
 ξ·₁* (R ◅ Rs) = ξ·₁ R ◅ ξ·₁* Rs
@@ -86,6 +52,23 @@ Nf⇒Tm-[]ᵣ-comm (ƛ M)   = cong ƛ_ (Nf⇒Tm-[]ᵣ-comm M)
 ξƛ* ε        = ε
 ξƛ* (R ◅ Rs) = ξƛ R ◅ ξƛ* Rs
 
+[]ᵣ-cong-⟶ : ∀ {ρ : Rename D′ D} {M M′} →
+              M ⟶ M′ → M [ ρ ]ᵣ ⟶ M′ [ ρ ]ᵣ
+[]ᵣ-cong-⟶ {D′ = D′} {ρ = ρ} {M = (ƛ M) · N} β = begin
+  ((ƛ M) · N) [ ρ ]ᵣ         ≡⟨⟩
+  (ƛ M [ ⇑ᵣ ρ ]ᵣ) · N [ ρ ]ᵣ ⟶⟨ β             ⟩
+  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡˘⟨ []-[]ᵣ-comm M ⟩
+  M [ N ] [ ρ ]ᵣ ∎
+  where open ≡-UpToReasoning (_⟶_ {D′})
+[]ᵣ-cong-⟶ (ξ·₁ R) = ξ·₁ ([]ᵣ-cong-⟶ R)
+[]ᵣ-cong-⟶ (ξ·₂ R) = ξ·₂ ([]ᵣ-cong-⟶ R)
+[]ᵣ-cong-⟶ (ξƛ R)  = ξƛ  ([]ᵣ-cong-⟶ R)
+
+[]ᵣ-cong-⟶* : ∀ {ρ : Rename D′ D} {M M′} →
+               M ⟶* M′ → M [ ρ ]ᵣ ⟶* M′ [ ρ ]ᵣ
+[]ᵣ-cong-⟶* ε        = ε
+[]ᵣ-cong-⟶* (R ◅ Rs) = []ᵣ-cong-⟶ R ◅ []ᵣ-cong-⟶* Rs
+
 []ᵣ-sim-⟶ : ∀ M {Mᵣ Mᵣ′} → Mᵣ ≡ M [ ρ ]ᵣ → Mᵣ ⟶ Mᵣ′ → ∃[ M′ ] M ⟶ M′ × Mᵣ′ ≡ M′ [ ρ ]ᵣ
 []ᵣ-sim-⟶ ((ƛ M) · N) p β with ƛ-inj (·-inj₁ p) | ·-inj₂ p
 ... | refl | refl = ⟨ M [ N ] , ⟨ β , sym ([]-[]ᵣ-comm M) ⟩ ⟩
@@ -95,3 +78,60 @@ Nf⇒Tm-[]ᵣ-comm (ƛ M)   = cong ƛ_ (Nf⇒Tm-[]ᵣ-comm M)
 ... | refl | ⟨ N′ , ⟨ R , refl ⟩ ⟩ = ⟨ M · N′ , ⟨ ξ·₂ R , refl ⟩ ⟩
 []ᵣ-sim-⟶ (ƛ M) p (ξƛ Rᵣ) with []ᵣ-sim-⟶ M (ƛ-inj p) Rᵣ
 ... | ⟨ M′ , ⟨ R , refl ⟩ ⟩ = ⟨ ƛ M′ , ⟨ ξƛ R , refl ⟩ ⟩
+
+-- Basic properties of head reduction relation
+⟼⊆⟶ : M ⟼ M′ → M ⟶ M′
+⟼⊆⟶ β       = β
+⟼⊆⟶ (ξ·₁ R) = ξ·₁ (⟼⊆⟶ R)
+
+[]ᵣ-cong-⟼ : ∀ {ρ : Rename D′ D} → M ⟼ M′ → M [ ρ ]ᵣ ⟼ M′ [ ρ ]ᵣ
+[]ᵣ-cong-⟼ {D′ = D′} {ρ = ρ} (β {M} {N}) = begin
+  (ƛ M [ ⇑ᵣ ρ ]ᵣ) · N [ ρ ]ᵣ ⟶⟨ β ⟩
+  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡˘⟨ []-[]ᵣ-comm M ⟩
+  M [ N ] [ ρ ]ᵣ ∎
+  where open ≡-UpToReasoning (_⟼_ {D′})
+[]ᵣ-cong-⟼ {D′ = D′} (ξ·₁ {M} {M′} {N} R) = ξ·₁ ([]ᵣ-cong-⟼ R)
+
+-- Basic properties of neutral/normal terms
+⊢⇉-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⇉ A → Δ′ ⊢ M [ ρ ]ᵣ ⇉ A
+⊢⇇-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⇇ A → Δ′ ⊢ M [ ρ ]ᵣ ⇇ A
+⊢⇉-mono ⊢ρ (# ⊢x)    = # ⊢ρ ⊢x
+⊢⇉-mono ⊢ρ (⊢M · ⊢N) = ⊢⇉-mono ⊢ρ ⊢M · ⊢⇇-mono ⊢ρ ⊢N
+⊢⇇-mono ⊢ρ (⇄ ⊢M)    = ⇄ ⊢⇉-mono ⊢ρ ⊢M
+⊢⇇-mono ⊢ρ (ƛ ⊢M)    = ƛ ⊢⇇-mono (⊢ᵣ-⇑ᵣ ⊢ρ) ⊢M
+
+⊢⇉-inv : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ⊢ M [ ρ ]ᵣ ⇉ A → Δ ⊢ M ⇉ A
+⊢⇇-inv : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ⊢ M [ ρ ]ᵣ ⇇ A → Δ ⊢ M ⇇ A
+⊢⇉-inv {M = # x}   ⊢ρ (# ⊢x)        = # ∋-inv ⊢ρ ⊢x
+⊢⇉-inv {M = M · N} ⊢ρ (⊢M · ⊢N)     = ⊢⇉-inv ⊢ρ ⊢M · ⊢⇇-inv ⊢ρ ⊢N
+⊢⇇-inv {M = # x}   ⊢ρ (⇄ (# ⊢x))    = ⇄ # ∋-inv ⊢ρ ⊢x
+⊢⇇-inv {M = ƛ M}   ⊢ρ (ƛ ⊢M)        = ƛ ⊢⇇-inv (⊢ᵣ-⇑ᵣ ⊢ρ) ⊢M
+⊢⇇-inv {M = M · N} ⊢ρ (⇄ (⊢M · ⊢N)) = ⇄ ⊢⇉-inv ⊢ρ ⊢M · ⊢⇇-inv ⊢ρ ⊢N
+
+-- Basic properties of neutralizable/normalizable terms
+nf⇄_ : Γ ⊢nf M ⇉ A → Γ ⊢nf M ⇇ A
+nf⇄ ∃ M′ st Rs ⊢M′ = ∃ M′ st Rs (⇄ ⊢M′)
+
+_nf·_ : Γ ⊢nf M ⇉ A ⇒ B → Γ ⊢nf N ⇇ A → Γ ⊢nf M · N ⇉ B
+_nf·_ {G} {M = M} {N = N} (∃ M′ st RsM ⊢M′) (∃ N′ st RsN ⊢N′) =
+  ∃ M′ · N′ st
+    (begin
+      M  · N  ⟶*⟨ ξ·₁* RsM ⟩
+      M′ · N  ⟶*⟨ ξ·₂* RsN ⟩
+      M′ · N′ ∎)
+    (⊢M′ · ⊢N′)
+  where open StarReasoning (_⟶_ {G})
+
+⊢nf⇉-expand : M′ ⟶ M → Γ ⊢nf M ⇉ A → Γ ⊢nf M′ ⇉ A
+⊢nf⇉-expand R (∃ M st Rs ⊢M) = ∃ M st (R ◅ Rs) ⊢M
+
+⊢nf⇇-expand : M′ ⟶ M → Γ ⊢nf M ⇇ A → Γ ⊢nf M′ ⇇ A
+⊢nf⇇-expand R (∃ M st Rs ⊢M) = ∃ M st (R ◅ Rs) ⊢M
+
+⊢nf⇉-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢nf M ⇉ A → Δ′ ⊢nf M [ ρ ]ᵣ ⇉ A
+⊢nf⇉-mono {ρ = ρ} ⊢ρ (∃ M′ st Rs ⊢M′) =
+  ∃ M′ [ ρ ]ᵣ st ([]ᵣ-cong-⟶* Rs) (⊢⇉-mono ⊢ρ ⊢M′)
+
+⊢nf⇇-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢nf M ⇇ A → Δ′ ⊢nf M [ ρ ]ᵣ ⇇ A
+⊢nf⇇-mono {ρ = ρ} ⊢ρ (∃ M′ st Rs ⊢M′) =
+  ∃ M′ [ ρ ]ᵣ st ([]ᵣ-cong-⟶* Rs) (⊢⇇-mono ⊢ρ ⊢M′)

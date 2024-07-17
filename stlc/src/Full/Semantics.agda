@@ -165,7 +165,7 @@ fundamental {M = # x}   (#_  {A = A} ⊢x)            = compat-# A x ⊢x
 fundamental {M = ƛ M}   (ƛ_  {A = A} {B = B} ⊢M)    = compat-ƛ A B M (fundamental ⊢M)
 fundamental {M = M · N} (_·_ {A = A} {B = B} ⊢M ⊢N) = compat-· A B M N (fundamental ⊢M) (fundamental ⊢N)
 
--- Reification
+-- reflection/reification
 Normalizable-⇒-lemma : ∀ (M : Tm G) {Mz} Mz′ → Mz ≡ M [ ↑ᵣ ]ᵣ · # zero → Mz ⟶* Nf⇒Tm Mz′ → Normalizable M
 Normalizable-⇒-lemma M Mz′ p ε with Mz′
 ... | ne (M′ · z) with []ᵣ-Ne⇒Tm M M′ (sym (·-inj₁ p))
@@ -218,18 +218,18 @@ NN-mono ρ ⊢ρ (NN[M] · Nm[N]) = NN-mono ρ ⊢ρ NN[M] · Normalizable-mono 
 reflect : M ∈ NN Δ A → M ∈ HN Δ A
 reify   : M ∈ HN Δ A → Normalizable M
 reflect {A = ⋆}     NN[M] = Neutralizable⇒Normalizable (NN⇒Normalizable NN[M])
-reflect {A = A ⇒ B} NN[M] {Δ′ = Δ′} ρ N ⊢ρ HN[N] = reflect (NN-mono ρ ⊢ρ NN[M] · reify {Δ = Δ′} {A = A} HN[N])
+reflect {A = A ⇒ B} NN[M] {Δ′ = Δ′} ρ N ⊢ρ HN[N] = reflect (NN-mono ρ ⊢ρ NN[M] · reify {A = A} HN[N])
 reify                 {A = ⋆}     HN[M] = HN[M]
 reify {M = M} {Δ = Δ} {A = A ⇒ B} HN[M] = Normalizable-⇒ M Nm[M·z]
   where
     #z : # zero ∈ HN (Δ , A) A
-    #z = reflect {Δ = Δ , A} {A = A} (# Z)
+    #z = reflect {A = A} (# Z)
 
     HN[M·z] : M [ ↑ᵣ ]ᵣ · # zero ∈ HN (Δ , A) B
     HN[M·z] = HN[M] ↑ᵣ (# zero) ⊢ᵣ-↑ᵣ #z
 
     Nm[M·z] : Normalizable (M [ ↑ᵣ ]ᵣ · # zero)
-    Nm[M·z] = reify {Δ = Δ , A} {A = B} HN[M·z]
+    Nm[M·z] = reify {A = B} HN[M·z]
 
 ιₛ∈HNₛ : ιₛ ∈ HNₛ Γ Γ
 ιₛ∈HNₛ {Γ = Γ} {x} {A} Γ∋x = reflect {Δ = Γ} {A = A} (# Γ∋x)

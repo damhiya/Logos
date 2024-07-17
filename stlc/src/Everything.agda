@@ -5,6 +5,7 @@ module Everything where
 import RelationReasoning
 import Syntax
 import Statics
+import Statics.Properties
 import Substitution
 import Substitution.Properties
 import CallByValue.Dynamics

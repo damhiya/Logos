@@ -11,6 +11,7 @@ open import Relation.Binary.PropositionalEquality.Properties
 
 open import Syntax
 open import Statics
+open import Statics.Properties
 open import Substitution
 
 infix 4 _⊢ᵣ_⦂_ _⊢ₛ_⦂_
@@ -275,3 +276,7 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 
 ⊢-[] : Γ , A ⊢ M ⦂ B → Γ ⊢ N ⦂ A → Γ ⊢ M [ N ] ⦂ B
 ⊢-[] M N = ⊢ₛ-[]ₛ (⊢ₛ-,ₛ ⊢ₛ-ιₛ N) M
+
+∋-inv : ∀ {x} → Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ∋ ρ x ⦂ A → Δ ∋ x ⦂ A
+∋-inv {Δ = Δ} {A = A} {x = x} ⊢ρ ⊢ρx with ∋-functional ⊢ρx (⊢ρ (∋-lookup Δ x))
+... | refl = ∋-lookup Δ x

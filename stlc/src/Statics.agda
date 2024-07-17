@@ -38,3 +38,7 @@ data _⊢_⦂_ {G} : Ctx G → Tm G → Ty → Set where
         Γ ⊢ M ⦂ A ⇒ B →
         Γ ⊢ N ⦂ A →
         Γ ⊢ M · N ⦂ B
+
+lookup : ∀ {G} (Γ : Ctx G) (x : Fin G) → Ty
+lookup (Γ , A) zero    = A
+lookup (Γ , B) (suc x) = lookup Γ x

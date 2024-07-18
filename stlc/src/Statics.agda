@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Statics where
 
 open import Syntax

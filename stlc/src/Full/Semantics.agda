@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Full.Semantics where
 
 open import Data.Fin.Base

@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module CallByValue.Semantics where
 
 open import Data.Empty

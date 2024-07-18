@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module CallByValue.Properties where
 
 open import Data.Empty

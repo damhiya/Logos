@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Full.Dynamics where
 
 open import Data.Nat.Base

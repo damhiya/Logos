@@ -1,2 +1,7 @@
+name: stlc
 depend: standard-library
 include: src
+flags:
+  --cubical-compatible
+  --warning=noUnsupportedIndexedMatch
+  --safe

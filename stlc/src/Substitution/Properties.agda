@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Substitution.Properties where
 
 open import Data.Nat.Base

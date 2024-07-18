@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Statics.Properties where
 
 open import Data.Fin.Base

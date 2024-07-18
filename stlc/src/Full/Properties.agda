@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Full.Properties where
 
 open import Data.Empty

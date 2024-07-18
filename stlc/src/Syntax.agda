@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --cubical-compatible #-}
-
 module Syntax where
 
 open import Data.Empty

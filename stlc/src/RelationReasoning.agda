@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --safe #-}
-
 module RelationReasoning where
 
 open import Level

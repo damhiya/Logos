@@ -38,6 +38,11 @@ _≡Tm_ : Tm G → Tm G → Set
 ≡⇒≡Tm {M = ƛ M}     refl = refl
 ≡⇒≡Tm {M = M₁ · M₂} refl = ⟨ refl , refl ⟩
 
+≡Tm⇒≡ : M ≡Tm N → M ≡ N
+≡Tm⇒≡ {M = # x}     {N = # y}     p           = cong #_ p
+≡Tm⇒≡ {M = ƛ M}     {N = ƛ N}     p           = cong ƛ_ p
+≡Tm⇒≡ {M = M₁ · M₂} {N = N₁ · N₂} ⟨ p₁ , p₂ ⟩ = cong₂ _·_ p₁ p₂
+
 #-inj : # x ≡ # y → x ≡ y
 #-inj p = ≡⇒≡Tm p
 

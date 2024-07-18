@@ -55,7 +55,7 @@ private
 []ᵣ-cong-⟶ {D′ = D′} {ρ = ρ} {M = (ƛ M) · N} β = begin
   ((ƛ M) · N) [ ρ ]ᵣ         ≡⟨⟩
   (ƛ M [ ⇑ᵣ ρ ]ᵣ) · N [ ρ ]ᵣ ⟶⟨ β             ⟩
-  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡˘⟨ []-[]ᵣ-comm M ⟩
+  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡⟨ []-[]ᵣ-comm M  ⟨
   M [ N ] [ ρ ]ᵣ ∎
   where open ≡-UpToReasoning (_⟶_ {D′})
 []ᵣ-cong-⟶ (ξ·₁ R) = ξ·₁ ([]ᵣ-cong-⟶ R)
@@ -84,8 +84,8 @@ private
 
 []ᵣ-cong-⟼ : ∀ {ρ : Rename D′ D} → M ⟼ M′ → M [ ρ ]ᵣ ⟼ M′ [ ρ ]ᵣ
 []ᵣ-cong-⟼ {D′ = D′} {ρ = ρ} (β {M} {N}) = begin
-  (ƛ M [ ⇑ᵣ ρ ]ᵣ) · N [ ρ ]ᵣ ⟶⟨ β ⟩
-  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡˘⟨ []-[]ᵣ-comm M ⟩
+  (ƛ M [ ⇑ᵣ ρ ]ᵣ) · N [ ρ ]ᵣ ⟶⟨ β            ⟩
+  M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡⟨ []-[]ᵣ-comm M ⟨
   M [ N ] [ ρ ]ᵣ ∎
   where open ≡-UpToReasoning (_⟼_ {D′})
 []ᵣ-cong-⟼ {D′ = D′} (ξ·₁ {M} {M′} {N} R) = ξ·₁ ([]ᵣ-cong-⟼ R)

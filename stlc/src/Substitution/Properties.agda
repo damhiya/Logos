@@ -43,7 +43,7 @@ private
 []ᵣ-∘ᵣ-compose                     (# x)   = refl
 []ᵣ-∘ᵣ-compose {ρ₁ = ρ₁} {ρ₂ = ρ₂} (ƛ M)   = cong ƛ_ $ begin
   M [ ⇑ᵣ ρ₁ ]ᵣ [ ⇑ᵣ ρ₂ ]ᵣ   ≡⟨ []ᵣ-∘ᵣ-compose M            ⟩
-  M [ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ ≡˘⟨ []ᵣ-cong-≗ ⇑ᵣ-distrib-∘ᵣ M ⟩
+  M [ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣ-distrib-∘ᵣ M  ⟨
   M [ ⇑ᵣ (ρ₁ ∘ᵣ ρ₂) ]ᵣ      ∎
   where open ≡-Reasoning
 []ᵣ-∘ᵣ-compose                     (M · N) = cong₂ _·_ ([]ᵣ-∘ᵣ-compose M) ([]ᵣ-∘ᵣ-compose N)
@@ -85,7 +85,7 @@ rename-subst-comm {σ = σ} {ρ₁ = ρ₁} {ρ₂ = ρ₂} H (ƛ M)   = cong ƛ
       (⇑ₛ σ) (ρ₁ x) [ ↑ᵣ ]ᵣ       ≡⟨ cong _[ ↑ᵣ ]ᵣ (H x)   ⟩
       (σ x) [ ρ₂ ]ᵣ [ ↑ᵣ ]ᵣ       ≡⟨ []ᵣ-∘ᵣ-compose (σ x)  ⟩
       (σ x) [ ρ₂ ∘ᵣ ↑ᵣ ]ᵣ         ≡⟨⟩
-      (σ x) [ ↑ᵣ ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ    ≡˘⟨ []ᵣ-∘ᵣ-compose (σ x) ⟩
+      (σ x) [ ↑ᵣ ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ    ≡⟨ []ᵣ-∘ᵣ-compose (σ x)  ⟨
       (σ x) [ ↑ᵣ ]ᵣ [ ⇑ᵣ ρ₂ ]ᵣ    ≡⟨⟩
       (⇑ₛ σ) (suc x) [ ⇑ᵣ ρ₂ ]ᵣ   ∎
 rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-subst-comm H M) (rename-subst-comm H N)
@@ -94,7 +94,7 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
 ⇑ₛ-distrib-∘ₛ zero    = refl
 ⇑ₛ-distrib-∘ₛ {σ₁ = σ₁} {σ₂ = σ₂} (suc x) = begin
   (⇑ₛ (σ₁ ∘ₛ σ₂)) (suc x)      ≡⟨⟩
-  σ₁ x [ σ₂ ]ₛ [ ↑ᵣ ]ᵣ         ≡˘⟨ rename-subst-comm (λ x → refl) (σ₁ x) ⟩
+  σ₁ x [ σ₂ ]ₛ [ ↑ᵣ ]ᵣ         ≡⟨ rename-subst-comm (λ x → refl) (σ₁ x) ⟨
   σ₁ x [ ↑ᵣ ]ᵣ [ ⇑ₛ σ₂ ]ₛ      ≡⟨⟩
   ((⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂)) (suc x) ∎
   where open ≡-Reasoning
@@ -102,8 +102,8 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
 []ₛ-∘ₛ-compose : ∀ M → M [ σ₁ ]ₛ [ σ₂ ]ₛ ≡ M [ σ₁ ∘ₛ σ₂ ]ₛ
 []ₛ-∘ₛ-compose (# x)   = refl
 []ₛ-∘ₛ-compose {σ₁ = σ₁} {σ₂ = σ₂} (ƛ M)   = cong ƛ_ $ begin
-  M [ ⇑ₛ σ₁ ]ₛ [ ⇑ₛ σ₂ ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M            ⟩
-  M [ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂) ]ₛ ≡˘⟨ []ₛ-cong-≗ ⇑ₛ-distrib-∘ₛ M ⟩
+  M [ ⇑ₛ σ₁ ]ₛ [ ⇑ₛ σ₂ ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M           ⟩
+  M [ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-distrib-∘ₛ M ⟨
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ      ∎
   where open ≡-Reasoning
 []ₛ-∘ₛ-compose (M · N) = cong₂ _·_ ([]ₛ-∘ₛ-compose M) ([]ₛ-∘ₛ-compose N)
@@ -178,11 +178,11 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
 
 []ₛ-[]ₛ-comm : ∀ M → M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ ≡ M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]
 []ₛ-[]ₛ-comm {σ₁ = σ₁} {N = N} {σ₂ = σ₂} M = begin
-  M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ                         ≡⟨ []ₛ-∘ₛ-compose M                       ⟩
-  M [ (σ₁ ,ₛ N) ∘ₛ σ₂ ]ₛ                         ≡⟨ []ₛ-cong-≗ ∘ₛ-distrib-,ₛ M             ⟩
-  M [ (σ₁ ∘ₛ σ₂) ,ₛ (N [ σ₂ ]ₛ) ]ₛ               ≡˘⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
-  M [ ((σ₁ ∘ₛ σ₂) ∘ₛ ιₛ) ,ₛ (N [ σ₂ ]ₛ) ]ₛ       ≡˘⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟩
-  M [ (⇑ₛ (σ₁ ∘ₛ σ₂)) ∘ₛ (ιₛ ,ₛ (N [ σ₂ ]ₛ)) ]ₛ  ≡˘⟨ []ₛ-∘ₛ-compose M                      ⟩
+  M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ                         ≡⟨ []ₛ-∘ₛ-compose M                      ⟩
+  M [ (σ₁ ,ₛ N) ∘ₛ σ₂ ]ₛ                         ≡⟨ []ₛ-cong-≗ ∘ₛ-distrib-,ₛ M            ⟩
+  M [ (σ₁ ∘ₛ σ₂) ,ₛ (N [ σ₂ ]ₛ) ]ₛ               ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟨
+  M [ ((σ₁ ∘ₛ σ₂) ∘ₛ ιₛ) ,ₛ (N [ σ₂ ]ₛ) ]ₛ       ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟨
+  M [ (⇑ₛ (σ₁ ∘ₛ σ₂)) ∘ₛ (ιₛ ,ₛ (N [ σ₂ ]ₛ)) ]ₛ  ≡⟨ []ₛ-∘ₛ-compose M                      ⟨
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]             ∎
   where open ≡-Reasoning
 
@@ -191,20 +191,20 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
 
 []ₛ-[]ᵣ-comm : ∀ M → M [ σ ,ₛ N ]ₛ [ ρ ]ᵣ ≡ M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ρ ]ᵣ ]
 []ₛ-[]ᵣ-comm {σ = σ} {N = N} {ρ = ρ} M = begin
-  M [ σ ,ₛ N ]ₛ [ ρ ]ᵣ                    ≡⟨ []ᵣ⇒[]ₛ (M [ σ ,ₛ N ]ₛ)                                ⟩
-  M [ σ ,ₛ N ]ₛ [ ren ρ ]ₛ                ≡⟨ []ₛ-[]ₛ-comm M                                         ⟩
-  M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ren ρ ]ₛ ] ≡˘⟨ cong (λ N → M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N ]) ([]ᵣ⇒[]ₛ N) ⟩
+  M [ σ ,ₛ N ]ₛ [ ρ ]ᵣ                    ≡⟨ []ᵣ⇒[]ₛ (M [ σ ,ₛ N ]ₛ)                               ⟩
+  M [ σ ,ₛ N ]ₛ [ ren ρ ]ₛ                ≡⟨ []ₛ-[]ₛ-comm M                                        ⟩
+  M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ren ρ ]ₛ ] ≡⟨ cong (λ N → M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N ]) ([]ᵣ⇒[]ₛ N) ⟨
   M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ρ ]ᵣ ]     ∎
   where open ≡-Reasoning
 
 []-[]ᵣ-comm : ∀ M → M [ N ] [ ρ ]ᵣ ≡ M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]
 []-[]ᵣ-comm {N = N} {ρ = ρ} M = begin
   M [ N ] [ ρ ]ᵣ                 ≡⟨ []ₛ-[]ᵣ-comm M ⟩
-  M [ ⇑ₛ ren ρ ]ₛ [ N [ ρ ]ᵣ ]   ≡˘⟨ cong _[ N [ ρ ]ᵣ ] (begin
+  M [ ⇑ₛ ren ρ ]ₛ [ N [ ρ ]ᵣ ]   ≡⟨ cong _[ N [ ρ ]ᵣ ] (begin
                                        M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ []ᵣ⇒[]ₛ M              ⟩
                                        M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≗ ren-⇑ᵣ-⇑ₛ M ⟩
                                        M [ ⇑ₛ ren ρ ]ₛ   ∎)
-                                   ⟩
+                                  ⟨
   M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]       ∎
   where open ≡-Reasoning
 

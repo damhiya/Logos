@@ -97,7 +97,7 @@ compat-ƛ {B = B} M ⊨M {γ} Γ∋γ =
       M [ ⇑ₛ Env⇒Subst γ ]ₛ [ ιₛ ,ₛ Val⇒Tm V ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M                      ⟩
       M [ (⇑ₛ Env⇒Subst γ) ∘ₛ (ιₛ ,ₛ Val⇒Tm V) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟩
       M [ (Env⇒Subst γ ∘ₛ ιₛ) ,ₛ Val⇒Tm V ]ₛ      ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
-      M [ Env⇒Subst γ ,ₛ Val⇒Tm V ]ₛ              ≡˘⟨ []ₛ-cong-≗ Env⇒Subst-,ₑ-,ₛ M         ⟩
+      M [ Env⇒Subst γ ,ₛ Val⇒Tm V ]ₛ              ≡⟨ []ₛ-cong-≗ Env⇒Subst-,ₑ-,ₛ M          ⟨
       M [ Env⇒Subst (γ ,ₑ V) ]ₛ                   ∎
 
 compat-· : ∀ M N → Γ ⊨ M ⦂ A ⇒ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B

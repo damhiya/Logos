@@ -78,13 +78,13 @@ compat-ƛ {Γ = Γ} A B M ⊨M {D} Δ γ γ∈Γ {D′} Δ′ ρ N ⊢ρ HN[N] =
     R : (ƛ (M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ)) · N ⟼ M [ γ′ ]ₛ
     R = begin
       (ƛ (M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ)) · N ⟶⟨ β ⟩
-      M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ [ N ]                ≡⟨ cong _[ N ] ([]ᵣ⇒[]ₛ (M [ ⇑ₛ γ ]ₛ)) ⟩
-      M [ ⇑ₛ γ ]ₛ [ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ cong _[ N ] ([]ₛ-∘ₛ-compose M) ⟩
-      M [ (⇑ₛ γ) ∘ₛ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M ⟩
+      M [ ⇑ₛ γ ]ₛ [ ⇑ᵣ ρ ]ᵣ [ N ]                ≡⟨ cong _[ N ] ([]ᵣ⇒[]ₛ (M [ ⇑ₛ γ ]ₛ))                               ⟩
+      M [ ⇑ₛ γ ]ₛ [ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ cong _[ N ] ([]ₛ-∘ₛ-compose M)                                    ⟩
+      M [ (⇑ₛ γ) ∘ₛ ren (⇑ᵣ ρ) ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M                                                  ⟩
       M [ ((⇑ₛ γ) ∘ₛ ren (⇑ᵣ ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡⟨ []ₛ-cong-≗ (∘ₛ-cong-≗₁ (∘ₛ-cong-≗₂ (⇑ₛ γ) ren-⇑ᵣ-⇑ₛ) (ιₛ ,ₛ N)) M ⟩
-      M [ ((⇑ₛ γ) ∘ₛ (⇑ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡˘⟨ []ₛ-cong-≗ (∘ₛ-cong-≗₁ ⇑ₛ-distrib-∘ₛ (ιₛ ,ₛ N)) M ⟩
-      M [ (⇑ₛ (γ ∘ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ      ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M ⟩
-      M [ ((γ ∘ₛ ren ρ) ∘ₛ ιₛ) ,ₛ N ]ₛ           ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
+      M [ ((⇑ₛ γ) ∘ₛ (⇑ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡⟨ []ₛ-cong-≗ (∘ₛ-cong-≗₁ ⇑ₛ-distrib-∘ₛ (ιₛ ,ₛ N)) M                 ⟨
+      M [ (⇑ₛ (γ ∘ₛ ren ρ)) ∘ₛ (ιₛ ,ₛ N) ]ₛ      ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M                                        ⟩
+      M [ ((γ ∘ₛ ren ρ) ∘ₛ ιₛ) ,ₛ N ]ₛ           ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M                             ⟩
       M [ (γ ∘ₛ ren ρ) ,ₛ N ]ₛ                   ≡⟨⟩
       M [ γ′ ]ₛ                                  ∎
 
@@ -124,8 +124,8 @@ fundamental {M = M · N} (_·_ {A = A} {B = B} ⊢M ⊢N) = compat-· A B M N (f
 ... | refl | refl =
   ∃ ƛ Mz′ st
     (begin
-      ƛ M                         ≡˘⟨ cong ƛ_ ([⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M) ⟩
-      ƛ (M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ]) ⟶*⟨ ξƛ* Rs ⟩
+      ƛ M                         ≡⟨ cong ƛ_ ([⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M) ⟨
+      ƛ (M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ]) ⟶*⟨ ξƛ* Rs                      ⟩
       ƛ Mz′                       ∎)
     (ƛ ⊢Mz′)
   where open StarReasoning (_⟶_ {G})

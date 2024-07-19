@@ -30,9 +30,12 @@ _∘ᵣ_ : Rename D E → Rename G D → Rename G E
 ρ₁ ∘ᵣ ρ₂ = λ x → ρ₂ (ρ₁ x)
 
 _[_]ᵣ : Tm D → Rename G D → Tm G
-(# x)   [ ρ ]ᵣ = # ρ x
-(ƛ M)   [ ρ ]ᵣ = ƛ M [ ⇑ᵣ ρ ]ᵣ
-(M · N) [ ρ ]ᵣ = M [ ρ ]ᵣ · N [ ρ ]ᵣ
+(# x)     [ ρ ]ᵣ = # ρ x
+(ƛ M)     [ ρ ]ᵣ = ƛ M [ ⇑ᵣ ρ ]ᵣ
+(M · N)   [ ρ ]ᵣ = M [ ρ ]ᵣ · N [ ρ ]ᵣ
+⟨ M , N ⟩ [ ρ ]ᵣ = ⟨ M [ ρ ]ᵣ , N [ ρ ]ᵣ ⟩
+M ·fst    [ ρ ]ᵣ = M [ ρ ]ᵣ ·fst
+M ·snd    [ ρ ]ᵣ = M [ ρ ]ᵣ ·snd
 
 ιₛ : Subst G G
 ιₛ = #_
@@ -57,9 +60,12 @@ _,ₛ_ : Subst G D → Tm G → Subst G (suc D)
            }
 
 _[_]ₛ : Tm D → Subst G D → Tm G
-(# x)   [ σ ]ₛ = σ x
-(ƛ M)   [ σ ]ₛ = ƛ M [ ⇑ₛ σ ]ₛ
-(M · N) [ σ ]ₛ = M [ σ ]ₛ · N [ σ ]ₛ
+(# x)     [ σ ]ₛ = σ x
+(ƛ M)     [ σ ]ₛ = ƛ M [ ⇑ₛ σ ]ₛ
+(M · N)   [ σ ]ₛ = M [ σ ]ₛ · N [ σ ]ₛ
+⟨ M , N ⟩ [ σ ]ₛ = ⟨ M [ σ ]ₛ , N [ σ ]ₛ ⟩
+M ·fst    [ σ ]ₛ = M [ σ ]ₛ ·fst
+M ·snd    [ σ ]ₛ = M [ σ ]ₛ ·snd
 
 _∘ₛ_ : Subst D E → Subst G D → Subst G E
 σ₁ ∘ₛ σ₂ = λ x → σ₁ x [ σ₂ ]ₛ

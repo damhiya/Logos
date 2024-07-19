@@ -19,31 +19,40 @@ private
 
 Value[Val⇒Tm_] : ∀ M → Value (Val⇒Tm M)
 Value[Val⇒Tm ƛ M ] = ƛ M
+Value[Val⇒Tm ⟨ M , N ⟩ ] = ⟨ M , N ⟩
 
-ξ₁* : ∀ {M M′ N} → M ⟶* M′ → M · N ⟶* M′ · N
-ξ₁* ε        = ε
-ξ₁* (R ◅ Rs) = ξ₁ R ◅ ξ₁* Rs
+ξ·₁* : ∀ {M M′ N} → M ⟶* M′ → M · N ⟶* M′ · N
+ξ·₁* = gmap (_· _) ξ·₁
 
-ξ₂* : ∀ {M N N′} → Value M → N ⟶* N′ → M · N ⟶* M · N′
-ξ₂* V ε        = ε
-ξ₂* V (R ◅ Rs) = ξ₂ V R ◅ ξ₂* V Rs
+ξ·₂* : ∀ {M N N′} → Value M → N ⟶* N′ → M · N ⟶* M · N′
+ξ·₂* V = gmap (_ ·_) (ξ·₂ V)
+
+ξ·fst* : M ⟶* M′ → M ·fst ⟶* M′ ·fst
+ξ·fst* = gmap _·fst ξ·fst
+
+ξ·snd* : M ⟶* M′ → M ·snd ⟶* M′ ·snd
+ξ·snd* = gmap _·snd ξ·snd
 
 ƛ↓ : ∀ {M} → ƛ M ↓ ƛ M
 ƛ↓ = ε
 
 ·↓ : ∀ {M₁ M₁′ M₂ V₂ V} → M₁ ↓ ƛ M₁′ → M₂ ↓ V₂ → M₁′ [ Val⇒Tm V₂ ] ↓ V → M₁ · M₂ ↓ V
 ·↓ {M₁ = M₁} {M₁′ = M₁′} {M₂ = M₂} {V₂ = V₂} {V = V} R₁ R₂ R₃ = begin
-  M₁      · M₂        ⟶*⟨ ξ₁* R₁             ⟩
-  (ƛ M₁′) · M₂        ⟶*⟨ ξ₂* (ƛ M₁′) R₂     ⟩
-  (ƛ M₁′) · Val⇒Tm V₂ ⟶⟨ β Value[Val⇒Tm V₂ ] ⟩
+  M₁      · M₂        ⟶*⟨ ξ·₁* R₁             ⟩
+  (ƛ M₁′) · M₂        ⟶*⟨ ξ·₂* (ƛ M₁′) R₂     ⟩
+  (ƛ M₁′) · Val⇒Tm V₂ ⟶⟨ β→ Value[Val⇒Tm V₂ ] ⟩
   M₁′ [ Val⇒Tm V₂ ]   ⟶*⟨ R₃                 ⟩
   Val⇒Tm V            ∎
   where open StarReasoning _⟶_
 
 type-preservation : M ⟶ M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
-type-preservation (β V)    ((ƛ M) · N) = ⊢-[] M N
-type-preservation (ξ₁ R)   (M · N)     = type-preservation R M · N
-type-preservation (ξ₂ V R) (M · N)     = M · type-preservation R N
+type-preservation (β→ V)    ((ƛ M) · N)      = ⊢-[] M N
+type-preservation β×₁       (⟨ M , N ⟩ ·fst) = M
+type-preservation β×₂       (⟨ M , N ⟩ ·snd) = N
+type-preservation (ξ·₁ R)   (M · N)          = type-preservation R M · N
+type-preservation (ξ·₂ V R) (M · N)          = M · type-preservation R N
+type-preservation (ξ·fst R) (M ·fst)         = type-preservation R M ·fst
+type-preservation (ξ·snd R) (M ·snd)         = type-preservation R M ·snd
 
 type-preservation* : M ⟶* M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
 type-preservation* ε        M = M
@@ -51,12 +60,20 @@ type-preservation* (R ◅ Rs) M = type-preservation* Rs (type-preservation R M)
 
 -- well-typedness is not necessary
 progress : ∙ ⊢ M ⦂ A → Progress M
-progress {M = ƛ M}       (ƛ ⊢M)                                   = done (ƛ M)
-progress {M = M · N}     (⊢M · ⊢N) with progress ⊢M
-progress {M = M · N}     (⊢M · ⊢N) | step R                       = step (ξ₁ R)
-progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) with progress ⊢N
-progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) | step R          = step (ξ₂ (ƛ M) R)
-progress {M = (ƛ M) · N} (⊢M · ⊢N) | done (ƛ M) | done V          = step (β V)
+progress (# ())
+progress (ƛ_ {M = M} ⊢M)                          = done (ƛ M)
+progress (⊢M · ⊢N) with progress ⊢M
+progress (⊢M · ⊢N) | step R                       = step (ξ·₁ R)
+progress (⊢M · ⊢N) | done (ƛ M) with progress ⊢N
+progress (⊢M · ⊢N) | done (ƛ M) | step R          = step (ξ·₂ (ƛ M) R)
+progress (⊢M · ⊢N) | done (ƛ M) | done V          = step (β→ V)
+progress (⟨_,_⟩ {M = M} {N = N} ⊢M ⊢N)            = done ⟨ M , N ⟩
+progress (⊢M ·fst) with progress ⊢M
+progress (⊢M ·fst) | step R                       = step (ξ·fst R)
+progress (⊢M ·fst) | done ⟨ M , N ⟩               = step β×₁
+progress (⊢M ·snd) with progress ⊢M
+progress (⊢M ·snd) | step R                       = step (ξ·snd R)
+progress (⊢M ·snd) | done ⟨ M , N ⟩               = step β×₂
 
 type-safety : ∙ ⊢ M ⦂ A → M ⟶* M′ → Progress M′
 type-safety M R = progress (type-preservation* R M)
@@ -65,10 +82,14 @@ Value⇒Normal : Value M → Normal M
 Value⇒Normal (ƛ M) ()
 
 deterministic : M ⟶ M′ → M ⟶ M″ → M′ ≡ M″
-deterministic (β V₁)    (β V₂)    = refl
-deterministic (β V)     (ξ₂ _ R)  = ⊥-elim (Value⇒Normal V R)
-deterministic (ξ₁ R₁)   (ξ₁ R₂)   = cong (_· _) (deterministic R₁ R₂)
-deterministic (ξ₁ R)    (ξ₂ V _)  = ⊥-elim (Value⇒Normal V R)
-deterministic (ξ₂ _ R)  (β V)     = ⊥-elim (Value⇒Normal V R)
-deterministic (ξ₂ V _)  (ξ₁ R)    = ⊥-elim (Value⇒Normal V R)
-deterministic (ξ₂ _ R₁) (ξ₂ _ R₂) = cong (_ ·_) (deterministic R₁ R₂)
+deterministic (β→ V₁)    (β→ V₂)    = refl
+deterministic (β→ V)     (ξ·₂ _ R)  = ⊥-elim (Value⇒Normal V R)
+deterministic β×₁        β×₁        = refl
+deterministic β×₂        β×₂        = refl
+deterministic (ξ·₁ R₁)   (ξ·₁ R₂)   = cong (_· _) (deterministic R₁ R₂)
+deterministic (ξ·₁ R)    (ξ·₂ V _)  = ⊥-elim (Value⇒Normal V R)
+deterministic (ξ·₂ _ R)  (β→ V)     = ⊥-elim (Value⇒Normal V R)
+deterministic (ξ·₂ V _)  (ξ·₁ R)    = ⊥-elim (Value⇒Normal V R)
+deterministic (ξ·₂ _ R₁) (ξ·₂ _ R₂) = cong (_ ·_) (deterministic R₁ R₂)
+deterministic (ξ·fst R₁) (ξ·fst R₂) = cong _·fst (deterministic R₁ R₂)
+deterministic (ξ·snd R₁) (ξ·snd R₂) = cong _·snd (deterministic R₁ R₂)

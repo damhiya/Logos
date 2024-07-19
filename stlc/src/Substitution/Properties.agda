@@ -34,6 +34,9 @@ private
 []ᵣ-cong-≗ H (# x)   = cong #_ (H x)
 []ᵣ-cong-≗ H (ƛ M)   = cong ƛ_ ([]ᵣ-cong-≗ (⇑ᵣ-cong-≗ H) M)
 []ᵣ-cong-≗ H (M · N) = cong₂ _·_ ([]ᵣ-cong-≗ H M) ([]ᵣ-cong-≗ H N)
+[]ᵣ-cong-≗ H ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ᵣ-cong-≗ H M) ([]ᵣ-cong-≗ H N)
+[]ᵣ-cong-≗ H (M ·fst) = cong _·fst ([]ᵣ-cong-≗ H M)
+[]ᵣ-cong-≗ H (M ·snd) = cong _·snd ([]ᵣ-cong-≗ H M)
 
 ⇑ᵣ-distrib-∘ᵣ : ⇑ᵣ (ρ₁ ∘ᵣ ρ₂) ≗ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂)
 ⇑ᵣ-distrib-∘ᵣ zero    = refl
@@ -46,6 +49,9 @@ private
   M [ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣ-distrib-∘ᵣ M  ⟨
   M [ ⇑ᵣ (ρ₁ ∘ᵣ ρ₂) ]ᵣ      ∎
 []ᵣ-∘ᵣ-compose                     (M · N) = cong₂ _·_ ([]ᵣ-∘ᵣ-compose M) ([]ᵣ-∘ᵣ-compose N)
+[]ᵣ-∘ᵣ-compose                     ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ᵣ-∘ᵣ-compose M) ([]ᵣ-∘ᵣ-compose N)
+[]ᵣ-∘ᵣ-compose                     (M ·fst) = cong _·fst ([]ᵣ-∘ᵣ-compose M)
+[]ᵣ-∘ᵣ-compose                     (M ·snd) = cong _·snd ([]ᵣ-∘ᵣ-compose M)
 
 -- Subst core lemmas
 ⇑ₛ-cong-≗ : σ₁ ≗ σ₂ → ⇑ₛ σ₁ ≗ ⇑ₛ σ₂
@@ -60,6 +66,9 @@ private
 []ₛ-cong-≗ H (# x)   = H x
 []ₛ-cong-≗ H (ƛ M)   = cong ƛ_ ([]ₛ-cong-≗ (⇑ₛ-cong-≗ H) M)
 []ₛ-cong-≗ H (M · N) = cong₂ _·_ ([]ₛ-cong-≗ H M) ([]ₛ-cong-≗ H N)
+[]ₛ-cong-≗ H ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ₛ-cong-≗ H M) ([]ₛ-cong-≗ H N)
+[]ₛ-cong-≗ H (M ·fst) = cong _·fst ([]ₛ-cong-≗ H M)
+[]ₛ-cong-≗ H (M ·snd) = cong _·snd ([]ₛ-cong-≗ H M)
 
 ∘ₛ-cong-≗ : σ₁ ≗ σ₁′ → σ₂ ≗ σ₂′ → σ₁ ∘ₛ σ₂ ≗ σ₁′ ∘ₛ σ₂′
 ∘ₛ-cong-≗ H₁ H₂ x = ≗-elim ([]ₛ-cong-≗ H₂) (H₁ x)
@@ -87,6 +96,9 @@ rename-subst-comm {σ = σ} {ρ₁ = ρ₁} {ρ₂ = ρ₂} H (ƛ M)   = cong ƛ
       (σ x) [ ↑ᵣ ]ᵣ [ ⇑ᵣ ρ₂ ]ᵣ    ≡⟨⟩
       (⇑ₛ σ) (suc x) [ ⇑ᵣ ρ₂ ]ᵣ   ∎
 rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-subst-comm H M) (rename-subst-comm H N)
+rename-subst-comm                             H ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ (rename-subst-comm H M) (rename-subst-comm H N)
+rename-subst-comm                             H (M ·fst) = cong _·fst (rename-subst-comm H M)
+rename-subst-comm                             H (M ·snd) = cong _·snd (rename-subst-comm H M)
 
 ⇑ₛ-distrib-∘ₛ : ⇑ₛ (σ₁ ∘ₛ σ₂) ≗ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂)
 ⇑ₛ-distrib-∘ₛ zero    = refl
@@ -103,6 +115,9 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   M [ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-distrib-∘ₛ M ⟨
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ      ∎
 []ₛ-∘ₛ-compose (M · N) = cong₂ _·_ ([]ₛ-∘ₛ-compose M) ([]ₛ-∘ₛ-compose N)
+[]ₛ-∘ₛ-compose ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ₛ-∘ₛ-compose M) ([]ₛ-∘ₛ-compose N)
+[]ₛ-∘ₛ-compose (M ·fst) = cong _·fst ([]ₛ-∘ₛ-compose M)
+[]ₛ-∘ₛ-compose (M ·snd) = cong _·snd ([]ₛ-∘ₛ-compose M)
 
 -- identity substitution
 ⇑ᵣιᵣ≗ιᵣ : ⇑ᵣ (ιᵣ {G = G}) ≗ ιᵣ
@@ -116,6 +131,9 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   M [ ιᵣ ]ᵣ    ≡⟨ []ᵣ-identity M ⟩
   M            ∎
 []ᵣ-identity (M · N) = cong₂ _·_ ([]ᵣ-identity M) ([]ᵣ-identity N)
+[]ᵣ-identity ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ᵣ-identity M) ([]ᵣ-identity N)
+[]ᵣ-identity (M ·fst) = cong _·fst ([]ᵣ-identity M)
+[]ᵣ-identity (M ·snd) = cong _·snd ([]ᵣ-identity M)
 
 ⇑ₛιₛ≗ιₛ : ⇑ₛ (ιₛ {G = G}) ≗ ιₛ
 ⇑ₛιₛ≗ιₛ zero    = refl
@@ -131,6 +149,9 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   M [ ιₛ ]ₛ    ≡⟨ []ₛ-identity M       ⟩
   M            ∎
 []ₛ-identity (M · N) = cong₂ _·_ ([]ₛ-identity M) ([]ₛ-identity N)
+[]ₛ-identity ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ₛ-identity M) ([]ₛ-identity N)
+[]ₛ-identity (M ·fst) = cong _·fst ([]ₛ-identity M)
+[]ₛ-identity (M ·snd) = cong _·snd ([]ₛ-identity M)
 
 ∘ₛ-identityˡ : ιₛ ∘ₛ σ ≗ σ
 ∘ₛ-identityˡ x = refl
@@ -157,6 +178,9 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≗ ren-⇑ᵣ-⇑ₛ M ⟩
   M [ ⇑ₛ ren ρ ]ₛ   ∎
 []ᵣ⇒[]ₛ         (M · N) = cong₂ _·_ ([]ᵣ⇒[]ₛ M) ([]ᵣ⇒[]ₛ N)
+[]ᵣ⇒[]ₛ         ⟨ M , N ⟩ = cong₂ ⟨_,_⟩ ([]ᵣ⇒[]ₛ M) ([]ᵣ⇒[]ₛ N)
+[]ᵣ⇒[]ₛ         (M ·fst) = cong _·fst ([]ᵣ⇒[]ₛ M)
+[]ᵣ⇒[]ₛ         (M ·snd) = cong _·snd ([]ᵣ⇒[]ₛ M)
 
 ⇑ₛ-,ₛ-compose : (⇑ₛ σ₁) ∘ₛ (σ₂ ,ₛ M) ≗ (σ₁ ∘ₛ σ₂) ,ₛ M
 ⇑ₛ-,ₛ-compose zero    = refl
@@ -251,6 +275,9 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 ⊢ᵣ-[]ᵣ ρ (# x)   = # ρ x
 ⊢ᵣ-[]ᵣ ρ (ƛ M)   = ƛ ⊢ᵣ-[]ᵣ (⊢ᵣ-⇑ᵣ ρ) M
 ⊢ᵣ-[]ᵣ ρ (M · N) = ⊢ᵣ-[]ᵣ ρ M · ⊢ᵣ-[]ᵣ ρ N
+⊢ᵣ-[]ᵣ ρ ⟨ M , N ⟩ = ⟨ ⊢ᵣ-[]ᵣ ρ M , ⊢ᵣ-[]ᵣ ρ N ⟩
+⊢ᵣ-[]ᵣ ρ (M ·fst) = ⊢ᵣ-[]ᵣ ρ M ·fst
+⊢ᵣ-[]ᵣ ρ (M ·snd) = ⊢ᵣ-[]ᵣ ρ M ·snd
 
 ⊢ₛ-ιₛ : Γ ⊢ₛ ιₛ ⦂ Γ
 ⊢ₛ-ιₛ x = # x
@@ -270,6 +297,9 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 ⊢ₛ-[]ₛ σ (# x)   = σ x
 ⊢ₛ-[]ₛ σ (ƛ M)   = ƛ ⊢ₛ-[]ₛ (⊢ₛ-⇑ₛ σ) M
 ⊢ₛ-[]ₛ σ (M · N) = ⊢ₛ-[]ₛ σ M · ⊢ₛ-[]ₛ σ N
+⊢ₛ-[]ₛ σ ⟨ M , N ⟩ = ⟨ ⊢ₛ-[]ₛ σ M , ⊢ₛ-[]ₛ σ N ⟩
+⊢ₛ-[]ₛ σ (M ·fst) = ⊢ₛ-[]ₛ σ M ·fst
+⊢ₛ-[]ₛ σ (M ·snd) = ⊢ₛ-[]ₛ σ M ·snd
 
 ⊢-[] : Γ , A ⊢ M ⦂ B → Γ ⊢ N ⦂ A → Γ ⊢ M [ N ] ⦂ B
 ⊢-[] M N = ⊢ₛ-[]ₛ (⊢ₛ-,ₛ ⊢ₛ-ιₛ N) M

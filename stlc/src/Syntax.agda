@@ -1,9 +1,7 @@
 module Syntax where
 
-open import Data.Empty
 open import Data.Fin.Base
 open import Data.Nat.Base
-open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Relation.Binary.PropositionalEquality.Core
 
 infix  20 #_
@@ -22,35 +20,14 @@ private
     x y : Fin G
     M M₁ M₂ N N₁ N₂ : Tm G
 
-_≡Tm_ : Tm G → Tm G → Set
-(# x)     ≡Tm (# y)     = x ≡ y
-(# x)     ≡Tm (ƛ N)     = ⊥
-(# x)     ≡Tm (N₁ · N₂) = ⊥
-(ƛ M)     ≡Tm (# x)     = ⊥
-(ƛ M)     ≡Tm (ƛ N)     = M ≡ N
-(ƛ M)     ≡Tm (N₁ · N₂) = ⊥
-(M₁ · M₂) ≡Tm (# x)     = ⊥
-(M₁ · M₂) ≡Tm (ƛ N)     = ⊥
-(M₁ · M₂) ≡Tm (N₁ · N₂) = M₁ ≡ N₁ × M₂ ≡ N₂
-
-≡⇒≡Tm : M ≡ N → M ≡Tm N
-≡⇒≡Tm {M = # x}     refl = refl
-≡⇒≡Tm {M = ƛ M}     refl = refl
-≡⇒≡Tm {M = M₁ · M₂} refl = ⟨ refl , refl ⟩
-
-≡Tm⇒≡ : M ≡Tm N → M ≡ N
-≡Tm⇒≡ {M = # x}     {N = # y}     p           = cong #_ p
-≡Tm⇒≡ {M = ƛ M}     {N = ƛ N}     p           = cong ƛ_ p
-≡Tm⇒≡ {M = M₁ · M₂} {N = N₁ · N₂} ⟨ p₁ , p₂ ⟩ = cong₂ _·_ p₁ p₂
-
 #-inj : # x ≡ # y → x ≡ y
-#-inj p = ≡⇒≡Tm p
+#-inj refl = refl
 
 ·-inj₁ : M₁ · M₂ ≡ N₁ · N₂ → M₁ ≡ N₁
-·-inj₁ p = ≡⇒≡Tm p .proj₁
+·-inj₁ refl = refl
 
 ·-inj₂ : M₁ · M₂ ≡ N₁ · N₂ → M₂ ≡ N₂
-·-inj₂ p = ≡⇒≡Tm p .proj₂
+·-inj₂ refl = refl
 
 ƛ-inj : ƛ M ≡ ƛ N → M ≡ N
-ƛ-inj p = ≡⇒≡Tm p
+ƛ-inj refl = refl

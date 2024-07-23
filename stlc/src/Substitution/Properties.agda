@@ -12,7 +12,7 @@ open import Statics
 open import Statics.Properties
 open import Substitution
 
-infix 4 _⊢ᵣ_⦂_ _⊢ₛ_⦂_
+open ≡-Reasoning
 
 ≗-elim : ∀ {a b} {A : Set a} {B : Set b} {f g : A → B} →
          f ≗ g → ∀ {x y} → x ≡ y → f x ≡ g y
@@ -45,7 +45,6 @@ private
   M [ ⇑ᵣ ρ₁ ]ᵣ [ ⇑ᵣ ρ₂ ]ᵣ   ≡⟨ []ᵣ-∘ᵣ-compose M            ⟩
   M [ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣ-distrib-∘ᵣ M  ⟨
   M [ ⇑ᵣ (ρ₁ ∘ᵣ ρ₂) ]ᵣ      ∎
-  where open ≡-Reasoning
 []ᵣ-∘ᵣ-compose                     (M · N) = cong₂ _·_ ([]ᵣ-∘ᵣ-compose M) ([]ᵣ-∘ᵣ-compose N)
 
 -- Subst core lemmas
@@ -76,7 +75,6 @@ rename-subst-comm : (∀ x → (⇑ₛ σ) (ρ₁ x) ≡ σ x [ ρ₂ ]ᵣ) →
 rename-subst-comm                             H (# x)   = H x
 rename-subst-comm {σ = σ} {ρ₁ = ρ₁} {ρ₂ = ρ₂} H (ƛ M)   = cong ƛ_ (rename-subst-comm H′ M)
   where
-    open ≡-Reasoning
     H′ : ∀ x → (⇑ₛ ⇑ₛ σ) ((⇑ᵣ ρ₁) x) ≡ (⇑ₛ σ) x [ ⇑ᵣ ρ₂ ]ᵣ
     H′ zero    = refl
     H′ (suc x) = begin
@@ -97,7 +95,6 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   σ₁ x [ σ₂ ]ₛ [ ↑ᵣ ]ᵣ         ≡⟨ rename-subst-comm (λ x → refl) (σ₁ x) ⟨
   σ₁ x [ ↑ᵣ ]ᵣ [ ⇑ₛ σ₂ ]ₛ      ≡⟨⟩
   ((⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂)) (suc x) ∎
-  where open ≡-Reasoning
 
 []ₛ-∘ₛ-compose : ∀ M → M [ σ₁ ]ₛ [ σ₂ ]ₛ ≡ M [ σ₁ ∘ₛ σ₂ ]ₛ
 []ₛ-∘ₛ-compose (# x)   = refl
@@ -105,7 +102,6 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   M [ ⇑ₛ σ₁ ]ₛ [ ⇑ₛ σ₂ ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M           ⟩
   M [ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-distrib-∘ₛ M ⟨
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ      ∎
-  where open ≡-Reasoning
 []ₛ-∘ₛ-compose (M · N) = cong₂ _·_ ([]ₛ-∘ₛ-compose M) ([]ₛ-∘ₛ-compose N)
 
 -- identity substitution
@@ -119,7 +115,6 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   M [ ⇑ᵣ ιᵣ ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣιᵣ≗ιᵣ M ⟩
   M [ ιᵣ ]ᵣ    ≡⟨ []ᵣ-identity M ⟩
   M            ∎
-  where open ≡-Reasoning
 []ᵣ-identity (M · N) = cong₂ _·_ ([]ᵣ-identity M) ([]ᵣ-identity N)
 
 ⇑ₛιₛ≗ιₛ : ⇑ₛ (ιₛ {G = G}) ≗ ιₛ
@@ -135,7 +130,6 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
   M [ ⇑ₛ ιₛ ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛιₛ≗ιₛ M ⟩
   M [ ιₛ ]ₛ    ≡⟨ []ₛ-identity M       ⟩
   M            ∎
-  where open ≡-Reasoning
 []ₛ-identity (M · N) = cong₂ _·_ ([]ₛ-identity M) ([]ₛ-identity N)
 
 ∘ₛ-identityˡ : ιₛ ∘ₛ σ ≗ σ
@@ -162,7 +156,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ []ᵣ⇒[]ₛ M ⟩
   M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≗ ren-⇑ᵣ-⇑ₛ M ⟩
   M [ ⇑ₛ ren ρ ]ₛ   ∎
-  where open ≡-Reasoning
 []ᵣ⇒[]ₛ         (M · N) = cong₂ _·_ ([]ᵣ⇒[]ₛ M) ([]ᵣ⇒[]ₛ N)
 
 ⇑ₛ-,ₛ-compose : (⇑ₛ σ₁) ∘ₛ (σ₂ ,ₛ M) ≗ (σ₁ ∘ₛ σ₂) ,ₛ M
@@ -172,7 +165,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   σ₁ x [ ren ↑ᵣ ]ₛ [ σ₂ ,ₛ M ]ₛ   ≡⟨ []ₛ-∘ₛ-compose (σ₁ x)               ⟩
   σ₁ x [ (ren ↑ᵣ) ∘ₛ (σ₂ ,ₛ M) ]ₛ ≡⟨⟩
   σ₁ x [ σ₂ ]ₛ ∎
-  where open ≡-Reasoning
 
 -- computation for ∘ₛ
 ∘ₛ-distrib-,ₛ : (σ₁ ,ₛ M) ∘ₛ σ₂ ≗ (σ₁ ∘ₛ σ₂) ,ₛ (M [ σ₂ ]ₛ)
@@ -187,7 +179,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ (⇑ₛ σ) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M ⟩
   M [ (σ ∘ₛ ιₛ) ,ₛ N ]ₛ      ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
   M [ σ ,ₛ N ]ₛ              ∎
-  where open ≡-Reasoning
 
 []ₛ-[]ₛ-comm : ∀ M → M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ ≡ M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]
 []ₛ-[]ₛ-comm {σ₁ = σ₁} {N = N} {σ₂ = σ₂} M = begin
@@ -195,7 +186,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ (σ₁ ,ₛ N) ∘ₛ σ₂ ]ₛ                         ≡⟨ []ₛ-cong-≗ ∘ₛ-distrib-,ₛ M ⟩
   M [ (σ₁ ∘ₛ σ₂) ,ₛ (N [ σ₂ ]ₛ) ]ₛ               ≡⟨ []ₛ-[]-compose M           ⟨
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]             ∎
-  where open ≡-Reasoning
 
 []-[]ₛ-comm : ∀ M → M [ N ] [ σ ]ₛ ≡ M [ ⇑ₛ σ ]ₛ [ N [ σ ]ₛ ]
 []-[]ₛ-comm M = []ₛ-[]ₛ-comm M
@@ -206,7 +196,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ σ ,ₛ N ]ₛ [ ren ρ ]ₛ                ≡⟨ []ₛ-[]ₛ-comm M                                        ⟩
   M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ren ρ ]ₛ ] ≡⟨ cong (λ N → M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N ]) ([]ᵣ⇒[]ₛ N) ⟨
   M [ ⇑ₛ (σ ∘ₛ ren ρ) ]ₛ [ N [ ρ ]ᵣ ]     ∎
-  where open ≡-Reasoning
 
 []-[]ᵣ-comm : ∀ M → M [ N ] [ ρ ]ᵣ ≡ M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]
 []-[]ᵣ-comm {N = N} {ρ = ρ} M = begin
@@ -217,7 +206,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
                                        M [ ⇑ₛ ren ρ ]ₛ   ∎)
                                   ⟨
   M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]       ∎
-  where open ≡-Reasoning
 
 [⇑ᵣ↑ᵣ]ᵣ[#zero]≗id : ∀ (M : Tm (suc G)) → M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ] ≡ M
 [⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M = begin
@@ -230,12 +218,13 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ ↑ₛ ,ₛ (# zero) ]ₛ              ≡⟨ []ₛ-cong-≗ ↑ₛ,ₛ#zero≗ιₛ M                 ⟩
   M [ ιₛ ]ₛ                          ≡⟨ []ₛ-identity M ⟩
   M                                  ∎
-  where open ≡-Reasoning
 
 private
   variable
     Γ Δ Δ′ Δ″ : Ctx G
     A B : Ty
+
+infix 4 _⊢ᵣ_⦂_ _⊢ₛ_⦂_
 
 -- typing for Rename/Subst
 _⊢ᵣ_⦂_ : Ctx G → Rename G D → Ctx D → Set

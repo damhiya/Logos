@@ -48,6 +48,9 @@ ren ρ = λ x → # ρ x
          ; (suc x) → σ x [ ↑ᵣ ]ᵣ
          }
 
+∙ₛ : Subst G 0
+∙ₛ ()
+
 _,ₛ_ : Subst G D → Tm G → Subst G (suc D)
 σ ,ₛ M = λ { zero    → M
            ; (suc x) → σ x

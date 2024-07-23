@@ -126,6 +126,9 @@ rename-subst-comm                             H (M · N) = cong₂ _·_ (rename-
 ⇑ₛιₛ≗ιₛ zero    = refl
 ⇑ₛιₛ≗ιₛ (suc x) = refl
 
+∙ₛ≗ιₛ : ∙ₛ {0} ≗ ιₛ
+∙ₛ≗ιₛ ()
+
 []ₛ-identity : ∀ (M : Tm G) → M [ ιₛ ]ₛ ≡ M
 []ₛ-identity (# x)   = refl
 []ₛ-identity (ƛ M)   = cong ƛ_ $ begin
@@ -171,18 +174,26 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   σ₁ x [ σ₂ ]ₛ ∎
   where open ≡-Reasoning
 
--- commutation
+-- computation for ∘ₛ
 ∘ₛ-distrib-,ₛ : (σ₁ ,ₛ M) ∘ₛ σ₂ ≗ (σ₁ ∘ₛ σ₂) ,ₛ (M [ σ₂ ]ₛ)
 ∘ₛ-distrib-,ₛ zero    = refl
 ∘ₛ-distrib-,ₛ (suc x) = refl
 
+-- some derived lemmas
+[]ₛ-[]-compose : ∀ M → M [ ⇑ₛ σ ]ₛ [ N ] ≡ M [ σ ,ₛ N ]ₛ
+[]ₛ-[]-compose {σ = σ} {N = N} M = begin
+  M [ ⇑ₛ σ ]ₛ [ N ]          ≡⟨⟩
+  M [ ⇑ₛ σ ]ₛ [ ιₛ ,ₛ N ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M ⟩
+  M [ (⇑ₛ σ) ∘ₛ (ιₛ ,ₛ N) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M ⟩
+  M [ (σ ∘ₛ ιₛ) ,ₛ N ]ₛ      ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟩
+  M [ σ ,ₛ N ]ₛ              ∎
+  where open ≡-Reasoning
+
 []ₛ-[]ₛ-comm : ∀ M → M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ ≡ M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]
 []ₛ-[]ₛ-comm {σ₁ = σ₁} {N = N} {σ₂ = σ₂} M = begin
-  M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ                         ≡⟨ []ₛ-∘ₛ-compose M                      ⟩
-  M [ (σ₁ ,ₛ N) ∘ₛ σ₂ ]ₛ                         ≡⟨ []ₛ-cong-≗ ∘ₛ-distrib-,ₛ M            ⟩
-  M [ (σ₁ ∘ₛ σ₂) ,ₛ (N [ σ₂ ]ₛ) ]ₛ               ≡⟨ []ₛ-cong-≗ (,ₛ-cong-≗ ∘ₛ-identityʳ) M ⟨
-  M [ ((σ₁ ∘ₛ σ₂) ∘ₛ ιₛ) ,ₛ (N [ σ₂ ]ₛ) ]ₛ       ≡⟨ []ₛ-cong-≗ ⇑ₛ-,ₛ-compose M            ⟨
-  M [ (⇑ₛ (σ₁ ∘ₛ σ₂)) ∘ₛ (ιₛ ,ₛ (N [ σ₂ ]ₛ)) ]ₛ  ≡⟨ []ₛ-∘ₛ-compose M                      ⟨
+  M [ σ₁ ,ₛ N ]ₛ [ σ₂ ]ₛ                         ≡⟨ []ₛ-∘ₛ-compose M           ⟩
+  M [ (σ₁ ,ₛ N) ∘ₛ σ₂ ]ₛ                         ≡⟨ []ₛ-cong-≗ ∘ₛ-distrib-,ₛ M ⟩
+  M [ (σ₁ ∘ₛ σ₂) ,ₛ (N [ σ₂ ]ₛ) ]ₛ               ≡⟨ []ₛ-[]-compose M           ⟨
   M [ ⇑ₛ (σ₁ ∘ₛ σ₂) ]ₛ [ N [ σ₂ ]ₛ ]             ∎
   where open ≡-Reasoning
 
@@ -208,7 +219,6 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
   M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]       ∎
   where open ≡-Reasoning
 
--- some derived lemmas
 [⇑ᵣ↑ᵣ]ᵣ[#zero]≗id : ∀ (M : Tm (suc G)) → M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ] ≡ M
 [⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M = begin
   M [ ⇑ᵣ ↑ᵣ ]ᵣ [ # zero ]            ≡⟨ cong _[ # zero ] ([]ᵣ⇒[]ₛ M)              ⟩

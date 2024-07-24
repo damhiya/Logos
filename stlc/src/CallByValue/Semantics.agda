@@ -43,7 +43,7 @@ G⟦_⟧ : ∀ {G} → Ctx G → Env G → Set
 G⟦ Γ ⟧ γ = ∀ {x A} → Γ ∋ x ⦂ A → γ x ∈ E⟦ A ⟧
 
 _⊨_⦂_ : ∀ {G} → Ctx G → Tm G → Ty → Set
-Γ ⊨ M ⦂ A = ∀ {γ} → γ ∈ G⟦ Γ ⟧ → M [ γ ]ₛ ∈ E⟦ A ⟧
+Γ ⊨ M ⦂ A = ∀ γ → γ ∈ G⟦ Γ ⟧ → M [ γ ]ₛ ∈ E⟦ A ⟧
 
 private
   variable
@@ -71,13 +71,13 @@ E⟦⟧-head-expand* ⟨ V , ⟨ Rs₁ , V∈V⟦A⟧ ⟩ ⟩ Rs₂ = ⟨ V , �
 
 -- compatibility lemmas
 compat-# : ∀ x → Γ ∋ x ⦂ A → Γ ⊨ # x ⦂ A
-compat-# x Γ∋x Γ∋γ = (Γ∋γ Γ∋x)
+compat-# x Γ∋x γ Γ∋γ = (Γ∋γ Γ∋x)
 
 compat-ƛ : ∀ M → Γ , A ⊨ M ⦂ B → Γ ⊨ ƛ M ⦂ A `→ B
-compat-ƛ {B = B} M ⊨M {γ} Γ∋γ =
+compat-ƛ {B = B} M ⊨M γ Γ∋γ =
   ⟨ ƛ (M [ ⇑ₛ γ ]ₛ)
   , ⟨ ε
-    , ƛ (λ V V∈V⟦A⟧ → subst (_∈ E⟦ B ⟧) (lemma V) (⊨M (,ₛ∈G⟦⟧ Γ∋γ (V⟦⟧⇒E⟦⟧ V∈V⟦A⟧))))
+    , ƛ (λ V V∈V⟦A⟧ → subst (_∈ E⟦ B ⟧) (lemma V) (⊨M (γ ,ₛ Val⇒Tm V) (,ₛ∈G⟦⟧ Γ∋γ (V⟦⟧⇒E⟦⟧ V∈V⟦A⟧))))
     ⟩
   ⟩
   where
@@ -86,7 +86,7 @@ compat-ƛ {B = B} M ⊨M {γ} Γ∋γ =
     lemma V = sym $ []ₛ-[]-compose M
 
 compat-· : ∀ M N → Γ ⊨ M ⦂ A `→ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
-compat-· M N ⊨M ⊨N Γ∋γ = lemma _ _ (⊨M Γ∋γ) (⊨N Γ∋γ)
+compat-· M N ⊨M ⊨N γ Γ∋γ = lemma _ _ (⊨M γ Γ∋γ) (⊨N γ Γ∋γ)
   where
     open StarReasoning _⟶_
     lemma : ∀ M N → M ∈ E⟦ A `→ B ⟧ → N ∈ E⟦ A ⟧ → M · N ∈ E⟦ B ⟧
@@ -97,10 +97,10 @@ compat-· M N ⊨M ⊨N Γ∋γ = lemma _ _ (⊨M Γ∋γ) (⊨N Γ∋γ)
       M′ [ Val⇒Tm V ]   ∎
 
 compat-⟨,⟩ : ∀ M N → Γ ⊨ M ⦂ A → Γ ⊨ N ⦂ B → Γ ⊨ ⟨ M , N ⟩ ⦂ A `× B
-compat-⟨,⟩ M N ⊨M ⊨N {γ = γ} γ∈Γ = ⟨ ⟨ M [ γ ]ₛ , N [ γ ]ₛ ⟩ , ⟨ ε , ⟨ ⊨M γ∈Γ , ⊨N γ∈Γ ⟩ ⟩ ⟩
+compat-⟨,⟩ M N ⊨M ⊨N γ γ∈Γ = ⟨ ⟨ M [ γ ]ₛ , N [ γ ]ₛ ⟩ , ⟨ ε , ⟨ ⊨M γ γ∈Γ , ⊨N γ γ∈Γ ⟩ ⟩ ⟩
 
 compat-·fst : ∀ M → Γ ⊨ M ⦂ A `× B → Γ ⊨ M ·fst ⦂ A
-compat-·fst M ⊨M {γ = γ} γ∈Γ with ⊨M γ∈Γ
+compat-·fst M ⊨M γ γ∈Γ with ⊨M γ γ∈Γ
 ... | ⟨ ⟨ M₁ , M₂ ⟩ , ⟨ Rs₀ , ⟨ ⟨ V₁ , ⟨ Rs₁ , V₁∈V⟦A⟧ ⟩ ⟩ , M₂∈⟦B⟧ ⟩ ⟩ ⟩ = ⟨ V₁ , ⟨ Rs , V₁∈V⟦A⟧ ⟩ ⟩
   where
     open StarReasoning _⟶_
@@ -112,7 +112,7 @@ compat-·fst M ⊨M {γ = γ} γ∈Γ with ⊨M γ∈Γ
       Val⇒Tm V₁        ∎
 
 compat-·snd : ∀ M → Γ ⊨ M ⦂ A `× B → Γ ⊨ M ·snd ⦂ B
-compat-·snd M ⊨M {γ = γ} γ∈Γ with ⊨M γ∈Γ
+compat-·snd M ⊨M γ γ∈Γ with ⊨M γ γ∈Γ
 ... | ⟨ ⟨ M₁ , M₂ ⟩ , ⟨ Rs₀ , ⟨ M₁∈⟦A⟧ , ⟨ V₂ , ⟨ Rs₂ , V₂∈V⟦B⟧ ⟩ ⟩ ⟩ ⟩ ⟩ = ⟨ V₂ , ⟨ Rs , V₂∈V⟦B⟧ ⟩ ⟩
   where
     open StarReasoning _⟶_
@@ -123,17 +123,18 @@ compat-·snd M ⊨M {γ = γ} γ∈Γ with ⊨M γ∈Γ
       M₂               ⟶*⟨ Rs₂        ⟩
       Val⇒Tm V₂        ∎
 
--- soundness and termination
-soundness : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
-soundness (# x)     (# Γ∋x)     = compat-# x Γ∋x
-soundness (ƛ M)     (ƛ ⊢M)      = compat-ƛ M (soundness M ⊢M)
-soundness (M · N)   (⊢M · ⊢N)   = compat-· M N (soundness M ⊢M) (soundness N ⊢N)
-soundness ⟨ M , N ⟩ ⟨ ⊢M , ⊢N ⟩ = compat-⟨,⟩ M N (soundness M ⊢M) (soundness N ⊢N)
-soundness (M ·fst)  (⊢M ·fst)   = compat-·fst M (soundness M ⊢M)
-soundness (M ·snd)  (⊢M ·snd)   = compat-·snd M (soundness M ⊢M)
+-- fundamental theorem
+fundamental : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
+fundamental (# x)     (# Γ∋x)     = compat-# x Γ∋x
+fundamental (ƛ M)     (ƛ ⊢M)      = compat-ƛ M (fundamental M ⊢M)
+fundamental (M · N)   (⊢M · ⊢N)   = compat-· M N (fundamental M ⊢M) (fundamental N ⊢N)
+fundamental ⟨ M , N ⟩ ⟨ ⊢M , ⊢N ⟩ = compat-⟨,⟩ M N (fundamental M ⊢M) (fundamental N ⊢N)
+fundamental (M ·fst)  (⊢M ·fst)   = compat-·fst M (fundamental M ⊢M)
+fundamental (M ·snd)  (⊢M ·snd)   = compat-·snd M (fundamental M ⊢M)
 
+-- termination
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V
-termination {M = M} ⊢M with soundness _ ⊢M ∙ₛ∈G⟦⟧
+termination {M = M} ⊢M with fundamental _ ⊢M ∙ₛ ∙ₛ∈G⟦⟧
 ... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) lemma s ⟩
   where
     open ≡-Reasoning

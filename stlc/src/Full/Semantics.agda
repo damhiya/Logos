@@ -45,10 +45,10 @@ private
 
 ⟦⊢⟧-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → M ∈ ⟦ Δ ⊢ A ⟧ → M [ ρ ]ᵣ ∈ ⟦ Δ′ ⊢ A ⟧
 ⟦⊢⟧-mono {A = ⋆}                      ⊢ρ M∈⟦⋆⟧   = ⊢⇇wn-mono ⊢ρ M∈⟦⋆⟧
-⟦⊢⟧-mono {ρ = ρ} {M = M} {A = A `→ B} ⊢ρ M∈⟦A⇒B⟧ Δ′ ρ′ N ⊢ρ′ N∈⟦A⟧ = M[ρ][ρ′]·N∈⟦B⟧
+⟦⊢⟧-mono {ρ = ρ} {M = M} {A = A `→ B} ⊢ρ M∈⟦A→B⟧ Δ′ ρ′ N ⊢ρ′ N∈⟦A⟧ = M[ρ][ρ′]·N∈⟦B⟧
   where
     M[ρ∘ρ′]·N∈⟦B⟧ : M [ ρ ∘ᵣ ρ′ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
-    M[ρ∘ρ′]·N∈⟦B⟧ = M∈⟦A⇒B⟧ Δ′ (ρ ∘ᵣ ρ′) N (⊢ᵣ-∘ᵣ ⊢ρ ⊢ρ′) N∈⟦A⟧
+    M[ρ∘ρ′]·N∈⟦B⟧ = M∈⟦A→B⟧ Δ′ (ρ ∘ᵣ ρ′) N (⊢ᵣ-∘ᵣ ⊢ρ ⊢ρ′) N∈⟦A⟧
 
     M[ρ][ρ′]·N∈⟦B⟧ : M [ ρ ]ᵣ [ ρ′ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
     M[ρ][ρ′]·N∈⟦B⟧ = subst (λ M → M · N ∈ ⟦ Δ′ ⊢ B ⟧) (sym ([]ᵣ-∘ᵣ-compose M)) M[ρ∘ρ′]·N∈⟦B⟧
@@ -56,11 +56,11 @@ private
 
 ⟦⊢⟧-head-expand : M′ ⟼ M → M ∈ ⟦ Δ ⊢ A ⟧ → M′ ∈ ⟦ Δ ⊢ A ⟧
 ⟦⊢⟧-head-expand {A = ⋆}     R M∈⟦⋆⟧ = clo R M∈⟦⋆⟧
-⟦⊢⟧-head-expand {M′ = M′} {M = M} {A = A `→ B} R M∈⟦A⇒B⟧ Δ′ ρ N ⊢ρ N∈⟦A⟧
+⟦⊢⟧-head-expand {M′ = M′} {M = M} {A = A `→ B} R M∈⟦A→B⟧ Δ′ ρ N ⊢ρ N∈⟦A⟧
   = ⟦⊢⟧-head-expand {A = B} ξR M[ρ]·N∈⟦B⟧
   where
     M[ρ]·N∈⟦B⟧ : M [ ρ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
-    M[ρ]·N∈⟦B⟧ = M∈⟦A⇒B⟧ Δ′ ρ N ⊢ρ N∈⟦A⟧
+    M[ρ]·N∈⟦B⟧ = M∈⟦A→B⟧ Δ′ ρ N ⊢ρ N∈⟦A⟧
 
     ξR : M′ [ ρ ]ᵣ · N ⟼ M [ ρ ]ᵣ · N
     ξR = ξ·₁ ([]ᵣ-cong-⟼ R)
@@ -141,16 +141,13 @@ reflect {A = ⋆}     ⊢M = ⇄ ⊢M
 reflect {A = A `→ B} ⊢M Δ′ ρ N ⊢ρ N∈⟦A⟧ = reflect (⊢⇉wn-mono ⊢ρ ⊢M · reify N∈⟦A⟧)
 reflect {A = A `× B} ⊢M = ⟨ reflect (⊢M ·fst) , reflect (⊢M ·snd) ⟩
 reify                 {A = ⋆}      M∈⟦⋆⟧   = M∈⟦⋆⟧
-reify {M = M} {Δ = Δ} {A = A `→ B} M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify M·#z∈⟦B⟧)
+reify {M = M} {Δ = Δ} {A = A `→ B} M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify M[↑]·#0∈⟦B⟧)
   where
-    #z : Δ , A ⊢ # zero ⇉ A wn
-    #z = # Z
+    #0∈⟦A⟧ : # zero ∈ ⟦ Δ , A ⊢ A ⟧
+    #0∈⟦A⟧ = reflect {A = A} (# Z)
 
-    #z∈⟦A⟧ : # zero ∈ ⟦ Δ , A ⊢ A ⟧
-    #z∈⟦A⟧ = reflect #z
-
-    M·#z∈⟦B⟧ : M [ ↑ᵣ ]ᵣ · # zero ∈ ⟦ Δ , A ⊢ B ⟧
-    M·#z∈⟦B⟧ = M∈⟦A→B⟧ (Δ , A) ↑ᵣ (# zero) ⊢ᵣ-↑ᵣ #z∈⟦A⟧
+    M[↑]·#0∈⟦B⟧ : M [ ↑ᵣ ]ᵣ · # zero ∈ ⟦ Δ , A ⊢ B ⟧
+    M[↑]·#0∈⟦B⟧ = M∈⟦A→B⟧ (Δ , A) ↑ᵣ (# zero) ⊢ᵣ-↑ᵣ #0∈⟦A⟧
 reify {A = A `× B} ⟨ M·fst∈⟦A⟧ , M·snd∈⟦B⟧ ⟩ = ⊢⇇wn-ext× (reify M·fst∈⟦A⟧) (reify M·snd∈⟦B⟧)
 
 reflect-ιₛ : ιₛ ∈ ⟦ Γ ⇒ Γ ⟧

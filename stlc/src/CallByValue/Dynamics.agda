@@ -13,14 +13,20 @@ infix 4 _⟶_ _⟶*_ _↓_
 data Val : Set where
   ƛ_ : Tm 1 → Val
   ⟨_,_⟩ : Tm 0 → Tm 0 → Val
+  inl·_ : Val → Val
+  inr·_ : Val → Val
 
 Val⇒Tm : Val → Tm 0
 Val⇒Tm (ƛ M) = ƛ M
 Val⇒Tm ⟨ M , N ⟩ = ⟨ M , N ⟩
+Val⇒Tm (inl· M) = inl· (Val⇒Tm M)
+Val⇒Tm (inr· M) = inr· (Val⇒Tm M)
 
 data Value : Tm 0 → Set where
   ƛ_ : ∀ M → Value (ƛ M)
   ⟨_,_⟩ : ∀ M N → Value ⟨ M , N ⟩
+  inl·_ : ∀ {M} → Value M → Value (inl· M)
+  inr·_ : ∀ {M} → Value M → Value (inr· M)
 
 data _⟶_ : Tm 0 → Tm 0 → Set where
 
@@ -33,6 +39,14 @@ data _⟶_ : Tm 0 → Tm 0 → Set where
 
   β×₂ : ∀ {M N} →
         ⟨ M , N ⟩ ·snd ⟶ N
+
+  β+₁ : ∀ {L M N} →
+        Value L →
+        (inl· L) ·case[ M , N ] ⟶ M [ L ]
+
+  β+₂ : ∀ {L M N} →
+        Value L →
+        (inr· L) ·case[ M , N ] ⟶ N [ L ]
 
   ξ·₁ : ∀ {M M′ N} →
         M ⟶ M′ →
@@ -50,6 +64,18 @@ data _⟶_ : Tm 0 → Tm 0 → Set where
   ξ·snd : ∀ {M M′} →
           M ⟶ M′ →
           M ·snd ⟶ M′ ·snd
+
+  ξinl· : ∀ {M M′} →
+          M ⟶ M′ →
+          inl· M ⟶ inl· M′
+
+  ξinr· : ∀ {M M′} →
+          M ⟶ M′ →
+          inr· M ⟶ inr· M′
+
+  ξ·case[,] : ∀ {L L′ M N} →
+              L ⟶ L′ →
+              L ·case[ M , N ] ⟶ L′ ·case[ M , N ]
 
 _⟶*_ : Tm 0 → Tm 0 → Set
 _⟶*_ = Star _⟶_

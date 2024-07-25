@@ -26,17 +26,22 @@ Env G = Subst 0 G
 
 data ⟦⋆⟧ : Val → Set where
 
-data _⟦→⟧_ (A : Val → Set) (B : Tm 0 → Set) : (Val → Set) where
+data _⟦→⟧_ (A : Val → Set) (B : Tm 0 → Set) : Val → Set where
   ƛ_ : ∀ {M} → (∀ V → V ∈ A → M [ Val⇒Tm V ] ∈ B) → ƛ M ∈ A ⟦→⟧ B
 
-data _⟦×⟧_ (A : Tm 0 → Set) (B : Tm 0 → Set) : (Val → Set) where
+data _⟦×⟧_ (A : Tm 0 → Set) (B : Tm 0 → Set) : Val → Set where
   ⟨_,_⟩ : ∀ {M N} → M ∈ A → N ∈ B → ⟨ M , N ⟩ ∈ A ⟦×⟧ B
+
+data _⟦+⟧_ (A : Val → Set) (B : Val → Set) : Val → Set where
+  inl·_ : ∀ {M} → M ∈ A → inl· M ∈ A ⟦+⟧ B
+  inr·_ : ∀ {M} → M ∈ B → inr· M ∈ A ⟦+⟧ B
 
 V⟦_⟧ : Ty → Val → Set
 E⟦_⟧ : Ty → Tm 0 → Set
 V⟦ ⋆      ⟧ = ⟦⋆⟧
 V⟦ A `→ B ⟧ = V⟦ A ⟧ ⟦→⟧ E⟦ B ⟧
 V⟦ A `× B ⟧ = E⟦ A ⟧ ⟦×⟧ E⟦ B ⟧
+V⟦ A `+ B ⟧ = V⟦ A ⟧ ⟦+⟧ V⟦ B ⟧
 E⟦ A      ⟧ = λ M → Σ[ V ∈ Val ] M ↓ V × V ∈ V⟦ A ⟧
 
 G⟦_⟧ : ∀ {G} → Ctx G → Env G → Set
@@ -52,7 +57,7 @@ private
     M M′ N : Tm G
     γ : Env G
     V : Val
-    A B : Ty
+    A B C : Ty
 
 -- environment lemmas
 ∙ₛ∈G⟦⟧ : ∙ₛ ∈ G⟦ ∙ ⟧
@@ -123,14 +128,73 @@ compat-·snd M ⊨M γ γ∈Γ with ⊨M γ γ∈Γ
       M₂               ⟶*⟨ Rs₂        ⟩
       Val⇒Tm V₂        ∎
 
+compat-inl· : ∀ M → Γ ⊨ M ⦂ A → Γ ⊨ inl· M ⦂ A `+ B
+compat-inl· M ⊨M γ γ∈Γ with ⊨M γ γ∈Γ
+... | ⟨ M′ , ⟨ Rs , M′∈V⟦A⟧ ⟩ ⟩ = ⟨ inl· M′ , ⟨ ξinl·* Rs , inl· M′∈V⟦A⟧ ⟩ ⟩
+
+compat-inr· : ∀ M → Γ ⊨ M ⦂ B → Γ ⊨ inr· M ⦂ A `+ B
+compat-inr· M ⊨M γ γ∈Γ with ⊨M γ γ∈Γ
+... | ⟨ M′ , ⟨ Rs , M′∈V⟦B⟧ ⟩ ⟩ = ⟨ inr· M′ , ⟨ ξinr·* Rs , inr· M′∈V⟦B⟧ ⟩ ⟩
+
+compat-·case[,] : ∀ L M N → Γ ⊨ L ⦂ A `+ B → Γ , A ⊨ M ⦂ C → Γ , B ⊨ N ⦂ C → Γ ⊨ L ·case[ M , N ] ⦂ C
+compat-·case[,] {Γ = Γ} {A = A} {B = B} {C = C} L M N ⊨L ⊨M ⊨N γ γ∈Γ with ⊨L γ γ∈Γ
+... | ⟨ inl· L′ , ⟨ Rs , inl· L′∈V⟦A⟧ ⟩ ⟩ = E⟦⟧-head-expand* M[γ′]∈⟦C⟧ Rs′
+  where
+    open StarReasoning _⟶_
+
+    γ′ : Env _
+    γ′ = γ ,ₛ Val⇒Tm L′
+
+    γ′∈Γ,A : γ′ ∈ G⟦ Γ , A ⟧
+    γ′∈Γ,A Z       = V⟦⟧⇒E⟦⟧ L′∈V⟦A⟧
+    γ′∈Γ,A (S Γ∋x) = γ∈Γ Γ∋x
+
+    M[γ′]∈⟦C⟧ : M [ γ′ ]ₛ ∈ E⟦ C ⟧
+    M[γ′]∈⟦C⟧ = ⊨M γ′ γ′∈Γ,A
+
+    Rs′ : (L ·case[ M , N ]) [ γ ]ₛ ⟶* M [ γ′ ]ₛ
+    Rs′ = begin
+      (L ·case[ M , N ]) [ γ ]ₛ                           ≡⟨⟩
+      L [ γ ]ₛ ·case[ M [ ⇑ₛ γ ]ₛ , N [ ⇑ₛ γ ]ₛ ]         ⟶*⟨ ξ·case[,]* Rs ⟩
+      (inl· Val⇒Tm L′) ·case[ M [ ⇑ₛ γ ]ₛ , N [ ⇑ₛ γ ]ₛ ] ⟶⟨ β+₁ Value[Val⇒Tm L′ ] ⟩
+      M [ ⇑ₛ γ ]ₛ [ Val⇒Tm L′ ]                           ≡⟨ []ₛ-[]-compose M ⟩
+      M [ γ ,ₛ Val⇒Tm L′ ]ₛ                               ≡⟨⟩
+      M [ γ′ ]ₛ                                           ∎
+... | ⟨ inr· L′ , ⟨ Rs , inr· L′∈V⟦A⟧ ⟩ ⟩ = E⟦⟧-head-expand* N[γ′]∈⟦C⟧ Rs′
+  where
+    open StarReasoning _⟶_
+
+    γ′ : Env _
+    γ′ = γ ,ₛ Val⇒Tm L′
+
+    γ′∈Γ,A : γ′ ∈ G⟦ Γ , B ⟧
+    γ′∈Γ,A Z       = V⟦⟧⇒E⟦⟧ L′∈V⟦A⟧
+    γ′∈Γ,A (S Γ∋x) = γ∈Γ Γ∋x
+
+    N[γ′]∈⟦C⟧ : N [ γ′ ]ₛ ∈ E⟦ C ⟧
+    N[γ′]∈⟦C⟧ = ⊨N γ′ γ′∈Γ,A
+
+    Rs′ : (L ·case[ M , N ]) [ γ ]ₛ ⟶* N [ γ′ ]ₛ
+    Rs′ = begin
+      (L ·case[ M , N ]) [ γ ]ₛ                           ≡⟨⟩
+      L [ γ ]ₛ ·case[ M [ ⇑ₛ γ ]ₛ , N [ ⇑ₛ γ ]ₛ ]         ⟶*⟨ ξ·case[,]* Rs ⟩
+      (inr· Val⇒Tm L′) ·case[ M [ ⇑ₛ γ ]ₛ , N [ ⇑ₛ γ ]ₛ ] ⟶⟨ β+₂ Value[Val⇒Tm L′ ] ⟩
+      N [ ⇑ₛ γ ]ₛ [ Val⇒Tm L′ ]                           ≡⟨ []ₛ-[]-compose N ⟩
+      N [ γ ,ₛ Val⇒Tm L′ ]ₛ                               ≡⟨⟩
+      N [ γ′ ]ₛ                                           ∎
+  
+
 -- fundamental theorem
 fundamental : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
-fundamental (# x)     (# Γ∋x)     = compat-# x Γ∋x
-fundamental (ƛ M)     (ƛ ⊢M)      = compat-ƛ M (fundamental M ⊢M)
-fundamental (M · N)   (⊢M · ⊢N)   = compat-· M N (fundamental M ⊢M) (fundamental N ⊢N)
-fundamental ⟨ M , N ⟩ ⟨ ⊢M , ⊢N ⟩ = compat-⟨,⟩ M N (fundamental M ⊢M) (fundamental N ⊢N)
-fundamental (M ·fst)  (⊢M ·fst)   = compat-·fst M (fundamental M ⊢M)
-fundamental (M ·snd)  (⊢M ·snd)   = compat-·snd M (fundamental M ⊢M)
+fundamental (# x)              (# Γ∋x)               = compat-# x Γ∋x
+fundamental (ƛ M)              (ƛ ⊢M)                = compat-ƛ M (fundamental M ⊢M)
+fundamental (M · N)            (⊢M · ⊢N)             = compat-· M N (fundamental M ⊢M) (fundamental N ⊢N)
+fundamental ⟨ M , N ⟩          ⟨ ⊢M , ⊢N ⟩           = compat-⟨,⟩ M N (fundamental M ⊢M) (fundamental N ⊢N)
+fundamental (M ·fst)           (⊢M ·fst)             = compat-·fst M (fundamental M ⊢M)
+fundamental (M ·snd)           (⊢M ·snd)             = compat-·snd M (fundamental M ⊢M)
+fundamental (inl· M)           (inl· ⊢M)             = compat-inl· M (fundamental M ⊢M)
+fundamental (inr· M)           (inr· ⊢M)             = compat-inr· M (fundamental M ⊢M)
+fundamental (L ·case[ M , N ]) (⊢L ·case[ ⊢M , ⊢N ]) = compat-·case[,] L M N (fundamental L ⊢L) (fundamental M ⊢M) (fundamental N ⊢N)
 
 -- termination
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V

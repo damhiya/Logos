@@ -10,7 +10,7 @@ open import Substitution
 open import Statics
 
 infixr 6 ⇄_
-infix 4 _⟶_ _⟼_ _⟶*_ ⊢_⇉ ⊢_⇇ ⊢_⇉wn ⊢_⇇wn
+infix 4 _⟶_ _⟼_ _⟶*_ _⟼*_ ⊢_⇉ ⊢_⇇ ⊢_⇉wn ⊢_⇇wn
 
 
 -- Full β-reduction
@@ -24,6 +24,12 @@ data _⟶_ {G} : Tm G → Tm G → Set where
 
   β×₂ : ∀ {M N} →
         ⟨ M , N ⟩ ·snd ⟶ N
+
+  β+₁ : ∀ {L M N} →
+        (inl· L) ·case[ M , N ] ⟶ M [ L ]
+
+  β+₂ : ∀ {L M N} →
+        (inr· L) ·case[ M , N ] ⟶ N [ L ]
 
   ξƛ : ∀ {M M′} →
        M ⟶ M′ →
@@ -53,6 +59,26 @@ data _⟶_ {G} : Tm G → Tm G → Set where
           M ⟶ M′ →
           M ·snd ⟶ M′ ·snd
 
+  ξinl· : ∀ {M M′} →
+          M ⟶ M′ →
+          inl· M ⟶ inl· M′
+
+  ξinr· : ∀ {M M′} →
+          M ⟶ M′ →
+          inr· M ⟶ inr· M′
+
+  ξ·case[,]₁ : ∀ {L L′ M N} →
+               L ⟶ L′ →
+               L ·case[ M , N ] ⟶ L′ ·case[ M , N ]
+
+  ξ·case[,]₂ : ∀ {L M M′ N} →
+               M ⟶ M′ →
+               L ·case[ M , N ] ⟶ L ·case[ M′ , N ]
+
+  ξ·case[,]₃ : ∀ {L M N N′} →
+               N ⟶ N′ →
+               L ·case[ M , N ] ⟶ L ·case[ M , N′ ]
+
 -- Weak head β-reduction
 data _⟼_ {G} : Tm G → Tm G → Set where
 
@@ -64,6 +90,12 @@ data _⟼_ {G} : Tm G → Tm G → Set where
 
   β×₂ : ∀ {M N} →
         ⟨ M , N ⟩ ·snd ⟼ N
+
+  β+₁ : ∀ {L M N} →
+        (inl· L) ·case[ M , N ] ⟼ M [ L ]
+
+  β+₂ : ∀ {L M N} →
+        (inr· L) ·case[ M , N ] ⟼ N [ L ]
 
   ξ·₁ : ∀ {M M′ N} →
         M ⟼ M′ →
@@ -77,8 +109,15 @@ data _⟼_ {G} : Tm G → Tm G → Set where
           M ⟼ M′ →
           M ·snd ⟼ M′ ·snd
 
+  ξ·case[,]₁ : ∀ {L L′ M N} →
+               L ⟼ L′ →
+               L ·case[ M , N ] ⟼ L′ ·case[ M , N ]
+
 _⟶*_ : ∀ {G} → Tm G → Tm G → Set
 _⟶*_ = Star _⟶_
+
+_⟼*_ : ∀ {G} → Tm G → Tm G → Set
+_⟼*_ = Star _⟼_
 
 -- neutral/normal form
 data ⊢_⇉ {G} : Tm G → Set
@@ -102,6 +141,12 @@ data ⊢_⇉ {G} where
           ⊢ M ⇉ →
           ⊢ M ·snd ⇉
 
+  _·case[_,_] : ∀ {L M N} →
+                ⊢ L ⇉ →
+                ⊢ M ⇇ →
+                ⊢ N ⇇ →
+                ⊢ L ·case[ M , N ] ⇉
+
 data ⊢_⇇ {G} where
 
   ⇄_ : ∀ {M} →
@@ -116,6 +161,14 @@ data ⊢_⇇ {G} where
           ⊢ M ⇇ →
           ⊢ N ⇇ →
           ⊢ ⟨ M , N ⟩ ⇇
+
+  inl·_ : ∀ {M} →
+          ⊢ M ⇇ →
+          ⊢ inl· M ⇇
+
+  inr·_ : ∀ {M} →
+          ⊢ M ⇇ →
+          ⊢ inr· M ⇇
 
 Normal : ∀ {G} → Tm G → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)
@@ -142,6 +195,12 @@ data ⊢_⇉wn {G} where
           ⊢ M ⇉wn →
           ⊢ M ·snd ⇉wn
 
+  _·case[_,_] : ∀ {L M N} →
+                ⊢ L ⇉wn →
+                ⊢ M ⇇wn →
+                ⊢ N ⇇wn →
+                ⊢ L ·case[ M , N ] ⇉wn
+
 data ⊢_⇇wn {G} where
 
   ⇄_ : ∀ {M} →
@@ -156,6 +215,14 @@ data ⊢_⇇wn {G} where
           ⊢ M ⇇wn →
           ⊢ N ⇇wn →
           ⊢ ⟨ M , N ⟩ ⇇wn
+
+  inl·_ : ∀ {M} →
+          ⊢ M ⇇wn →
+          ⊢ inl· M ⇇wn
+
+  inr·_ : ∀ {M} →
+          ⊢ M ⇇wn →
+          ⊢ inr· M ⇇wn
 
   clo : ∀ {M M′} →
         M ⟼ M′ →

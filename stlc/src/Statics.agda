@@ -15,6 +15,7 @@ data Ty : Set where
   ⋆ : Ty
   _`→_ : Ty → Ty → Ty
   _`×_ : Ty → Ty → Ty
+  _`+_ : Ty → Ty → Ty
 
 data Ctx : ℕ → Set where
   ∙ : Ctx zero
@@ -55,6 +56,21 @@ data _⊢_⦂_ {G} : Ctx G → Tm G → Ty → Set where
           Γ ⊢ M ⦂ A `× B →
           Γ ⊢ M ·snd ⦂ B
 
+  -- sum
+  inl·_ : ∀ {Γ A B M} →
+          Γ ⊢ M ⦂ A →
+          Γ ⊢ (inl· M) ⦂ A `+ B
+
+  inr·_ : ∀ {Γ A B M} →
+          Γ ⊢ M ⦂ B →
+          Γ ⊢ (inr· M) ⦂ A `+ B
+
+  _·case[_,_] : ∀ {Γ A B C L M N} →
+                Γ ⊢ L ⦂ A `+ B →
+                Γ , A ⊢ M ⦂ C →
+                Γ , B ⊢ N ⦂ C →
+                Γ ⊢ L ·case[ M , N ] ⦂ C
+
 lookup : ∀ {G} (Γ : Ctx G) (x : Fin G) → Ty
 lookup (Γ , A) zero    = A
 lookup (Γ , B) (suc x) = lookup Γ x
@@ -75,3 +91,9 @@ private
 
 ×-inj₂ : A₁ `× B₁ ≡ A₂ `× B₂ → B₁ ≡ B₂
 ×-inj₂ refl = refl
+
++-inj₁ : A₁ `+ B₁ ≡ A₂ `+ B₂ → A₁ ≡ A₂
++-inj₁ refl = refl
+
++-inj₂ : A₁ `+ B₁ ≡ A₂ `+ B₂ → B₁ ≡ B₂
++-inj₂ refl = refl

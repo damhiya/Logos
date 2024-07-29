@@ -10,7 +10,7 @@ open import Substitution
 open import Statics
 
 infixr 6 ⇄_
-infix 4 _⟶_ _⟼_ _⟶*_ _⊢_⇉_ _⊢_⇇_ _⊢_⇉_wn _⊢_⇇_wn
+infix 4 _⟶_ _⟼_ _⟶*_ ⊢_⇉ ⊢_⇇ ⊢_⇉wn ⊢_⇇wn
 
 
 -- Full β-reduction
@@ -80,86 +80,84 @@ data _⟼_ {G} : Tm G → Tm G → Set where
 _⟶*_ : ∀ {G} → Tm G → Tm G → Set
 _⟶*_ = Star _⟶_
 
--- Typed neutral/normal form
-data _⊢_⇉_ {G} : Ctx G → Tm G → Ty → Set
-data _⊢_⇇_ {G} : Ctx G → Tm G → Ty → Set
+-- neutral/normal form
+data ⊢_⇉ {G} : Tm G → Set
+data ⊢_⇇ {G} : Tm G → Set
 
-data _⊢_⇉_ {G} where
+data ⊢_⇉ {G} where
 
-  #_ : ∀ {Γ x A} →
-       Γ ∋ x ⦂ A →
-       Γ ⊢ # x ⇉ A
+  #_ : ∀ x →
+       ⊢ # x ⇉
 
-  _·_ : ∀ {Γ M N A B} →
-        Γ ⊢ M ⇉ A `→ B →
-        Γ ⊢ N ⇇ A →
-        Γ ⊢ M · N ⇉ B
+  _·_ : ∀ {M N} →
+        ⊢ M ⇉ →
+        ⊢ N ⇇ →
+        ⊢ M · N ⇉
 
-  _·fst : ∀ {Γ M A B} →
-          Γ ⊢ M ⇉ A `× B →
-          Γ ⊢ M ·fst ⇉ A
+  _·fst : ∀ {M} →
+          ⊢ M ⇉ →
+          ⊢ M ·fst ⇉
 
-  _·snd : ∀ {Γ M A B} →
-          Γ ⊢ M ⇉ A `× B →
-          Γ ⊢ M ·snd ⇉ B
+  _·snd : ∀ {M} →
+          ⊢ M ⇉ →
+          ⊢ M ·snd ⇉
 
-data _⊢_⇇_ {G} where
+data ⊢_⇇ {G} where
 
-  ⇄_ : ∀ {Γ M A} →
-       Γ ⊢ M ⇉ A →
-       Γ ⊢ M ⇇ A
+  ⇄_ : ∀ {M} →
+       ⊢ M ⇉ →
+       ⊢ M ⇇
 
-  ƛ_ : ∀ {Γ M A B} →
-       Γ , A ⊢ M ⇇ B →
-       Γ ⊢ ƛ M ⇇ A `→ B
+  ƛ_ : ∀ {M} →
+       ⊢ M ⇇ →
+       ⊢ ƛ M ⇇
 
-  ⟨_,_⟩ : ∀ {Γ M N A B} →
-          Γ ⊢ M ⇇ A →
-          Γ ⊢ N ⇇ B →
-          Γ ⊢ ⟨ M , N ⟩ ⇇ A `× B
+  ⟨_,_⟩ : ∀ {M N} →
+          ⊢ M ⇇ →
+          ⊢ N ⇇ →
+          ⊢ ⟨ M , N ⟩ ⇇
 
 Normal : ∀ {G} → Tm G → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)
 
 -- weakly normalizing terms
-data _⊢_⇉_wn {G} : Ctx G → Tm G → Ty → Set
-data _⊢_⇇_wn {G} : Ctx G → Tm G → Ty → Set
+data ⊢_⇉wn {G} : Tm G → Set
+data ⊢_⇇wn {G} : Tm G → Set
 
-data _⊢_⇉_wn {G} where
+data ⊢_⇉wn {G} where
 
-  #_ : ∀ {Γ x A} →
-       Γ ∋ x ⦂ A →
-       Γ ⊢ # x ⇉ A wn
+  #_ : ∀ x →
+       ⊢ # x ⇉wn
 
-  _·_ : ∀ {Γ M N A B} →
-        Γ ⊢ M ⇉ A `→ B wn →
-        Γ ⊢ N ⇇ A wn →
-        Γ ⊢ M · N ⇉ B wn
+  _·_ : ∀ {M N} →
+        ⊢ M ⇉wn →
+        ⊢ N ⇇wn →
+        ⊢ M · N ⇉wn
 
-  _·fst : ∀ {Γ M A B} →
-          Γ ⊢ M ⇉ A `× B wn →
-          Γ ⊢ M ·fst ⇉ A wn
+  _·fst : ∀ {M} →
+          ⊢ M ⇉wn →
+          ⊢ M ·fst ⇉wn
 
-  _·snd : ∀ {Γ M A B} →
-          Γ ⊢ M ⇉ A `× B wn →
-          Γ ⊢ M ·snd ⇉ B wn
+  _·snd : ∀ {M} →
+          ⊢ M ⇉wn →
+          ⊢ M ·snd ⇉wn
 
-data _⊢_⇇_wn {G} where
+data ⊢_⇇wn {G} where
 
-  ⇄_ : ∀ {Γ M A} →
-       Γ ⊢ M ⇉ A wn →
-       Γ ⊢ M ⇇ A wn
+  ⇄_ : ∀ {M} →
+       ⊢ M ⇉wn →
+       ⊢ M ⇇wn
 
-  ƛ_ : ∀ {Γ M A B} →
-       Γ , A ⊢ M ⇇ B wn →
-       Γ ⊢ ƛ M ⇇ A `→ B wn
+  ƛ_ : ∀ {M} →
+       ⊢ M ⇇wn →
+       ⊢ ƛ M ⇇wn
 
-  ⟨_,_⟩ : ∀ {Γ M N A B} →
-          Γ ⊢ M ⇇ A wn →
-          Γ ⊢ N ⇇ B wn →
-          Γ ⊢ ⟨ M , N ⟩ ⇇ A `× B wn
+  ⟨_,_⟩ : ∀ {M N} →
+          ⊢ M ⇇wn →
+          ⊢ N ⇇wn →
+          ⊢ ⟨ M , N ⟩ ⇇wn
 
-  clo : ∀ {Γ M M′ A} →
+  clo : ∀ {M M′} →
         M ⟼ M′ →
-        Γ ⊢ M′ ⇇ A wn →
-        Γ ⊢ M ⇇ A wn
+        ⊢ M′ ⇇wn →
+        ⊢ M ⇇wn

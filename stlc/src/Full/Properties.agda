@@ -25,8 +25,8 @@ private
     ρ : Rename G D
  
 -- Normal forms can't be reduced
-⊢⇉-Normal : Γ ⊢ M ⇉ A → Normal M
-⊢⇇-Normal : Γ ⊢ M ⇇ A → Normal M
+⊢⇉-Normal : ⊢ M ⇉ → Normal M
+⊢⇇-Normal : ⊢ M ⇇ → Normal M
 ⊢⇉-Normal (⊢M · ⊢N)   (ξ·₁ R)   = ⊢⇉-Normal ⊢M R
 ⊢⇉-Normal (⊢M · ⊢N)   (ξ·₂ R)   = ⊢⇇-Normal ⊢N R
 ⊢⇉-Normal (⊢M ·fst)   (ξ·fst R) = ⊢⇉-Normal ⊢M R
@@ -116,92 +116,85 @@ private
 ⟼-det (ξ·snd R₁) (ξ·snd R₂) = cong _·snd (⟼-det R₁ R₂)
 
 -- Basic properties of neutral/normal terms
-⊢⇉-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⇉ A → Δ′ ⊢ M [ ρ ]ᵣ ⇉ A
-⊢⇇-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⇇ A → Δ′ ⊢ M [ ρ ]ᵣ ⇇ A
-⊢⇉-mono ⊢ρ (# ⊢x)      = # ⊢ρ ⊢x
-⊢⇉-mono ⊢ρ (⊢M · ⊢N)   = ⊢⇉-mono ⊢ρ ⊢M · ⊢⇇-mono ⊢ρ ⊢N
-⊢⇉-mono ⊢ρ (⊢M ·fst)   = ⊢⇉-mono ⊢ρ ⊢M ·fst
-⊢⇉-mono ⊢ρ (⊢M ·snd)   = ⊢⇉-mono ⊢ρ ⊢M ·snd
-⊢⇇-mono ⊢ρ (⇄ ⊢M)      = ⇄ ⊢⇉-mono ⊢ρ ⊢M
-⊢⇇-mono ⊢ρ (ƛ ⊢M)      = ƛ ⊢⇇-mono (⊢ᵣ-⇑ᵣ ⊢ρ) ⊢M
-⊢⇇-mono ⊢ρ ⟨ ⊢M , ⊢N ⟩ = ⟨ ⊢⇇-mono ⊢ρ ⊢M , ⊢⇇-mono ⊢ρ ⊢N ⟩
+⊢⇉-mono : ⊢ M ⇉ → ⊢ M [ ρ ]ᵣ ⇉
+⊢⇇-mono : ⊢ M ⇇ → ⊢ M [ ρ ]ᵣ ⇇
+⊢⇉-mono {ρ = ρ} (# x) = # ρ x
+⊢⇉-mono (⊢M · ⊢N)   = ⊢⇉-mono ⊢M · ⊢⇇-mono ⊢N
+⊢⇉-mono (⊢M ·fst)   = ⊢⇉-mono ⊢M ·fst
+⊢⇉-mono (⊢M ·snd)   = ⊢⇉-mono ⊢M ·snd
+⊢⇇-mono (⇄ ⊢M)      = ⇄ ⊢⇉-mono ⊢M
+⊢⇇-mono (ƛ ⊢M)      = ƛ ⊢⇇-mono ⊢M
+⊢⇇-mono ⟨ ⊢M , ⊢N ⟩ = ⟨ ⊢⇇-mono ⊢M , ⊢⇇-mono ⊢N ⟩
 
-⊢⇉-inv : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ⊢ M [ ρ ]ᵣ ⇉ A → Δ ⊢ M ⇉ A
-⊢⇇-inv : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ⊢ M [ ρ ]ᵣ ⇇ A → Δ ⊢ M ⇇ A
-⊢⇉-inv {M = # x}       ⊢ρ (# ⊢x)      = # ∋-inv ⊢ρ ⊢x
-⊢⇉-inv {M = M · N}     ⊢ρ (⊢M · ⊢N)   = ⊢⇉-inv ⊢ρ ⊢M · ⊢⇇-inv ⊢ρ ⊢N
-⊢⇉-inv {M = M ·fst}    ⊢ρ (⊢M ·fst)   = ⊢⇉-inv ⊢ρ ⊢M ·fst
-⊢⇉-inv {M = M ·snd}    ⊢ρ (⊢M ·snd)   = ⊢⇉-inv ⊢ρ ⊢M ·snd
-⊢⇇-inv {M = # x}       ⊢ρ (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢ρ ⊢M
-⊢⇇-inv {M = M · N}     ⊢ρ (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢ρ ⊢M
-⊢⇇-inv {M = M ·fst}    ⊢ρ (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢ρ ⊢M
-⊢⇇-inv {M = M ·snd}    ⊢ρ (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢ρ ⊢M
-⊢⇇-inv {M = ƛ M}       ⊢ρ (ƛ ⊢M)      = ƛ ⊢⇇-inv (⊢ᵣ-⇑ᵣ ⊢ρ) ⊢M
-⊢⇇-inv {M = ⟨ M , N ⟩} ⊢ρ ⟨ ⊢M , ⊢N ⟩ = ⟨ ⊢⇇-inv ⊢ρ ⊢M , ⊢⇇-inv ⊢ρ ⊢N ⟩
+⊢⇉-inv : ⊢ M [ ρ ]ᵣ ⇉ → ⊢ M ⇉
+⊢⇇-inv : ⊢ M [ ρ ]ᵣ ⇇ → ⊢ M ⇇
+⊢⇉-inv {M = # x}       (# ⊢x)      = # x
+⊢⇉-inv {M = M · N}     (⊢M · ⊢N)   = ⊢⇉-inv ⊢M · ⊢⇇-inv ⊢N
+⊢⇉-inv {M = M ·fst}    (⊢M ·fst)   = ⊢⇉-inv ⊢M ·fst
+⊢⇉-inv {M = M ·snd}    (⊢M ·snd)   = ⊢⇉-inv ⊢M ·snd
+⊢⇇-inv {M = # x}{ρ = ρ}(⇄ ⊢M)      = ⇄ ⊢⇉-inv {ρ = ρ} ⊢M
+⊢⇇-inv {M = M · N}     (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢M
+⊢⇇-inv {M = M ·fst}    (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢M
+⊢⇇-inv {M = M ·snd}    (⇄ ⊢M)      = ⇄ ⊢⇉-inv ⊢M
+⊢⇇-inv {M = ƛ M}       (ƛ ⊢M)      = ƛ ⊢⇇-inv ⊢M
+⊢⇇-inv {M = ⟨ M , N ⟩} ⟨ ⊢M , ⊢N ⟩ = ⟨ ⊢⇇-inv ⊢M , ⊢⇇-inv ⊢N ⟩
 
 -- Basic properties of neutralizable/normalizable terms
-⊢⇉wn-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⇉ A wn → Δ′ ⊢ M [ ρ ]ᵣ ⇉ A wn
-⊢⇇wn-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ⊢ M ⇇ A wn → Δ′ ⊢ M [ ρ ]ᵣ ⇇ A wn
-⊢⇉wn-mono ⊢ρ (# ⊢x)      = # ⊢ρ ⊢x
-⊢⇉wn-mono ⊢ρ (⊢M · ⊢N)   = ⊢⇉wn-mono ⊢ρ ⊢M · ⊢⇇wn-mono ⊢ρ ⊢N
-⊢⇉wn-mono ⊢ρ (⊢M ·fst)   = ⊢⇉wn-mono ⊢ρ ⊢M ·fst
-⊢⇉wn-mono ⊢ρ (⊢M ·snd)   = ⊢⇉wn-mono ⊢ρ ⊢M ·snd
-⊢⇇wn-mono ⊢ρ (⇄ ⊢M)      = ⇄ ⊢⇉wn-mono ⊢ρ ⊢M
-⊢⇇wn-mono ⊢ρ (ƛ ⊢M)      = ƛ ⊢⇇wn-mono (⊢ᵣ-⇑ᵣ ⊢ρ) ⊢M
-⊢⇇wn-mono ⊢ρ ⟨ ⊢M , ⊢N ⟩ = ⟨ ⊢⇇wn-mono ⊢ρ ⊢M , ⊢⇇wn-mono ⊢ρ ⊢N ⟩
-⊢⇇wn-mono ⊢ρ (clo R ⊢M)  = clo ([]ᵣ-cong-⟼ R) (⊢⇇wn-mono ⊢ρ ⊢M)
+⊢⇉wn-mono : ⊢ M ⇉wn → ⊢ M [ ρ ]ᵣ ⇉wn
+⊢⇇wn-mono : ⊢ M ⇇wn → ⊢ M [ ρ ]ᵣ ⇇wn
+⊢⇉wn-mono {ρ = ρ} (# x)       = # (ρ x)
+⊢⇉wn-mono (⊢M · ⊢N)   = ⊢⇉wn-mono ⊢M · ⊢⇇wn-mono ⊢N
+⊢⇉wn-mono (⊢M ·fst)   = ⊢⇉wn-mono ⊢M ·fst
+⊢⇉wn-mono (⊢M ·snd)   = ⊢⇉wn-mono ⊢M ·snd
+⊢⇇wn-mono (⇄ ⊢M)      = ⇄ ⊢⇉wn-mono ⊢M
+⊢⇇wn-mono (ƛ ⊢M)      = ƛ ⊢⇇wn-mono ⊢M
+⊢⇇wn-mono ⟨ ⊢M , ⊢N ⟩ = ⟨ ⊢⇇wn-mono ⊢M , ⊢⇇wn-mono ⊢N ⟩
+⊢⇇wn-mono (clo R ⊢M)  = clo ([]ᵣ-cong-⟼ R) (⊢⇇wn-mono ⊢M)
 
-⊢⇉wn-functional : Γ ⊢ M ⇉ A wn → Γ ⊢ M ⇉ B wn → A ≡ B
-⊢⇉wn-functional (# ⊢x₁)     (# ⊢x₂)     = ∋-functional ⊢x₁ ⊢x₂
-⊢⇉wn-functional (⊢M₁ · ⊢N₁) (⊢M₂ · ⊢N₂) = →-inj₂ (⊢⇉wn-functional ⊢M₁ ⊢M₂)
-⊢⇉wn-functional (⊢M₁ ·fst)  (⊢M₂ ·fst)  = ×-inj₁ (⊢⇉wn-functional ⊢M₁ ⊢M₂)
-⊢⇉wn-functional (⊢M₁ ·snd)  (⊢M₂ ·snd)  = ×-inj₂ (⊢⇉wn-functional ⊢M₁ ⊢M₂)
-
-⊢⇉wn-⟼-normal : Γ ⊢ M ⇉ A wn → M ⟼ M′ → ⊥
+⊢⇉wn-⟼-normal : ⊢ M ⇉wn → M ⟼ M′ → ⊥
 ⊢⇉wn-⟼-normal (⊢M · ⊢N) (ξ·₁ R) = ⊢⇉wn-⟼-normal ⊢M R
 ⊢⇉wn-⟼-normal (⊢M ·fst) (ξ·fst R) = ⊢⇉wn-⟼-normal ⊢M R
 ⊢⇉wn-⟼-normal (⊢M ·snd) (ξ·snd R) = ⊢⇉wn-⟼-normal ⊢M R
 
-⊢⇉wn-inv : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ⊢ M [ ρ ]ᵣ ⇉ A wn → Δ ⊢ M ⇉ A wn
-⊢⇇wn-inv : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ⊢ M [ ρ ]ᵣ ⇇ A wn → Δ ⊢ M ⇇ A wn
-⊢⇇wn-inv-lemma : ∀ {Mᵣ} → Δ′ ⊢ᵣ ρ ⦂ Δ → Mᵣ ≡ M [ ρ ]ᵣ → Δ′ ⊢ Mᵣ ⇇ A wn → Δ ⊢ M ⇇ A wn
-⊢⇉wn-inv {M = # x}       ⊢ρ (# ⊢x) = # ∋-inv ⊢ρ ⊢x
-⊢⇉wn-inv {M = M · N}     ⊢ρ (⊢M · ⊢N) = ⊢⇉wn-inv ⊢ρ ⊢M · ⊢⇇wn-inv ⊢ρ ⊢N
-⊢⇉wn-inv {M = M ·fst}    ⊢ρ (⊢M ·fst) = ⊢⇉wn-inv ⊢ρ ⊢M ·fst
-⊢⇉wn-inv {M = M ·snd}    ⊢ρ (⊢M ·snd) = ⊢⇉wn-inv ⊢ρ ⊢M ·snd
-⊢⇇wn-inv ⊢ρ ⊢Mᵣ = ⊢⇇wn-inv-lemma ⊢ρ refl ⊢Mᵣ
-⊢⇇wn-inv-lemma {M = M}         ⊢ρ p (⇄ ⊢Mᵣ) with p
-... | refl = ⇄ ⊢⇉wn-inv ⊢ρ ⊢Mᵣ
-⊢⇇wn-inv-lemma {M = ƛ M}       ⊢ρ p (ƛ ⊢Mᵣ) with p
-... | refl = ƛ ⊢⇇wn-inv-lemma (⊢ᵣ-⇑ᵣ ⊢ρ) refl ⊢Mᵣ
-⊢⇇wn-inv-lemma {M = ⟨ M , N ⟩} ⊢ρ p ⟨ ⊢Mᵣ , ⊢Nᵣ ⟩ with p
-... | refl = ⟨ ⊢⇇wn-inv-lemma ⊢ρ refl ⊢Mᵣ , ⊢⇇wn-inv-lemma ⊢ρ refl ⊢Nᵣ ⟩
-⊢⇇wn-inv-lemma {M = M}         ⊢ρ p (clo R ⊢M) with []ᵣ-sim-⟼ M p R
-... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ = clo R′ (⊢⇇wn-inv-lemma ⊢ρ refl ⊢M)
+⊢⇉wn-inv : ⊢ M [ ρ ]ᵣ ⇉wn → ⊢ M ⇉wn
+⊢⇇wn-inv : ⊢ M [ ρ ]ᵣ ⇇wn → ⊢ M ⇇wn
+⊢⇇wn-inv-lemma : ∀ {Mᵣ} → Mᵣ ≡ M [ ρ ]ᵣ → ⊢ Mᵣ ⇇wn → ⊢ M ⇇wn
+⊢⇉wn-inv {M = # x}       (# ⊢x) = # x
+⊢⇉wn-inv {M = M · N}     (⊢M · ⊢N) = ⊢⇉wn-inv ⊢M · ⊢⇇wn-inv ⊢N
+⊢⇉wn-inv {M = M ·fst}    (⊢M ·fst) = ⊢⇉wn-inv ⊢M ·fst
+⊢⇉wn-inv {M = M ·snd}    (⊢M ·snd) = ⊢⇉wn-inv ⊢M ·snd
+⊢⇇wn-inv ⊢Mᵣ = ⊢⇇wn-inv-lemma refl ⊢Mᵣ
+⊢⇇wn-inv-lemma {M = M}         p (⇄ ⊢Mᵣ) with p
+... | refl = ⇄ ⊢⇉wn-inv ⊢Mᵣ
+⊢⇇wn-inv-lemma {M = ƛ M}       p (ƛ ⊢Mᵣ) with p
+... | refl = ƛ ⊢⇇wn-inv-lemma refl ⊢Mᵣ
+⊢⇇wn-inv-lemma {M = ⟨ M , N ⟩} p ⟨ ⊢Mᵣ , ⊢Nᵣ ⟩ with p
+... | refl = ⟨ ⊢⇇wn-inv-lemma refl ⊢Mᵣ , ⊢⇇wn-inv-lemma refl ⊢Nᵣ ⟩
+⊢⇇wn-inv-lemma {M = M}         p (clo R ⊢M) with []ᵣ-sim-⟼ M p R
+... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ = clo R′ (⊢⇇wn-inv-lemma refl ⊢M)
 
-⊢⇇wn-ext→ : Δ , A ⊢ M [ ↑ᵣ ]ᵣ · # zero ⇇ B wn → Δ ⊢ M ⇇ A `→ B wn
-⊢⇇wn-ext→-lemma : ∀ {Mᵣ Mz′} → Mᵣ ≡ M [ ↑ᵣ ]ᵣ → Mᵣ · # zero ⟼ Mz′ → Δ , A ⊢ Mz′ ⇇ B wn → Δ ⊢ M ⇇ A `→ B wn
-⊢⇇wn-ext→ {M = M} (⇄ (⊢M · (⇄ (# Z)))) = ⇄ ⊢⇉wn-inv ⊢ᵣ-↑ᵣ ⊢M
+⊢⇇wn-ext→ : ⊢ M [ ↑ᵣ ]ᵣ · # zero ⇇wn → ⊢ M ⇇wn
+⊢⇇wn-ext→-lemma : ∀ {Mᵣ Mz′} → Mᵣ ≡ M [ ↑ᵣ ]ᵣ → Mᵣ · # zero ⟼ Mz′ → ⊢ Mz′ ⇇wn → ⊢ M ⇇wn
+⊢⇇wn-ext→ {M = M} (⇄ (⊢M · (⇄ (# zero)))) = ⇄ ⊢⇉wn-inv ⊢M
 ⊢⇇wn-ext→ {M = M} (clo R ⊢M) = ⊢⇇wn-ext→-lemma refl R ⊢M
-⊢⇇wn-ext→-lemma {M = M} {Δ = Δ} {A = A} {B = B} p β→ ⊢Mz′ with M | p
+⊢⇇wn-ext→-lemma {M = M} p β→ ⊢Mz′ with M | p
 ... | ƛ M | refl = ƛ ⊢Mz″
   where
-    ⊢Mz″ : Δ , A ⊢ M ⇇ B wn
-    ⊢Mz″ = subst (Δ , A ⊢_⇇ B wn) ([⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M) ⊢Mz′
+    ⊢Mz″ : ⊢ M ⇇wn
+    ⊢Mz″ = subst (⊢_⇇wn) ([⇑ᵣ↑ᵣ]ᵣ[#zero]≗id M) ⊢Mz′
 ⊢⇇wn-ext→-lemma {M = M}   p (ξ·₁ R) ⊢Mz′ with []ᵣ-sim-⟼ M p R | p
 ... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ | refl = clo R′ (⊢⇇wn-ext→ ⊢Mz′)
 
-⊢⇇wn-ext× : Δ ⊢ M ·fst ⇇ A wn → Δ ⊢ M ·snd ⇇ B wn → Δ ⊢ M ⇇ A `× B wn
-⊢⇇wn-ext× {M = M} (⇄ (⊢M₁ ·fst)) (⇄ (⊢M₂ ·snd)) with ⊢⇉wn-functional ⊢M₁ ⊢M₂
-... | refl = ⇄ ⊢M₁
+⊢⇇wn-ext× : ⊢ M ·fst ⇇wn → ⊢ M ·snd ⇇wn → ⊢ M ⇇wn
+⊢⇇wn-ext× {M = M} (⇄ (⊢M₁ ·fst)) (⇄ (⊢M₂ ·snd)) = ⇄ ⊢M₁
 ⊢⇇wn-ext× {M = M} (⇄ (⊢M₁ ·fst)) (clo R ⊢M₂) = ⊥-elim (⊢⇉wn-⟼-normal (⊢M₁ ·snd) R)
 ⊢⇇wn-ext× {M = M} (clo R ⊢M₁) (⇄ (⊢M₂ ·snd)) = ⊥-elim (⊢⇉wn-⟼-normal (⊢M₂ ·fst) R)
 ⊢⇇wn-ext× {M = M} (clo β×₁ ⊢M₁) (clo β×₂ ⊢M₂) = ⟨ ⊢M₁ , ⊢M₂ ⟩
 ⊢⇇wn-ext× {M = M} (clo (ξ·fst R₁) ⊢M₁) (clo (ξ·snd R₂) ⊢M₂) with ⟼-det R₁ R₂
 ... | refl = clo R₁ (⊢⇇wn-ext× ⊢M₁ ⊢M₂)
 
-⊢⇉wn⇒⊢⇉ : Γ ⊢ M ⇉ A wn → ∃[ M′ ] M ⟶* M′ × Γ ⊢ M′ ⇉ A
-⊢⇇wn⇒⊢⇇ : Γ ⊢ M ⇇ A wn → ∃[ M′ ] M ⟶* M′ × Γ ⊢ M′ ⇇ A
+⊢⇉wn⇒⊢⇉ : ⊢ M ⇉wn → ∃[ M′ ] M ⟶* M′ × ⊢ M′ ⇉
+⊢⇇wn⇒⊢⇇ : ⊢ M ⇇wn → ∃[ M′ ] M ⟶* M′ × ⊢ M′ ⇇
 ⊢⇉wn⇒⊢⇉ {M = # x}       (# ⊢x) = ⟨ # x , ⟨ ε , # ⊢x ⟩ ⟩
 ⊢⇉wn⇒⊢⇉ {M = M · N}     (⊢M · ⊢N) with ⊢⇉wn⇒⊢⇉ ⊢M | ⊢⇇wn⇒⊢⇇ ⊢N
 ... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ | ⟨ N′ , ⟨ RsN , ⊢N′ ⟩ ⟩ = ⟨ M′ · N′ , ⟨ ξ·* RsM RsN , ⊢M′ · ⊢N′ ⟩ ⟩

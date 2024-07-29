@@ -21,7 +21,7 @@ infix 4 _⊨_⦂_
 -- Kripke logical relation
 
 ⟦_⊢_⟧ : ∀ {D} → Ctx D → Ty → Tm D → Set
-⟦ Δ ⊢ ⋆      ⟧ = λ M → Δ ⊢ M ⇇ ⋆ wn
+⟦ Δ ⊢ ⋆      ⟧ = λ M → ⊢ M ⇇wn
 ⟦ Δ ⊢ A `→ B ⟧ = λ M → ∀ {D′} (Δ′ : Ctx D′) (ρ : Rename D′ _) N →
                        Δ′ ⊢ᵣ ρ ⦂ Δ → N ∈ ⟦ Δ′ ⊢ A ⟧ → M [ ρ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
 ⟦ Δ ⊢ A `× B ⟧ = λ M → M ·fst ∈ ⟦ Δ ⊢ A ⟧ × M ·snd ∈ ⟦ Δ ⊢ B ⟧
@@ -44,7 +44,7 @@ private
 -- Basic properties of KLR
 
 ⟦⊢⟧-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → M ∈ ⟦ Δ ⊢ A ⟧ → M [ ρ ]ᵣ ∈ ⟦ Δ′ ⊢ A ⟧
-⟦⊢⟧-mono {A = ⋆}                      ⊢ρ M∈⟦⋆⟧   = ⊢⇇wn-mono ⊢ρ M∈⟦⋆⟧
+⟦⊢⟧-mono {A = ⋆}                      ⊢ρ M∈⟦⋆⟧   = ⊢⇇wn-mono M∈⟦⋆⟧
 ⟦⊢⟧-mono {ρ = ρ} {M = M} {A = A `→ B} ⊢ρ M∈⟦A→B⟧ Δ′ ρ′ N ⊢ρ′ N∈⟦A⟧ = M[ρ][ρ′]·N∈⟦B⟧
   where
     M[ρ∘ρ′]·N∈⟦B⟧ : M [ ρ ∘ᵣ ρ′ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
@@ -135,27 +135,27 @@ fundamental {M = M ·fst}    (_·fst {A = A} {B = B} ⊢M)    = compat-·fst A B
 fundamental {M = M ·snd}    (_·snd {A = A} {B = B} ⊢M)    = compat-·snd A B M (fundamental ⊢M)
 
 -- reflection/reification
-reflect : Δ ⊢ M ⇉ A wn → M ∈ ⟦ Δ ⊢ A ⟧
-reify   : M ∈ ⟦ Δ ⊢ A ⟧ → Δ ⊢ M ⇇ A wn
-reflect {A = ⋆}     ⊢M = ⇄ ⊢M
-reflect {A = A `→ B} ⊢M Δ′ ρ N ⊢ρ N∈⟦A⟧ = reflect (⊢⇉wn-mono ⊢ρ ⊢M · reify N∈⟦A⟧)
-reflect {A = A `× B} ⊢M = ⟨ reflect (⊢M ·fst) , reflect (⊢M ·snd) ⟩
+reflect : ⊢ M ⇉wn → M ∈ ⟦ Δ ⊢ A ⟧
+reify   : M ∈ ⟦ Δ ⊢ A ⟧ → ⊢ M ⇇wn
+reflect {A = ⋆}      ⊢M = ⇄ ⊢M
+reflect {A = A `→ B} ⊢M Δ′ ρ N ⊢ρ N∈⟦A⟧ = reflect {A = B} (⊢⇉wn-mono ⊢M · reify {A = A} N∈⟦A⟧)
+reflect {A = A `× B} ⊢M = ⟨ reflect {A = A} (⊢M ·fst) , reflect {A = B} (⊢M ·snd) ⟩
 reify                 {A = ⋆}      M∈⟦⋆⟧   = M∈⟦⋆⟧
-reify {M = M} {Δ = Δ} {A = A `→ B} M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify M[↑]·#0∈⟦B⟧)
+reify {M = M} {Δ = Δ} {A = A `→ B} M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify {A = B} M[↑]·#0∈⟦B⟧)
   where
     #0∈⟦A⟧ : # zero ∈ ⟦ Δ , A ⊢ A ⟧
-    #0∈⟦A⟧ = reflect {A = A} (# Z)
+    #0∈⟦A⟧ = reflect {A = A} (# zero)
 
     M[↑]·#0∈⟦B⟧ : M [ ↑ᵣ ]ᵣ · # zero ∈ ⟦ Δ , A ⊢ B ⟧
     M[↑]·#0∈⟦B⟧ = M∈⟦A→B⟧ (Δ , A) ↑ᵣ (# zero) ⊢ᵣ-↑ᵣ #0∈⟦A⟧
-reify {A = A `× B} ⟨ M·fst∈⟦A⟧ , M·snd∈⟦B⟧ ⟩ = ⊢⇇wn-ext× (reify M·fst∈⟦A⟧) (reify M·snd∈⟦B⟧)
+reify {A = A `× B} ⟨ M·fst∈⟦A⟧ , M·snd∈⟦B⟧ ⟩ = ⊢⇇wn-ext× (reify {A = A} M·fst∈⟦A⟧) (reify {A = B} M·snd∈⟦B⟧)
 
 reflect-ιₛ : ιₛ ∈ ⟦ Γ ⇒ Γ ⟧
-reflect-ιₛ {x = x} Γ∋x = reflect (# Γ∋x)
+reflect-ιₛ {x = x} {A = A} Γ∋x = reflect {A = A} (# x)
 
 -- Normalization theorem
-normalize : Γ ⊢ M ⦂ A → ∃[ M′ ] M ⟶* M′ × Γ ⊢ M′ ⇇ A
-normalize {Γ = Γ} {M = M} {A = A} ⊢M = ⊢⇇wn⇒⊢⇇ (reify M∈⟦A⟧)
+normalize : Γ ⊢ M ⦂ A → ∃[ M′ ] M ⟶* M′ × ⊢ M′ ⇇
+normalize {Γ = Γ} {M = M} {A = A} ⊢M = ⊢⇇wn⇒⊢⇇ (reify {A = A} M∈⟦A⟧)
   where
     M[ι]∈⟦A⟧ : M [ ιₛ ]ₛ ∈ ⟦ Γ ⊢ A ⟧
     M[ι]∈⟦A⟧ = fundamental ⊢M Γ ιₛ reflect-ιₛ

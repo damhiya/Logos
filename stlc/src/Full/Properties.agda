@@ -106,6 +106,7 @@ private
 
 []ᵣ-cong-⟼ : ∀ {ρ : Rename D′ D} → M ⟼ M′ → M [ ρ ]ᵣ ⟼ M′ [ ρ ]ᵣ
 []ᵣ-cong-⟼ {D′ = D′} {ρ = ρ} (β→ {M} {N}) = begin
+  ((ƛ M) · N) [ ρ ]ᵣ         ≡⟨⟩
   (ƛ M [ ⇑ᵣ ρ ]ᵣ) · N [ ρ ]ᵣ ⟶⟨ β→           ⟩
   M [ ⇑ᵣ ρ ]ᵣ [ N [ ρ ]ᵣ ]   ≡⟨ []-[]ᵣ-comm M ⟨
   M [ N ] [ ρ ]ᵣ ∎
@@ -114,13 +115,13 @@ private
 []ᵣ-cong-⟼ β×₂       = β×₂
 []ᵣ-cong-⟼ {D′ = D′} {ρ = ρ} (β+₁ {L} {M} {N}) = begin
   ((inl· L) ·case[ M , N ]) [ ρ ]ᵣ                     ≡⟨⟩
-  ((inl· L [ ρ ]ᵣ) ·case[ M [ ⇑ᵣ ρ ]ᵣ , N [ ⇑ᵣ ρ ]ᵣ ]) ⟶⟨ β+₁ ⟩
+  ((inl· L [ ρ ]ᵣ) ·case[ M [ ⇑ᵣ ρ ]ᵣ , N [ ⇑ᵣ ρ ]ᵣ ]) ⟶⟨ β+₁          ⟩
   M [ ⇑ᵣ ρ ]ᵣ [ L [ ρ ]ᵣ ]                             ≡⟨ []-[]ᵣ-comm M ⟨
   M [ L ] [ ρ ]ᵣ                                       ∎
   where open ≡-UpToReasoning (_⟼_ {D′})
 []ᵣ-cong-⟼ {D′ = D′} {ρ = ρ} (β+₂ {L} {M} {N}) = begin
   ((inr· L) ·case[ M , N ]) [ ρ ]ᵣ                     ≡⟨⟩
-  ((inr· L [ ρ ]ᵣ) ·case[ M [ ⇑ᵣ ρ ]ᵣ , N [ ⇑ᵣ ρ ]ᵣ ]) ⟶⟨ β+₂ ⟩
+  ((inr· L [ ρ ]ᵣ) ·case[ M [ ⇑ᵣ ρ ]ᵣ , N [ ⇑ᵣ ρ ]ᵣ ]) ⟶⟨ β+₂          ⟩
   N [ ⇑ᵣ ρ ]ᵣ [ L [ ρ ]ᵣ ]                             ≡⟨ []-[]ᵣ-comm N ⟨
   N [ L ] [ ρ ]ᵣ                                       ∎
   where open ≡-UpToReasoning (_⟼_ {D′})

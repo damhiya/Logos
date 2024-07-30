@@ -2,6 +2,7 @@ module Full.Semantics where
 
 open import Data.Fin.Base
 open import Data.Nat.Base
+open import Data.Unit.Base
 open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Relation.Unary using (_∈_)
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
@@ -19,21 +20,22 @@ open import Full.Properties
 infix 4 _⊨_⦂_
 
 -- Kripke logical relation
+data +R {D} (A : Tm D → Set) (B : Tm D → Set) : Tm D → Set where
+  inl·_ : ∀ {M M′} → M ⟼* inl· M′ → M′ ∈ A   → M ∈ +R A B
+  inr·_ : ∀ {M M′} → M ⟼* inr· M′ → M′ ∈ B   → M ∈ +R A B
+  ne    : ∀ {M M′} → M ⟼* M′      → ⊢ M′ ⇉wn → M ∈ +R A B
 
-data Clo {D} (A : Tm D → Set) : Tm D → Set where
-  clo   : ∀ {M M′} → M ⟼* M′ → M′ ∈ A → M ∈ Clo A
-
-data +R′ {D} (A : Tm D → Set) (B : Tm D → Set) : Tm D → Set where
-  inl·_ : ∀ {M} → M ∈ A → inl· M ∈ +R′ A B
-  inr·_ : ∀ {M} → M ∈ B → inr· M ∈ +R′ A B
-  ne    : ∀ {M} → ⊢ M ⇉wn → M ∈ +R′ A B
+data 0R {D} : Tm D → Set where
+  ne  : ∀ {M M′} → M ⟼* M′ → ⊢ M′ ⇉wn → M ∈ 0R
 
 ⟦_⊢_⟧ : ∀ {D} → Ctx D → Ty → Tm D → Set
 ⟦ Δ ⊢ ⋆      ⟧ = λ M → ⊢ M ⇇wn
 ⟦ Δ ⊢ A `→ B ⟧ = λ M → ∀ {D′} (Δ′ : Ctx D′) (ρ : Rename D′ _) N →
                        Δ′ ⊢ᵣ ρ ⦂ Δ → N ∈ ⟦ Δ′ ⊢ A ⟧ → M [ ρ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
 ⟦ Δ ⊢ A `× B ⟧ = λ M → M ·fst ∈ ⟦ Δ ⊢ A ⟧ × M ·snd ∈ ⟦ Δ ⊢ B ⟧
-⟦ Δ ⊢ A `+ B ⟧ = λ M → M ∈ Clo (+R′ ⟦ Δ ⊢ A ⟧ ⟦ Δ ⊢ B ⟧)
+⟦ Δ ⊢ A `+ B ⟧ = λ M → M ∈ +R ⟦ Δ ⊢ A ⟧ ⟦ Δ ⊢ B ⟧
+⟦ Δ ⊢ `1     ⟧ = λ M → ⊢ M ⇇wn
+⟦ Δ ⊢ `0     ⟧ = 0R
 
 ⟦_⇒_⟧ : ∀ {D G} → Ctx D → Ctx G → Subst D G → Set
 ⟦ Δ ⇒ Γ ⟧ = λ γ → ∀ {x A} → Γ ∋ x ⦂ A → γ x ∈ ⟦ Δ ⊢ A ⟧
@@ -62,9 +64,11 @@ private
     M[ρ][ρ′]·N∈⟦B⟧ : M [ ρ ]ᵣ [ ρ′ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
     M[ρ][ρ′]·N∈⟦B⟧ = subst (λ M → M · N ∈ ⟦ Δ′ ⊢ B ⟧) (sym ([]ᵣ-∘ᵣ-compose M)) M[ρ∘ρ′]·N∈⟦B⟧
 ⟦⊢⟧-mono {A = A `× B} ⊢ρ ⟨ M·fst∈⟦A⟧ , M·snd∈⟦B⟧ ⟩ = ⟨ ⟦⊢⟧-mono {A = A} ⊢ρ M·fst∈⟦A⟧ , ⟦⊢⟧-mono {A = B} ⊢ρ M·snd∈⟦B⟧ ⟩
-⟦⊢⟧-mono {A = A `+ B} ⊢ρ (clo Rs (inl· M∈⟦A⟧)) = clo ([]ᵣ-cong-⟼* Rs) (inl· ⟦⊢⟧-mono {A = A} ⊢ρ M∈⟦A⟧)
-⟦⊢⟧-mono {A = A `+ B} ⊢ρ (clo Rs (inr· M∈⟦B⟧)) = clo ([]ᵣ-cong-⟼* Rs) (inr· ⟦⊢⟧-mono {A = B} ⊢ρ M∈⟦B⟧)
-⟦⊢⟧-mono {A = A `+ B} ⊢ρ (clo Rs (ne ⊢M)) = clo ([]ᵣ-cong-⟼* Rs) (ne (⊢⇉wn-mono ⊢M))
+⟦⊢⟧-mono {A = A `+ B} ⊢ρ (inl·_ Rs M∈⟦A⟧)          = inl·_ ([]ᵣ-cong-⟼* Rs) (⟦⊢⟧-mono {A = A} ⊢ρ M∈⟦A⟧)
+⟦⊢⟧-mono {A = A `+ B} ⊢ρ (inr·_ Rs M∈⟦B⟧)          = inr·_ ([]ᵣ-cong-⟼* Rs) (⟦⊢⟧-mono {A = B} ⊢ρ M∈⟦B⟧)
+⟦⊢⟧-mono {A = A `+ B} ⊢ρ (ne Rs ⊢M)                = ne ([]ᵣ-cong-⟼* Rs) (⊢⇉wn-mono ⊢M)
+⟦⊢⟧-mono {A = `1}     ⊢ρ M∈⟦1⟧                     = ⊢⇇wn-mono M∈⟦1⟧
+⟦⊢⟧-mono {A = `0}     ⊢ρ (ne Rs ⊢M)                = ne ([]ᵣ-cong-⟼* Rs) (⊢⇉wn-mono ⊢M)
 
 ⟦⊢⟧-head-expand : M′ ⟼ M → M ∈ ⟦ Δ ⊢ A ⟧ → M′ ∈ ⟦ Δ ⊢ A ⟧
 ⟦⊢⟧-head-expand {A = ⋆}     R M∈⟦⋆⟧ = clo R M∈⟦⋆⟧
@@ -80,7 +84,11 @@ private
   ⟨ ⟦⊢⟧-head-expand {A = A} (ξ·fst R) M·fst∈⟦A⟧
   , ⟦⊢⟧-head-expand {A = B} (ξ·snd R) M·snd∈⟦B⟧
   ⟩
-⟦⊢⟧-head-expand {A = A `+ B} R (clo Rs M∈⟦A+B⟧) = clo (R ◅ Rs) M∈⟦A+B⟧
+⟦⊢⟧-head-expand {A = A `+ B} R (inl·_ Rs M∈⟦A⟧) = inl·_ (R ◅ Rs) M∈⟦A⟧
+⟦⊢⟧-head-expand {A = A `+ B} R (inr·_ Rs M∈⟦B⟧) = inr·_ (R ◅ Rs) M∈⟦B⟧
+⟦⊢⟧-head-expand {A = A `+ B} R (ne Rs ⊢M)       = ne (R ◅ Rs) ⊢M
+⟦⊢⟧-head-expand {A = `1}     R M∈⟦1⟧            = clo R M∈⟦1⟧
+⟦⊢⟧-head-expand {A = `0}     R (ne Rs ⊢M)       = ne (R ◅ Rs) ⊢M
 
 ⟦⊢⟧-head-expand* : M′ ⟼* M → M ∈ ⟦ Δ ⊢ A ⟧ → M′ ∈ ⟦ Δ ⊢ A ⟧
 ⟦⊢⟧-head-expand* ε M∈⟦A⟧ = M∈⟦A⟧
@@ -92,7 +100,9 @@ reify   : ∀ A → M ∈ ⟦ Δ ⊢ A ⟧ → ⊢ M ⇇wn
 reflect ⋆        ⊢M = ⇄ ⊢M
 reflect (A `→ B) ⊢M Δ′ ρ N ⊢ρ N∈⟦A⟧ = reflect B (⊢⇉wn-mono ⊢M · reify A N∈⟦A⟧)
 reflect (A `× B) ⊢M = ⟨ reflect A (⊢M ·fst) , reflect B (⊢M ·snd) ⟩
-reflect (A `+ B) ⊢M = clo ε (ne ⊢M)
+reflect (A `+ B) ⊢M = (ne ε ⊢M)
+reflect `1       ⊢M = ⇄ ⊢M
+reflect `0       ⊢M = ne ε ⊢M
 reify                 ⋆        M∈⟦⋆⟧   = M∈⟦⋆⟧
 reify {M = M} {Δ = Δ} (A `→ B) M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify B M[↑]·#0∈⟦B⟧)
   where
@@ -102,9 +112,11 @@ reify {M = M} {Δ = Δ} (A `→ B) M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify B M[
     M[↑]·#0∈⟦B⟧ : M [ ↑ᵣ ]ᵣ · # zero ∈ ⟦ Δ , A ⊢ B ⟧
     M[↑]·#0∈⟦B⟧ = M∈⟦A→B⟧ (Δ , A) ↑ᵣ (# zero) ⊢ᵣ-↑ᵣ #0∈⟦A⟧
 reify (A `× B) ⟨ M·fst∈⟦A⟧ , M·snd∈⟦B⟧ ⟩ = ⊢⇇wn-ext× (reify A M·fst∈⟦A⟧) (reify B M·snd∈⟦B⟧)
-reify (A `+ B) (clo Rs (inl· M∈⟦A⟧)) = ⊢⇇wn-head-expand* Rs (inl· reify A M∈⟦A⟧)
-reify (A `+ B) (clo Rs (inr· M∈⟦B⟧)) = ⊢⇇wn-head-expand* Rs (inr· reify B M∈⟦B⟧)
-reify (A `+ B) (clo Rs (ne ⊢M)) = ⊢⇇wn-head-expand* Rs (⇄ ⊢M)
+reify (A `+ B) (inl·_ Rs M∈⟦A⟧)     = ⊢⇇wn-head-expand* Rs (inl· reify A M∈⟦A⟧)
+reify (A `+ B) (inr·_ Rs M∈⟦B⟧)     = ⊢⇇wn-head-expand* Rs (inr· reify B M∈⟦B⟧)
+reify (A `+ B) (ne Rs ⊢M)          = ⊢⇇wn-head-expand* Rs (⇄ ⊢M)
+reify `1       M∈⟦1⟧                     = M∈⟦1⟧
+reify `0       (ne Rs ⊢M)                = ⊢⇇wn-head-expand* Rs (⇄ ⊢M)
 
 reflect-ιₛ : ιₛ ∈ ⟦ Γ ⇒ Γ ⟧
 reflect-ιₛ {x = x} {A = A} Γ∋x = reflect A (# x)
@@ -167,14 +179,14 @@ compat-·snd : ∀ A B M → Γ ⊨ M ⦂ A `× B → Γ ⊨ M ·snd ⦂ B
 compat-·snd A B M ⊨M Δ γ γ∈Γ = ⊨M Δ γ γ∈Γ .proj₂
 
 compat-inl· : ∀ A B M → Γ ⊨ M ⦂ A → Γ ⊨ inl· M ⦂ A `+ B
-compat-inl· A B M ⊨M Δ γ γ∈Γ = clo ε (inl· ⊨M Δ γ γ∈Γ)
+compat-inl· A B M ⊨M Δ γ γ∈Γ = inl·_ ε (⊨M Δ γ γ∈Γ)
 
 compat-inr· : ∀ A B M → Γ ⊨ M ⦂ B → Γ ⊨ inr· M ⦂ A `+ B
-compat-inr· A B M ⊨M Δ γ γ∈Γ = clo ε (inr· ⊨M Δ γ γ∈Γ)
+compat-inr· A B M ⊨M Δ γ γ∈Γ = inr·_ ε (⊨M Δ γ γ∈Γ)
 
 compat-·case[,] : ∀ A B C L M N → Γ ⊨ L ⦂ A `+ B → Γ , A ⊨ M ⦂ C → Γ , B ⊨ N ⦂ C → Γ ⊨ L ·case[ M , N ] ⦂ C
 compat-·case[,] {G} {Γ = Γ} A B C L M N ⊨L ⊨M ⊨N {D} Δ γ γ∈Γ with ⊨L Δ γ γ∈Γ
-... | clo Rs (inl·_ {L′} L′∈⟦A⟧) = ⟦⊢⟧-head-expand* {A = C} Rs′ (⊨M Δ γ′ γ′∈⟦Γ,A⟧)
+... | inl·_ {M′ = L′} Rs L′∈⟦A⟧ = ⟦⊢⟧-head-expand* {A = C} Rs′ (⊨M Δ γ′ γ′∈⟦Γ,A⟧)
   where
     open StarReasoning (_⟼_ {D})
 
@@ -193,7 +205,7 @@ compat-·case[,] {G} {Γ = Γ} A B C L M N ⊨L ⊨M ⊨N {D} Δ γ γ∈Γ with
       M [ ⇑ₛ γ ]ₛ [ L′ ]                           ≡⟨ []ₛ-[]-compose M    ⟩
       M [ γ′ ]ₛ ∎
 
-... | clo Rs (inr·_ {L′} L′∈⟦B⟧) = ⟦⊢⟧-head-expand* {A = C} Rs′ (⊨N Δ γ′ γ′∈⟦Γ,B⟧)
+... | inr·_ {M′ = L′} Rs L′∈⟦B⟧ = ⟦⊢⟧-head-expand* {A = C} Rs′ (⊨N Δ γ′ γ′∈⟦Γ,B⟧)
   where
     open StarReasoning (_⟼_ {D})
 
@@ -212,7 +224,7 @@ compat-·case[,] {G} {Γ = Γ} A B C L M N ⊨L ⊨M ⊨N {D} Δ γ γ∈Γ with
       N [ ⇑ₛ γ ]ₛ [ L′ ]                           ≡⟨ []ₛ-[]-compose N    ⟩
       N [ γ′ ]ₛ ∎
 
-... | clo Rs (ne {L′} ⊢L′) = ⟦⊢⟧-head-expand* {A = C} (ξ·case[,]₁*-⟼ Rs) (reflect C (⊢L′ ·case[ ⊢M , ⊢N ]))
+... | ne {M′ = L′} Rs ⊢L′ = ⟦⊢⟧-head-expand* {A = C} (ξ·case[,]₁*-⟼ Rs) (reflect C (⊢L′ ·case[ ⊢M , ⊢N ]))
   where
     ⇑ₛγ∈⟦Γ,A⟧ : ⇑ₛ γ ∈ ⟦ Δ , A ⇒ Γ , A ⟧
     ⇑ₛγ∈⟦Γ,A⟧ Z = reflect A (# zero)
@@ -228,6 +240,13 @@ compat-·case[,] {G} {Γ = Γ} A B C L M N ⊨L ⊨M ⊨N {D} Δ γ γ∈Γ with
     ⊢N : ⊢ N [ ⇑ₛ γ ]ₛ ⇇wn
     ⊢N = reify C (⊨N (Δ , B) (⇑ₛ γ) ⇑ₛγ∈⟦Γ,B⟧)
 
+compat-tt· : Γ ⊨ tt· ⦂ `1
+compat-tt· Δ γ γ∈Γ = tt·
+
+compat-·absurd : ∀ C M → Γ ⊨ M ⦂ `0 → Γ ⊨ M ·absurd ⦂ C
+compat-·absurd C M ⊨M Δ γ γ∈Γ with ⊨M Δ γ γ∈Γ
+... | ne {M′ = M′} Rs ⊢M′ = ⟦⊢⟧-head-expand* {A = C} (ξ·absurd*-⟼ Rs) (reflect C (⊢M′ ·absurd))
+
 -- Fundamental theorem of logical relation
 fundamental : Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
 fundamental {M = # x}              (#_          {A = A} ⊢x)                       = compat-# A x ⊢x
@@ -239,6 +258,8 @@ fundamental {M = M ·snd}           (_·snd       {A = A} {B = B} ⊢M)         
 fundamental {M = inl· M}           (inl·_       {A = A} {B = B} ⊢M)               = compat-inl· A B M (fundamental ⊢M)
 fundamental {M = inr· M}           (inr·_       {A = A} {B = B} ⊢M)               = compat-inr· A B M (fundamental ⊢M)
 fundamental {M = L ·case[ M , N ]} (_·case[_,_] {A = A} {B = B} {C = C} ⊢L ⊢M ⊢N) = compat-·case[,] A B C L M N (fundamental ⊢L) (fundamental ⊢M) (fundamental ⊢N)
+fundamental {M = tt·}              tt·                                            = compat-tt·
+fundamental {M = M ·absurd}        (_·absurd    {C = C} ⊢M)                       = compat-·absurd C M (fundamental ⊢M)
 
 -- Normalization theorem
 normalize : Γ ⊢ M ⦂ A → ∃[ M′ ] M ⟶* M′ × ⊢ M′ ⇇

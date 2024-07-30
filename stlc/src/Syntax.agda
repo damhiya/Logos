@@ -5,7 +5,7 @@ open import Data.Nat.Base
 open import Relation.Binary.PropositionalEquality.Core
 
 infix  20 #_
-infixl 7  _·_ _·fst _·snd _·case[_,_]
+infixl 7  _·_ _·fst _·snd _·case[_,_] _·absurd
 infixr 6  ƛ_ inl·_ inr·_
 
 data Tm (G : ℕ) : Set where
@@ -22,6 +22,10 @@ data Tm (G : ℕ) : Set where
   inl·_       : Tm G → Tm G
   inr·_       : Tm G → Tm G
   _·case[_,_] : Tm G → Tm (suc G) → Tm (suc G) → Tm G
+  -- unit
+  tt·      : Tm G
+  -- empty
+  _·absurd : Tm G → Tm G
 
 -- constructor injectivity lemmas
 private
@@ -68,3 +72,6 @@ inr·-inj refl = refl
 
 ·case[,]-inj₃ : L₁ ·case[ M₁ , N₁ ] ≡ L₂ ·case[ M₂ , N₂ ] → N₁ ≡ N₂
 ·case[,]-inj₃ refl = refl
+
+·absurd-inj : M₁ ·absurd ≡ M₂ ·absurd → M₁ ≡ M₂
+·absurd-inj refl = refl

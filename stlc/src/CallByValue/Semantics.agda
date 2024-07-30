@@ -36,12 +36,19 @@ data _⟦+⟧_ (A : Val → Set) (B : Val → Set) : Val → Set where
   inl·_ : ∀ {M} → M ∈ A → inl· M ∈ A ⟦+⟧ B
   inr·_ : ∀ {M} → M ∈ B → inr· M ∈ A ⟦+⟧ B
 
+data ⟦1⟧ : Val → Set where
+  tt· : tt· ∈ ⟦1⟧
+
+data ⟦0⟧ : Val → Set where
+
 V⟦_⟧ : Ty → Val → Set
 E⟦_⟧ : Ty → Tm 0 → Set
 V⟦ ⋆      ⟧ = ⟦⋆⟧
 V⟦ A `→ B ⟧ = V⟦ A ⟧ ⟦→⟧ E⟦ B ⟧
 V⟦ A `× B ⟧ = E⟦ A ⟧ ⟦×⟧ E⟦ B ⟧
 V⟦ A `+ B ⟧ = V⟦ A ⟧ ⟦+⟧ V⟦ B ⟧
+V⟦ `1     ⟧ = ⟦1⟧
+V⟦ `0     ⟧ = ⟦0⟧
 E⟦ A      ⟧ = λ M → Σ[ V ∈ Val ] M ↓ V × V ∈ V⟦ A ⟧
 
 G⟦_⟧ : ∀ {G} → Ctx G → Env G → Set
@@ -183,6 +190,13 @@ compat-·case[,] {Γ = Γ} {A = A} {B = B} {C = C} L M N ⊨L ⊨M ⊨N γ γ∈
       N [ γ ,ₛ Val⇒Tm L′ ]ₛ                               ≡⟨⟩
       N [ γ′ ]ₛ                                           ∎
 
+compat-tt· : Γ ⊨ tt· ⦂ `1
+compat-tt· γ γ∈Γ = ⟨ tt· , ⟨ ε , tt· ⟩ ⟩
+
+compat-·absurd : ∀ M → Γ ⊨ M ⦂ `0 → Γ ⊨ M ·absurd ⦂ C
+compat-·absurd M ⊨M γ γ∈Γ with ⊨M γ γ∈Γ
+... | ()
+
 -- fundamental theorem
 fundamental : Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
 fundamental {M = # x}              (# Γ∋x)               = compat-# x Γ∋x
@@ -194,6 +208,8 @@ fundamental {M = M ·snd}           (⊢M ·snd)             = compat-·snd M (f
 fundamental {M = inl· M}           (inl· ⊢M)             = compat-inl· M (fundamental ⊢M)
 fundamental {M = inr· M}           (inr· ⊢M)             = compat-inr· M (fundamental ⊢M)
 fundamental {M = L ·case[ M , N ]} (⊢L ·case[ ⊢M , ⊢N ]) = compat-·case[,] L M N (fundamental ⊢L) (fundamental ⊢M) (fundamental ⊢N)
+fundamental {M = tt·}              tt·                   = compat-tt·
+fundamental {M = M ·absurd}        (⊢M ·absurd)          = compat-·absurd M (fundamental ⊢M)
 
 -- termination
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V

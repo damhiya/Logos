@@ -12,10 +12,12 @@ infixl 5  _,_
 infix  4  _∋_⦂_ _⊢_⦂_
 
 data Ty : Set where
-  ⋆ : Ty
+  ⋆    : Ty
   _`→_ : Ty → Ty → Ty
   _`×_ : Ty → Ty → Ty
   _`+_ : Ty → Ty → Ty
+  `1   : Ty
+  `0   : Ty
 
 data Ctx : ℕ → Set where
   ∙ : Ctx zero
@@ -70,6 +72,15 @@ data _⊢_⦂_ {G} : Ctx G → Tm G → Ty → Set where
                 Γ , A ⊢ M ⦂ C →
                 Γ , B ⊢ N ⦂ C →
                 Γ ⊢ L ·case[ M , N ] ⦂ C
+
+  -- unit
+  tt· : ∀ {Γ} →
+        Γ ⊢ tt· ⦂ `1
+
+  -- empty
+  _·absurd : ∀ {Γ M C} →
+             Γ ⊢ M ⦂ `0 →
+             Γ ⊢ M ·absurd ⦂ C
 
 lookup : ∀ {G} (Γ : Ctx G) (x : Fin G) → Ty
 lookup (Γ , A) zero    = A

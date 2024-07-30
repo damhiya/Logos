@@ -39,6 +39,8 @@ _[_]ᵣ : Tm D → Rename G D → Tm G
 (inl· M)           [ ρ ]ᵣ = inl· M [ ρ ]ᵣ
 (inr· M)           [ ρ ]ᵣ = inr· M [ ρ ]ᵣ
 (L ·case[ M , N ]) [ ρ ]ᵣ = L [ ρ ]ᵣ ·case[ M [ ⇑ᵣ ρ ]ᵣ , N [ ⇑ᵣ ρ ]ᵣ ]
+tt·                [ ρ ]ᵣ = tt·
+(M ·absurd)        [ ρ ]ᵣ = M [ ρ ]ᵣ ·absurd
 
 ιₛ : Subst G G
 ιₛ = #_
@@ -72,6 +74,8 @@ _[_]ₛ : Tm D → Subst G D → Tm G
 (inl· M)           [ σ ]ₛ = inl· M [ σ ]ₛ
 (inr· M)           [ σ ]ₛ = inr· M [ σ ]ₛ
 (L ·case[ M , N ]) [ σ ]ₛ = L [ σ ]ₛ ·case[ M [ ⇑ₛ σ ]ₛ , N [ ⇑ₛ σ ]ₛ ]
+tt·                [ σ ]ₛ = tt·
+(M ·absurd)        [ σ ]ₛ = M [ σ ]ₛ ·absurd
 
 _∘ₛ_ : Subst D E → Subst G D → Subst G E
 σ₁ ∘ₛ σ₂ = λ x → σ₁ x [ σ₂ ]ₛ

@@ -46,6 +46,8 @@ private
 []ᵣ-cong-≗ H (inl· M)           = cong inl·_ ([]ᵣ-cong-≗ H M)
 []ᵣ-cong-≗ H (inr· M)           = cong inr·_ ([]ᵣ-cong-≗ H M)
 []ᵣ-cong-≗ H (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ᵣ-cong-≗ H L) ([]ᵣ-cong-≗ (⇑ᵣ-cong-≗ H) M) ([]ᵣ-cong-≗ (⇑ᵣ-cong-≗ H) N)
+[]ᵣ-cong-≗ H tt·                = refl
+[]ᵣ-cong-≗ H (M ·absurd)        = cong _·absurd ([]ᵣ-cong-≗ H M)
 
 ⇑ᵣ-distrib-∘ᵣ : ⇑ᵣ (ρ₁ ∘ᵣ ρ₂) ≗ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂)
 ⇑ᵣ-distrib-∘ᵣ zero    = refl
@@ -62,6 +64,8 @@ private
 []ᵣ-∘ᵣ-compose (inl· M)           = cong inl·_ ([]ᵣ-∘ᵣ-compose M)
 []ᵣ-∘ᵣ-compose (inr· M)           = cong inr·_ ([]ᵣ-∘ᵣ-compose M)
 []ᵣ-∘ᵣ-compose (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ᵣ-∘ᵣ-compose L) ([]ᵣ-∘ᵣ-compose-⇑ᵣ M) ([]ᵣ-∘ᵣ-compose-⇑ᵣ N)
+[]ᵣ-∘ᵣ-compose tt·                = refl
+[]ᵣ-∘ᵣ-compose (M ·absurd)        = cong _·absurd ([]ᵣ-∘ᵣ-compose M)
 []ᵣ-∘ᵣ-compose-⇑ᵣ {ρ₁ = ρ₁} {ρ₂ = ρ₂} M = begin
   M [ ⇑ᵣ ρ₁ ]ᵣ [ ⇑ᵣ ρ₂ ]ᵣ   ≡⟨ []ᵣ-∘ᵣ-compose M ⟩
   M [ (⇑ᵣ ρ₁) ∘ᵣ (⇑ᵣ ρ₂) ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣ-distrib-∘ᵣ M ⟨
@@ -86,6 +90,8 @@ private
 []ₛ-cong-≗ H (inl· M)           = cong inl·_ ([]ₛ-cong-≗ H M)
 []ₛ-cong-≗ H (inr· M)           = cong inr·_ ([]ₛ-cong-≗ H M)
 []ₛ-cong-≗ H (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ₛ-cong-≗ H L) ([]ₛ-cong-≗ (⇑ₛ-cong-≗ H) M) ([]ₛ-cong-≗ (⇑ₛ-cong-≗ H) N)
+[]ₛ-cong-≗ H tt·                = refl
+[]ₛ-cong-≗ H (M ·absurd)        = cong _·absurd ([]ₛ-cong-≗ H M)
 
 ∘ₛ-cong-≗ : σ₁ ≗ σ₁′ → σ₂ ≗ σ₂′ → σ₁ ∘ₛ σ₂ ≗ σ₁′ ∘ₛ σ₂′
 ∘ₛ-cong-≗ H₁ H₂ x = ≗-elim ([]ₛ-cong-≗ H₂) (H₁ x)
@@ -124,6 +130,8 @@ rename-subst-comm H (L ·case[ M , N ]) = cong₃ _·case[_,_]
                                                (rename-subst-comm H L)
                                                (rename-subst-comm (Commute-⇑ H) M)
                                                (rename-subst-comm (Commute-⇑ H) N)
+rename-subst-comm H tt·                = refl
+rename-subst-comm H (M ·absurd)        = cong _·absurd (rename-subst-comm H M)
 
 ⇑ₛ-distrib-∘ₛ : ⇑ₛ (σ₁ ∘ₛ σ₂) ≗ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂)
 ⇑ₛ-distrib-∘ₛ zero    = refl
@@ -144,6 +152,8 @@ rename-subst-comm H (L ·case[ M , N ]) = cong₃ _·case[_,_]
 []ₛ-∘ₛ-compose (inl· M)           = cong inl·_ ([]ₛ-∘ₛ-compose M)
 []ₛ-∘ₛ-compose (inr· M)           = cong inr·_ ([]ₛ-∘ₛ-compose M)
 []ₛ-∘ₛ-compose (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ₛ-∘ₛ-compose L) ([]ₛ-∘ₛ-compose-⇑ₛ M) ([]ₛ-∘ₛ-compose-⇑ₛ N)
+[]ₛ-∘ₛ-compose tt·                = refl
+[]ₛ-∘ₛ-compose (M ·absurd)        = cong _·absurd ([]ₛ-∘ₛ-compose M)
 []ₛ-∘ₛ-compose-⇑ₛ {σ₁ = σ₁} {σ₂ = σ₂} M = begin
   M [ ⇑ₛ σ₁ ]ₛ [ ⇑ₛ σ₂ ]ₛ   ≡⟨ []ₛ-∘ₛ-compose M           ⟩
   M [ (⇑ₛ σ₁) ∘ₛ (⇑ₛ σ₂) ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛ-distrib-∘ₛ M ⟨
@@ -165,6 +175,8 @@ rename-subst-comm H (L ·case[ M , N ]) = cong₃ _·case[_,_]
 []ᵣ-identity (inl· M)           = cong inl·_ ([]ᵣ-identity M)
 []ᵣ-identity (inr· M)           = cong inr·_ ([]ᵣ-identity M)
 []ᵣ-identity (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ᵣ-identity L) ([]ᵣ-identity-⇑ᵣ M) ([]ᵣ-identity-⇑ᵣ N)
+[]ᵣ-identity tt·                = refl
+[]ᵣ-identity (M ·absurd)        = cong _·absurd ([]ᵣ-identity M)
 []ᵣ-identity-⇑ᵣ M = begin
   M [ ⇑ᵣ ιᵣ ]ᵣ ≡⟨ []ᵣ-cong-≗ ⇑ᵣιᵣ≗ιᵣ M ⟩
   M [ ιᵣ ]ᵣ    ≡⟨ []ᵣ-identity M ⟩
@@ -188,6 +200,8 @@ rename-subst-comm H (L ·case[ M , N ]) = cong₃ _·case[_,_]
 []ₛ-identity (inl· M)           = cong inl·_ ([]ₛ-identity M)
 []ₛ-identity (inr· M)           = cong inr·_ ([]ₛ-identity M)
 []ₛ-identity (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ₛ-identity L) ([]ₛ-identity-⇑ₛ M) ([]ₛ-identity-⇑ₛ N)
+[]ₛ-identity tt·                = refl
+[]ₛ-identity (M ·absurd)        = cong _·absurd ([]ₛ-identity M)
 []ₛ-identity-⇑ₛ M = begin
   M [ ⇑ₛ ιₛ ]ₛ ≡⟨ []ₛ-cong-≗ ⇑ₛιₛ≗ιₛ M ⟩
   M [ ιₛ ]ₛ    ≡⟨ []ₛ-identity M       ⟩
@@ -222,6 +236,8 @@ ren-⇑ᵣ-⇑ₛ (suc x) = refl
 []ᵣ⇒[]ₛ (inl· M)           = cong inl·_ ([]ᵣ⇒[]ₛ M)
 []ᵣ⇒[]ₛ (inr· M)           = cong inr·_ ([]ᵣ⇒[]ₛ M)
 []ᵣ⇒[]ₛ (L ·case[ M , N ]) = cong₃ _·case[_,_] ([]ᵣ⇒[]ₛ L) ([]ᵣ⇒[]ₛ-⇑ M) ([]ᵣ⇒[]ₛ-⇑ N)
+[]ᵣ⇒[]ₛ tt·                = refl
+[]ᵣ⇒[]ₛ (M ·absurd)        = cong _·absurd ([]ᵣ⇒[]ₛ M)
 []ᵣ⇒[]ₛ-⇑ {ρ = ρ} M = begin
   M [ ⇑ᵣ ρ ]ᵣ       ≡⟨ []ᵣ⇒[]ₛ M ⟩
   M [ ren (⇑ᵣ ρ) ]ₛ ≡⟨ []ₛ-cong-≗ ren-⇑ᵣ-⇑ₛ M ⟩
@@ -326,6 +342,8 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 ⊢ᵣ-[]ᵣ ρ (inl· M)           = inl· ⊢ᵣ-[]ᵣ ρ M
 ⊢ᵣ-[]ᵣ ρ (inr· M)           = inr· ⊢ᵣ-[]ᵣ ρ M
 ⊢ᵣ-[]ᵣ ρ (L ·case[ M , N ]) = ⊢ᵣ-[]ᵣ ρ L ·case[ ⊢ᵣ-[]ᵣ (⊢ᵣ-⇑ᵣ ρ) M , ⊢ᵣ-[]ᵣ (⊢ᵣ-⇑ᵣ ρ) N ]
+⊢ᵣ-[]ᵣ ρ tt·                = tt·
+⊢ᵣ-[]ᵣ ρ (M ·absurd)        = ⊢ᵣ-[]ᵣ ρ M ·absurd
 
 ⊢ₛ-ιₛ : Γ ⊢ₛ ιₛ ⦂ Γ
 ⊢ₛ-ιₛ x = # x
@@ -342,15 +360,17 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 ⊢ₛ-,ₛ σ M (S x) = σ x
 
 ⊢ₛ-[]ₛ : Γ ⊢ₛ σ ⦂ Δ → Δ ⊢ M ⦂ A → Γ ⊢ M [ σ ]ₛ ⦂ A
-⊢ₛ-[]ₛ σ (# x)   = σ x
-⊢ₛ-[]ₛ σ (ƛ M)   = ƛ ⊢ₛ-[]ₛ (⊢ₛ-⇑ₛ σ) M
-⊢ₛ-[]ₛ σ (M · N) = ⊢ₛ-[]ₛ σ M · ⊢ₛ-[]ₛ σ N
-⊢ₛ-[]ₛ σ ⟨ M , N ⟩ = ⟨ ⊢ₛ-[]ₛ σ M , ⊢ₛ-[]ₛ σ N ⟩
-⊢ₛ-[]ₛ σ (M ·fst) = ⊢ₛ-[]ₛ σ M ·fst
-⊢ₛ-[]ₛ σ (M ·snd) = ⊢ₛ-[]ₛ σ M ·snd
-⊢ₛ-[]ₛ σ (inl· M) = inl· ⊢ₛ-[]ₛ σ M
-⊢ₛ-[]ₛ σ (inr· M) = inr· ⊢ₛ-[]ₛ σ M
+⊢ₛ-[]ₛ σ (# x)              = σ x
+⊢ₛ-[]ₛ σ (ƛ M)              = ƛ ⊢ₛ-[]ₛ (⊢ₛ-⇑ₛ σ) M
+⊢ₛ-[]ₛ σ (M · N)            = ⊢ₛ-[]ₛ σ M · ⊢ₛ-[]ₛ σ N
+⊢ₛ-[]ₛ σ ⟨ M , N ⟩          = ⟨ ⊢ₛ-[]ₛ σ M , ⊢ₛ-[]ₛ σ N ⟩
+⊢ₛ-[]ₛ σ (M ·fst)           = ⊢ₛ-[]ₛ σ M ·fst
+⊢ₛ-[]ₛ σ (M ·snd)           = ⊢ₛ-[]ₛ σ M ·snd
+⊢ₛ-[]ₛ σ (inl· M)           = inl· ⊢ₛ-[]ₛ σ M
+⊢ₛ-[]ₛ σ (inr· M)           = inr· ⊢ₛ-[]ₛ σ M
 ⊢ₛ-[]ₛ σ (L ·case[ M , N ]) = ⊢ₛ-[]ₛ σ L ·case[ ⊢ₛ-[]ₛ (⊢ₛ-⇑ₛ σ) M , ⊢ₛ-[]ₛ (⊢ₛ-⇑ₛ σ) N ]
+⊢ₛ-[]ₛ σ tt·                = tt·
+⊢ₛ-[]ₛ σ (M ·absurd)        = ⊢ₛ-[]ₛ σ M ·absurd
 
 ⊢-[] : Γ , A ⊢ M ⦂ B → Γ ⊢ N ⦂ A → Γ ⊢ M [ N ] ⦂ B
 ⊢-[] M N = ⊢ₛ-[]ₛ (⊢ₛ-,ₛ ⊢ₛ-ιₛ N) M

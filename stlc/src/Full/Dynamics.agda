@@ -79,6 +79,10 @@ data _⟶_ {G} : Tm G → Tm G → Set where
                N ⟶ N′ →
                L ·case[ M , N ] ⟶ L ·case[ M , N′ ]
 
+  ξ·absurd : ∀ {M M′} →
+             M ⟶ M′ →
+             M ·absurd ⟶ M′ ·absurd
+
 -- Weak head β-reduction
 data _⟼_ {G} : Tm G → Tm G → Set where
 
@@ -112,6 +116,10 @@ data _⟼_ {G} : Tm G → Tm G → Set where
   ξ·case[,]₁ : ∀ {L L′ M N} →
                L ⟼ L′ →
                L ·case[ M , N ] ⟼ L′ ·case[ M , N ]
+
+  ξ·absurd : ∀ {M M′} →
+             M ⟼ M′ →
+             M ·absurd ⟼ M′ ·absurd
 
 _⟶*_ : ∀ {G} → Tm G → Tm G → Set
 _⟶*_ = Star _⟶_
@@ -147,6 +155,10 @@ data ⊢_⇉ {G} where
                 ⊢ N ⇇ →
                 ⊢ L ·case[ M , N ] ⇉
 
+  _·absurd : ∀ {M} →
+             ⊢ M ⇉ →
+             ⊢ M ·absurd ⇉
+
 data ⊢_⇇ {G} where
 
   ⇄_ : ∀ {M} →
@@ -169,6 +181,8 @@ data ⊢_⇇ {G} where
   inr·_ : ∀ {M} →
           ⊢ M ⇇ →
           ⊢ inr· M ⇇
+
+  tt· : ⊢ tt· ⇇
 
 Normal : ∀ {G} → Tm G → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)
@@ -201,6 +215,10 @@ data ⊢_⇉wn {G} where
                 ⊢ N ⇇wn →
                 ⊢ L ·case[ M , N ] ⇉wn
 
+  _·absurd : ∀ {M} →
+             ⊢ M ⇉wn →
+             ⊢ M ·absurd ⇉wn
+
 data ⊢_⇇wn {G} where
 
   ⇄_ : ∀ {M} →
@@ -223,6 +241,8 @@ data ⊢_⇇wn {G} where
   inr·_ : ∀ {M} →
           ⊢ M ⇇wn →
           ⊢ inr· M ⇇wn
+
+  tt· : ⊢ tt· ⇇wn
 
   clo : ∀ {M M′} →
         M ⟼ M′ →

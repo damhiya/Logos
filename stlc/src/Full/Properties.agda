@@ -27,17 +27,18 @@ private
 -- Normal forms can't be reduced
 ⊢⇉-Normal : ⊢ M ⇉ → Normal M
 ⊢⇇-Normal : ⊢ M ⇇ → Normal M
-⊢⇉-Normal (⊢M · ⊢N)   (ξ·₁ R)   = ⊢⇉-Normal ⊢M R
-⊢⇉-Normal (⊢M · ⊢N)   (ξ·₂ R)   = ⊢⇇-Normal ⊢N R
-⊢⇉-Normal (⊢M ·fst)   (ξ·fst R) = ⊢⇉-Normal ⊢M R
-⊢⇉-Normal (⊢M ·snd)   (ξ·snd R) = ⊢⇉-Normal ⊢M R
+⊢⇉-Normal (⊢M · ⊢N)             (ξ·₁ R)        = ⊢⇉-Normal ⊢M R
+⊢⇉-Normal (⊢M · ⊢N)             (ξ·₂ R)        = ⊢⇇-Normal ⊢N R
+⊢⇉-Normal (⊢M ·fst)             (ξ·fst R)      = ⊢⇉-Normal ⊢M R
+⊢⇉-Normal (⊢M ·snd)             (ξ·snd R)      = ⊢⇉-Normal ⊢M R
 ⊢⇉-Normal (⊢L ·case[ ⊢M , ⊢N ]) (ξ·case[,]₁ R) = ⊢⇉-Normal ⊢L R
 ⊢⇉-Normal (⊢L ·case[ ⊢M , ⊢N ]) (ξ·case[,]₂ R) = ⊢⇇-Normal ⊢M R
 ⊢⇉-Normal (⊢L ·case[ ⊢M , ⊢N ]) (ξ·case[,]₃ R) = ⊢⇇-Normal ⊢N R
-⊢⇇-Normal (⇄ ⊢M)      R         = ⊢⇉-Normal ⊢M R
-⊢⇇-Normal (ƛ ⊢M)      (ξƛ R)    = ⊢⇇-Normal ⊢M R
-⊢⇇-Normal ⟨ ⊢M , ⊢N ⟩ (ξ⟨,⟩₁ R) = ⊢⇇-Normal ⊢M R
-⊢⇇-Normal ⟨ ⊢M , ⊢N ⟩ (ξ⟨,⟩₂ R) = ⊢⇇-Normal ⊢N R
+⊢⇉-Normal (⊢M ·absurd)          (ξ·absurd R)   = ⊢⇉-Normal ⊢M R
+⊢⇇-Normal (⇄ ⊢M)                R              = ⊢⇉-Normal ⊢M R
+⊢⇇-Normal (ƛ ⊢M)                (ξƛ R)         = ⊢⇇-Normal ⊢M R
+⊢⇇-Normal ⟨ ⊢M , ⊢N ⟩           (ξ⟨,⟩₁ R)      = ⊢⇇-Normal ⊢M R
+⊢⇇-Normal ⟨ ⊢M , ⊢N ⟩           (ξ⟨,⟩₂ R)      = ⊢⇇-Normal ⊢N R
 ⊢⇇-Normal (inl· ⊢M)             (ξinl· R)      = ⊢⇇-Normal ⊢M R
 ⊢⇇-Normal (inr· ⊢M)             (ξinr· R)      = ⊢⇇-Normal ⊢M R
 
@@ -50,6 +51,12 @@ private
 
 ξ·₂* : N ⟶* N′ → M · N ⟶* M · N′
 ξ·₂* = gmap (_ ·_) ξ·₂
+
+ξ⟨,⟩₁* : M ⟶* M′ → ⟨ M , N ⟩ ⟶* ⟨ M′ , N ⟩
+ξ⟨,⟩₁* = gmap ⟨_, _ ⟩ ξ⟨,⟩₁
+
+ξ⟨,⟩₂* : N ⟶* N′ → ⟨ M , N ⟩ ⟶* ⟨ M , N′ ⟩
+ξ⟨,⟩₂* = gmap ⟨ _ ,_⟩ ξ⟨,⟩₂
 
 ξ·fst* : M ⟶* M′ → M ·fst ⟶* M′ ·fst
 ξ·fst* = gmap _·fst ξ·fst
@@ -72,18 +79,15 @@ private
 ξ·case[,]₃* : N ⟶* N′ → L ·case[ M , N ] ⟶* L ·case[ M , N′ ]
 ξ·case[,]₃*  = gmap (_ ·case[ _ ,_]) ξ·case[,]₃
 
+ξ·absurd* : M ⟶* M′ → M ·absurd ⟶* M′ ·absurd
+ξ·absurd* = gmap _·absurd ξ·absurd
+
 ξ·* : M ⟶* M′ → N ⟶* N′ → M · N ⟶* M′ · N′
 ξ·* {G} {M} {M′} {N} {N′} Rs₁ Rs₂ = begin
   M  · N  ⟶*⟨ ξ·₁* Rs₁ ⟩
   M′ · N  ⟶*⟨ ξ·₂* Rs₂ ⟩
   M′ · N′ ∎
   where open StarReasoning (_⟶_ {G})
-
-ξ⟨,⟩₁* : M ⟶* M′ → ⟨ M , N ⟩ ⟶* ⟨ M′ , N ⟩
-ξ⟨,⟩₁* = gmap ⟨_, _ ⟩ ξ⟨,⟩₁
-
-ξ⟨,⟩₂* : N ⟶* N′ → ⟨ M , N ⟩ ⟶* ⟨ M , N′ ⟩
-ξ⟨,⟩₂* = gmap ⟨ _ ,_⟩ ξ⟨,⟩₂
 
 ξ⟨,⟩* : M ⟶* M′ → N ⟶* N′ → ⟨ M , N ⟩ ⟶* ⟨ M′ , N′ ⟩
 ξ⟨,⟩* {G} {M} {M′} {N} {N′} RsM RsN = begin
@@ -103,6 +107,9 @@ private
 -- Basic properties of head reduction relation
 ξ·case[,]₁*-⟼ : L ⟼* L′ → L ·case[ M , N ] ⟼* L′ ·case[ M , N ]
 ξ·case[,]₁*-⟼  = gmap _·case[ _ , _ ] ξ·case[,]₁
+
+ξ·absurd*-⟼ : M ⟼* M′ → M ·absurd ⟼* M′ ·absurd
+ξ·absurd*-⟼ = gmap _·absurd ξ·absurd
 
 []ᵣ-cong-⟼ : ∀ {ρ : Rename D′ D} → M ⟼ M′ → M [ ρ ]ᵣ ⟼ M′ [ ρ ]ᵣ
 []ᵣ-cong-⟼ {D′ = D′} {ρ = ρ} (β→ {M} {N}) = begin
@@ -125,10 +132,11 @@ private
   N [ ⇑ᵣ ρ ]ᵣ [ L [ ρ ]ᵣ ]                             ≡⟨ []-[]ᵣ-comm N ⟨
   N [ L ] [ ρ ]ᵣ                                       ∎
   where open ≡-UpToReasoning (_⟼_ {D′})
-[]ᵣ-cong-⟼ (ξ·₁ R)   = ξ·₁ ([]ᵣ-cong-⟼ R)
-[]ᵣ-cong-⟼ (ξ·fst R) = ξ·fst ([]ᵣ-cong-⟼ R)
-[]ᵣ-cong-⟼ (ξ·snd R) = ξ·snd ([]ᵣ-cong-⟼ R)
+[]ᵣ-cong-⟼ (ξ·₁ R)        = ξ·₁ ([]ᵣ-cong-⟼ R)
+[]ᵣ-cong-⟼ (ξ·fst R)      = ξ·fst ([]ᵣ-cong-⟼ R)
+[]ᵣ-cong-⟼ (ξ·snd R)      = ξ·snd ([]ᵣ-cong-⟼ R)
 []ᵣ-cong-⟼ (ξ·case[,]₁ R) = ξ·case[,]₁ ([]ᵣ-cong-⟼ R)
+[]ᵣ-cong-⟼ (ξ·absurd R)   = ξ·absurd ([]ᵣ-cong-⟼ R)
 
 []ᵣ-cong-⟼* : M ⟼* M′ → M [ ρ ]ᵣ ⟼* M′ [ ρ ]ᵣ
 []ᵣ-cong-⟼* {ρ = ρ} = gmap _[ ρ ]ᵣ []ᵣ-cong-⟼
@@ -152,6 +160,8 @@ private
 ... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ = ⟨ M′ ·snd , ⟨ ξ·snd R′ , refl ⟩ ⟩
 []ᵣ-sim-⟼ (L ·case[ M , N ])        p (ξ·case[,]₁ R) with []ᵣ-sim-⟼ L (·case[,]-inj₁ p) R | p
 ... | ⟨ L′ , ⟨ R′ , refl ⟩ ⟩ | refl = ⟨ L′ ·case[ M , N ] , ⟨ ξ·case[,]₁ R′ , refl ⟩ ⟩
+[]ᵣ-sim-⟼ (M ·absurd)               p (ξ·absurd R) with []ᵣ-sim-⟼ M (·absurd-inj p) R
+... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ = ⟨ M′ ·absurd , ⟨ ξ·absurd R′ , refl ⟩ ⟩
 
 ⟼⊆⟶ : M ⟼ M′ → M ⟶ M′
 ⟼⊆⟶ β→             = β→
@@ -163,6 +173,7 @@ private
 ⟼⊆⟶ (ξ·fst R)      = ξ·fst (⟼⊆⟶ R)
 ⟼⊆⟶ (ξ·snd R)      = ξ·snd (⟼⊆⟶ R)
 ⟼⊆⟶ (ξ·case[,]₁ R) = ξ·case[,]₁ (⟼⊆⟶ R)
+⟼⊆⟶ (ξ·absurd R)   = ξ·absurd (⟼⊆⟶ R)
 
 ⟼-det : M ⟼ M′ → M ⟼ M″ → M′ ≡ M″
 ⟼-det β→              β→              = refl
@@ -174,6 +185,7 @@ private
 ⟼-det (ξ·fst R₁)      (ξ·fst R₂)      = cong _·fst (⟼-det R₁ R₂)
 ⟼-det (ξ·snd R₁)      (ξ·snd R₂)      = cong _·snd (⟼-det R₁ R₂)
 ⟼-det (ξ·case[,]₁ R₁) (ξ·case[,]₁ R₂) = cong _·case[ _ , _ ] (⟼-det R₁ R₂)
+⟼-det (ξ·absurd R₁)   (ξ·absurd R₂)   = cong _·absurd (⟼-det R₁ R₂)
 
 -- Basic properties of neutral/normal terms
 ⊢⇉-mono : ⊢ M ⇉ → ⊢ M [ ρ ]ᵣ ⇉
@@ -183,11 +195,13 @@ private
 ⊢⇉-mono (⊢M ·fst)             = ⊢⇉-mono ⊢M ·fst
 ⊢⇉-mono (⊢M ·snd)             = ⊢⇉-mono ⊢M ·snd
 ⊢⇉-mono (⊢L ·case[ ⊢M , ⊢N ]) = ⊢⇉-mono ⊢L ·case[ ⊢⇇-mono ⊢M , ⊢⇇-mono ⊢N ]
+⊢⇉-mono (⊢M ·absurd)          = ⊢⇉-mono ⊢M ·absurd
 ⊢⇇-mono (⇄ ⊢M)                = ⇄ ⊢⇉-mono ⊢M
 ⊢⇇-mono (ƛ ⊢M)                = ƛ ⊢⇇-mono ⊢M
 ⊢⇇-mono ⟨ ⊢M , ⊢N ⟩           = ⟨ ⊢⇇-mono ⊢M , ⊢⇇-mono ⊢N ⟩
 ⊢⇇-mono (inl· ⊢M)             = inl· ⊢⇇-mono ⊢M
 ⊢⇇-mono (inr· ⊢M)             = inr· ⊢⇇-mono ⊢M
+⊢⇇-mono tt·                   = tt·
 
 ⊢⇉-inv : ⊢ M [ ρ ]ᵣ ⇉ → ⊢ M ⇉
 ⊢⇇-inv : ⊢ M [ ρ ]ᵣ ⇇ → ⊢ M ⇇
@@ -196,15 +210,18 @@ private
 ⊢⇉-inv {M = M ·fst}           (⊢M ·fst)             = ⊢⇉-inv ⊢M ·fst
 ⊢⇉-inv {M = M ·snd}           (⊢M ·snd)             = ⊢⇉-inv ⊢M ·snd
 ⊢⇉-inv {M = L ·case[ M , N ]} (⊢L ·case[ ⊢M , ⊢N ]) = ⊢⇉-inv ⊢L ·case[ ⊢⇇-inv ⊢M , ⊢⇇-inv ⊢N ]
+⊢⇉-inv {M = M ·absurd}        (⊢M ·absurd)          = ⊢⇉-inv ⊢M ·absurd
 ⊢⇇-inv {M = # x}{ρ = ρ}       (⇄ ⊢M)                = ⇄ ⊢⇉-inv {ρ = ρ} ⊢M
 ⊢⇇-inv {M = M · N}            (⇄ ⊢M)                = ⇄ ⊢⇉-inv ⊢M
 ⊢⇇-inv {M = M ·fst}           (⇄ ⊢M)                = ⇄ ⊢⇉-inv ⊢M
 ⊢⇇-inv {M = M ·snd}           (⇄ ⊢M)                = ⇄ ⊢⇉-inv ⊢M
 ⊢⇇-inv {M = L ·case[ M , N ]} (⇄ ⊢M)                = ⇄ ⊢⇉-inv ⊢M
+⊢⇇-inv {M = M ·absurd}        (⇄ ⊢M)                = ⇄ ⊢⇉-inv ⊢M
 ⊢⇇-inv {M = ƛ M}              (ƛ ⊢M)                = ƛ ⊢⇇-inv ⊢M
 ⊢⇇-inv {M = ⟨ M , N ⟩}        ⟨ ⊢M , ⊢N ⟩           = ⟨ ⊢⇇-inv ⊢M , ⊢⇇-inv ⊢N ⟩
 ⊢⇇-inv {M = inl· M}           (inl· ⊢M)             = inl· ⊢⇇-inv ⊢M
 ⊢⇇-inv {M = inr· M}           (inr· ⊢M)             = inr· ⊢⇇-inv ⊢M
+⊢⇇-inv {M = tt·}              tt·                   = tt·
 
 -- Basic properties of neutralizable/normalizable terms
 ⊢⇇wn-head-expand* : M′ ⟼* M → ⊢ M ⇇wn → ⊢ M′ ⇇wn
@@ -218,11 +235,13 @@ private
 ⊢⇉wn-mono (⊢M ·fst)             = ⊢⇉wn-mono ⊢M ·fst
 ⊢⇉wn-mono (⊢M ·snd)             = ⊢⇉wn-mono ⊢M ·snd
 ⊢⇉wn-mono (⊢L ·case[ ⊢M , ⊢N ]) = ⊢⇉wn-mono ⊢L ·case[ ⊢⇇wn-mono ⊢M , ⊢⇇wn-mono ⊢N ]
+⊢⇉wn-mono (⊢M ·absurd)          = ⊢⇉wn-mono ⊢M ·absurd
 ⊢⇇wn-mono (⇄ ⊢M)                = ⇄ ⊢⇉wn-mono ⊢M
 ⊢⇇wn-mono (ƛ ⊢M)                = ƛ ⊢⇇wn-mono ⊢M
 ⊢⇇wn-mono ⟨ ⊢M , ⊢N ⟩           = ⟨ ⊢⇇wn-mono ⊢M , ⊢⇇wn-mono ⊢N ⟩
 ⊢⇇wn-mono (inl· ⊢M)             = inl· ⊢⇇wn-mono ⊢M
 ⊢⇇wn-mono (inr· ⊢M)             = inr· ⊢⇇wn-mono ⊢M
+⊢⇇wn-mono tt·                   = tt·
 ⊢⇇wn-mono (clo R ⊢M)            = clo ([]ᵣ-cong-⟼ R) (⊢⇇wn-mono ⊢M)
 
 ⊢⇉wn-⟼-normal : ⊢ M ⇉wn → M ⟼ M′ → ⊥
@@ -230,6 +249,7 @@ private
 ⊢⇉wn-⟼-normal (⊢M ·fst)             (ξ·fst R)      = ⊢⇉wn-⟼-normal ⊢M R
 ⊢⇉wn-⟼-normal (⊢M ·snd)             (ξ·snd R)      = ⊢⇉wn-⟼-normal ⊢M R
 ⊢⇉wn-⟼-normal (⊢L ·case[ ⊢M , ⊢N ]) (ξ·case[,]₁ R) = ⊢⇉wn-⟼-normal ⊢L R
+⊢⇉wn-⟼-normal (⊢M ·absurd)          (ξ·absurd R)   = ⊢⇉wn-⟼-normal ⊢M R
 
 ⊢⇉wn-inv : ⊢ M [ ρ ]ᵣ ⇉wn → ⊢ M ⇉wn
 ⊢⇇wn-inv : ⊢ M [ ρ ]ᵣ ⇇wn → ⊢ M ⇇wn
@@ -239,6 +259,7 @@ private
 ⊢⇉wn-inv {M = M ·fst}           (⊢M ·fst)             = ⊢⇉wn-inv ⊢M ·fst
 ⊢⇉wn-inv {M = M ·snd}           (⊢M ·snd)             = ⊢⇉wn-inv ⊢M ·snd
 ⊢⇉wn-inv {M = L ·case[ M , N ]} (⊢L ·case[ ⊢M , ⊢N ]) = ⊢⇉wn-inv ⊢L ·case[ ⊢⇇wn-inv ⊢M , ⊢⇇wn-inv ⊢N ]
+⊢⇉wn-inv {M = M ·absurd}        (⊢M ·absurd)          = ⊢⇉wn-inv ⊢M ·absurd
 ⊢⇇wn-inv ⊢Mᵣ = ⊢⇇wn-inv-lemma refl ⊢Mᵣ
 ⊢⇇wn-inv-lemma {M = M}         p (⇄ ⊢Mᵣ) with p
 ... | refl = ⇄ ⊢⇉wn-inv ⊢Mᵣ
@@ -250,6 +271,7 @@ private
 ... | refl = inl· ⊢⇇wn-inv-lemma refl ⊢Mᵣ
 ⊢⇇wn-inv-lemma {M = inr· M}    p (inr· ⊢Mᵣ) with p
 ... | refl = inr· ⊢⇇wn-inv-lemma refl ⊢Mᵣ
+⊢⇇wn-inv-lemma {M = tt·}       p tt· = tt·
 ⊢⇇wn-inv-lemma {M = M}         p (clo R ⊢M) with []ᵣ-sim-⟼ M p R
 ... | ⟨ M′ , ⟨ R′ , refl ⟩ ⟩ = clo R′ (⊢⇇wn-inv-lemma refl ⊢M)
 
@@ -284,6 +306,8 @@ private
 ... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ = ⟨ M′ ·snd , ⟨ ξ·snd* RsM , ⊢M′ ·snd ⟩ ⟩
 ⊢⇉wn⇒⊢⇉ {M = L ·case[ M , N ]} (⊢L ·case[ ⊢M , ⊢N ]) with ⊢⇉wn⇒⊢⇉ ⊢L | ⊢⇇wn⇒⊢⇇ ⊢M | ⊢⇇wn⇒⊢⇇ ⊢N
 ... | ⟨ L′ , ⟨ RsL , ⊢L′ ⟩ ⟩ | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ | ⟨ N′ , ⟨ RsN , ⊢N′ ⟩ ⟩ = ⟨ L′ ·case[ M′ , N′ ] , ⟨ ξ·case[,]* RsL RsM RsN , ⊢L′ ·case[ ⊢M′ , ⊢N′ ] ⟩ ⟩
+⊢⇉wn⇒⊢⇉ {M = M ·absurd} (⊢M ·absurd) with ⊢⇉wn⇒⊢⇉ ⊢M
+... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ = ⟨ M′ ·absurd , ⟨ ξ·absurd* RsM , ⊢M′ ·absurd ⟩ ⟩
 ⊢⇇wn⇒⊢⇇ {M = M}         (⇄ ⊢M) with ⊢⇉wn⇒⊢⇉ ⊢M
 ... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ = ⟨ M′ , ⟨ RsM , ⇄ ⊢M′ ⟩ ⟩
 ⊢⇇wn⇒⊢⇇ {M = ƛ M}       (ƛ ⊢M) with ⊢⇇wn⇒⊢⇇ ⊢M
@@ -294,5 +318,6 @@ private
 ... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ = ⟨ inl· M′ , ⟨ ξinl·* RsM , inl· ⊢M′ ⟩ ⟩
 ⊢⇇wn⇒⊢⇇ {M = inr· M} (inr· ⊢M) with ⊢⇇wn⇒⊢⇇ ⊢M
 ... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ = ⟨ inr· M′ , ⟨ ξinr·* RsM , inr· ⊢M′ ⟩ ⟩
+⊢⇇wn⇒⊢⇇ {M = .tt·} tt· = ⟨ tt· , ⟨ ε , tt· ⟩ ⟩
 ⊢⇇wn⇒⊢⇇ {M = M}         (clo R ⊢M) with ⊢⇇wn⇒⊢⇇ ⊢M
 ... | ⟨ M′ , ⟨ RsM , ⊢M′ ⟩ ⟩ = ⟨ M′ , ⟨ ⟼⊆⟶ R ◅ RsM , ⊢M′ ⟩ ⟩

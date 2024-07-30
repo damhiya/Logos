@@ -19,10 +19,11 @@ private
     A : Ty
 
 Value[Val⇒Tm_] : ∀ M → Value (Val⇒Tm M)
-Value[Val⇒Tm ƛ M ] = ƛ M
+Value[Val⇒Tm ƛ M       ] = ƛ M
 Value[Val⇒Tm ⟨ M , N ⟩ ] = ⟨ M , N ⟩
-Value[Val⇒Tm inl· M ] = inl· Value[Val⇒Tm M ]
-Value[Val⇒Tm inr· M ] = inr· Value[Val⇒Tm M ]
+Value[Val⇒Tm inl· M    ] = inl· Value[Val⇒Tm M ]
+Value[Val⇒Tm inr· M    ] = inr· Value[Val⇒Tm M ]
+Value[Val⇒Tm tt·       ] = tt·
 
 ξ·₁* : ∀ {M M′ N} → M ⟶* M′ → M · N ⟶* M′ · N
 ξ·₁* = gmap (_· _) ξ·₁
@@ -44,6 +45,9 @@ Value[Val⇒Tm inr· M ] = inr· Value[Val⇒Tm M ]
 
 ξ·case[,]* : L ⟶* L′ → L ·case[ M , N ] ⟶* L′ ·case[ M , N ]
 ξ·case[,]* = gmap _·case[ _ , _ ] ξ·case[,]
+
+ξ·absurd* : M ⟶* M′ → M ·absurd ⟶* M′ ·absurd
+ξ·absurd* = gmap _·absurd ξ·absurd
 
 ƛ↓ : ∀ {M} → ƛ M ↓ ƛ M
 ƛ↓ = ε
@@ -70,6 +74,7 @@ type-preservation (ξ·snd R)     (M ·snd)                  = type-preservation
 type-preservation (ξinl· R)     (inl· M)                  = inl· type-preservation R M
 type-preservation (ξinr· R)     (inr· M)                  = inr· type-preservation R M
 type-preservation (ξ·case[,] R) (L ·case[ M , N ])        = type-preservation R L ·case[ M , N ]
+type-preservation (ξ·absurd R)  (M ·absurd)               = type-preservation R M ·absurd
 
 type-preservation* : M ⟶* M′ → ∙ ⊢ M ⦂ A → ∙ ⊢ M′ ⦂ A
 type-preservation* ε        M = M
@@ -101,6 +106,14 @@ progress (⊢L ·case[ ⊢M , ⊢N ]) with progress ⊢L
 progress (⊢L ·case[ ⊢M , ⊢N ]) | step R = step (ξ·case[,] R)
 progress (⊢L ·case[ ⊢M , ⊢N ]) | done (inl· V) = step (β+₁ V)
 progress (⊢L ·case[ ⊢M , ⊢N ]) | done (inr· V) = step (β+₂ V)
+progress tt· = done tt·
+progress (⊢M ·absurd) with progress ⊢M
+progress (⊢M ·absurd) | step R = step (ξ·absurd R)
+progress (() ·absurd) | done (ƛ M)
+progress (() ·absurd) | done ⟨ M , N ⟩
+progress (() ·absurd) | done (inl· M)
+progress (() ·absurd) | done (inr· M)
+progress (() ·absurd) | done tt·
 
 type-safety : ∙ ⊢ M ⦂ A → M ⟶* M′ → Progress M′
 type-safety M R = progress (type-preservation* R M)
@@ -132,3 +145,4 @@ deterministic (ξinr· R₁)     (ξinr· R₂)     = cong inr·_ (deterministic
 deterministic (ξ·case[,] R₁) (β+₁ V)        = ⊥-elim (Value⇒Normal (inl· V) R₁)
 deterministic (ξ·case[,] R₁) (β+₂ V)        = ⊥-elim (Value⇒Normal (inr· V) R₁)
 deterministic (ξ·case[,] R₁) (ξ·case[,] R₂) = cong _·case[ _ , _ ] (deterministic R₁ R₂)
+deterministic (ξ·absurd R₁)  (ξ·absurd R₂)  = cong _·absurd (deterministic R₁ R₂)

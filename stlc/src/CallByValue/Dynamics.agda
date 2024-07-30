@@ -11,22 +11,25 @@ infixr 6  ƛ_
 infix 4 _⟶_ _⟶*_ _↓_
 
 data Val : Set where
-  ƛ_ : Tm 1 → Val
+  ƛ_    : Tm 1 → Val
   ⟨_,_⟩ : Tm 0 → Tm 0 → Val
   inl·_ : Val → Val
   inr·_ : Val → Val
+  tt·   : Val
 
 Val⇒Tm : Val → Tm 0
-Val⇒Tm (ƛ M) = ƛ M
+Val⇒Tm (ƛ M)     = ƛ M
 Val⇒Tm ⟨ M , N ⟩ = ⟨ M , N ⟩
-Val⇒Tm (inl· M) = inl· (Val⇒Tm M)
-Val⇒Tm (inr· M) = inr· (Val⇒Tm M)
+Val⇒Tm (inl· M)  = inl· (Val⇒Tm M)
+Val⇒Tm (inr· M)  = inr· (Val⇒Tm M)
+Val⇒Tm tt·       = tt·
 
 data Value : Tm 0 → Set where
-  ƛ_ : ∀ M → Value (ƛ M)
+  ƛ_    : ∀ M → Value (ƛ M)
   ⟨_,_⟩ : ∀ M N → Value ⟨ M , N ⟩
   inl·_ : ∀ {M} → Value M → Value (inl· M)
   inr·_ : ∀ {M} → Value M → Value (inr· M)
+  tt·   : Value tt·
 
 data _⟶_ : Tm 0 → Tm 0 → Set where
 
@@ -76,6 +79,10 @@ data _⟶_ : Tm 0 → Tm 0 → Set where
   ξ·case[,] : ∀ {L L′ M N} →
               L ⟶ L′ →
               L ·case[ M , N ] ⟶ L′ ·case[ M , N ]
+
+  ξ·absurd : ∀ {M M′} →
+             M ⟶ M′ →
+             M ·absurd ⟶ M′ ·absurd
 
 _⟶*_ : Tm 0 → Tm 0 → Set
 _⟶*_ = Star _⟶_

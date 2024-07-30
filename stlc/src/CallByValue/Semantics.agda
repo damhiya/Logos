@@ -182,23 +182,22 @@ compat-·case[,] {Γ = Γ} {A = A} {B = B} {C = C} L M N ⊨L ⊨M ⊨N γ γ∈
       N [ ⇑ₛ γ ]ₛ [ Val⇒Tm L′ ]                           ≡⟨ []ₛ-[]-compose N ⟩
       N [ γ ,ₛ Val⇒Tm L′ ]ₛ                               ≡⟨⟩
       N [ γ′ ]ₛ                                           ∎
-  
 
 -- fundamental theorem
-fundamental : ∀ {G} {Γ : Ctx G} {A} M → Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
-fundamental (# x)              (# Γ∋x)               = compat-# x Γ∋x
-fundamental (ƛ M)              (ƛ ⊢M)                = compat-ƛ M (fundamental M ⊢M)
-fundamental (M · N)            (⊢M · ⊢N)             = compat-· M N (fundamental M ⊢M) (fundamental N ⊢N)
-fundamental ⟨ M , N ⟩          ⟨ ⊢M , ⊢N ⟩           = compat-⟨,⟩ M N (fundamental M ⊢M) (fundamental N ⊢N)
-fundamental (M ·fst)           (⊢M ·fst)             = compat-·fst M (fundamental M ⊢M)
-fundamental (M ·snd)           (⊢M ·snd)             = compat-·snd M (fundamental M ⊢M)
-fundamental (inl· M)           (inl· ⊢M)             = compat-inl· M (fundamental M ⊢M)
-fundamental (inr· M)           (inr· ⊢M)             = compat-inr· M (fundamental M ⊢M)
-fundamental (L ·case[ M , N ]) (⊢L ·case[ ⊢M , ⊢N ]) = compat-·case[,] L M N (fundamental L ⊢L) (fundamental M ⊢M) (fundamental N ⊢N)
+fundamental : Γ ⊢ M ⦂ A → Γ ⊨ M ⦂ A
+fundamental {M = # x}              (# Γ∋x)               = compat-# x Γ∋x
+fundamental {M = ƛ M}              (ƛ ⊢M)                = compat-ƛ M (fundamental ⊢M)
+fundamental {M = M · N}            (⊢M · ⊢N)             = compat-· M N (fundamental ⊢M) (fundamental ⊢N)
+fundamental {M = ⟨ M , N ⟩}        ⟨ ⊢M , ⊢N ⟩           = compat-⟨,⟩ M N (fundamental ⊢M) (fundamental ⊢N)
+fundamental {M = M ·fst}           (⊢M ·fst)             = compat-·fst M (fundamental ⊢M)
+fundamental {M = M ·snd}           (⊢M ·snd)             = compat-·snd M (fundamental ⊢M)
+fundamental {M = inl· M}           (inl· ⊢M)             = compat-inl· M (fundamental ⊢M)
+fundamental {M = inr· M}           (inr· ⊢M)             = compat-inr· M (fundamental ⊢M)
+fundamental {M = L ·case[ M , N ]} (⊢L ·case[ ⊢M , ⊢N ]) = compat-·case[,] L M N (fundamental ⊢L) (fundamental ⊢M) (fundamental ⊢N)
 
 -- termination
 termination : ∙ ⊢ M ⦂ A → Σ[ V ∈ Val ] M ↓ V
-termination {M = M} ⊢M with fundamental _ ⊢M ∙ₛ ∙ₛ∈G⟦⟧
+termination {M = M} ⊢M with fundamental ⊢M ∙ₛ ∙ₛ∈G⟦⟧
 ... | ⟨ V , ⟨ s , _ ⟩ ⟩ = ⟨ V , subst (_⟶* (Val⇒Tm V)) lemma s ⟩
   where
     open ≡-Reasoning

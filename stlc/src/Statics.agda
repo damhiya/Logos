@@ -12,7 +12,6 @@ infixl 5  _,_
 infix  4  _∋_⦂_ _⊢_⦂_
 
 data Ty : Set where
-  ⋆    : Ty
   _`→_ : Ty → Ty → Ty
   _`×_ : Ty → Ty → Ty
   _`+_ : Ty → Ty → Ty

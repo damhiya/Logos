@@ -24,8 +24,6 @@ infix 4 _⊨_⦂_
 Env : ℕ → Set
 Env G = Subst 0 G
 
-data ⟦⋆⟧ : Val → Set where
-
 data _⟦→⟧_ (A : Val → Set) (B : Tm 0 → Set) : Val → Set where
   ƛ_ : ∀ {M} → (∀ V → V ∈ A → M [ Val⇒Tm V ] ∈ B) → ƛ M ∈ A ⟦→⟧ B
 
@@ -43,7 +41,6 @@ data ⟦0⟧ : Val → Set where
 
 V⟦_⟧ : Ty → Val → Set
 E⟦_⟧ : Ty → Tm 0 → Set
-V⟦ ⋆      ⟧ = ⟦⋆⟧
 V⟦ A `→ B ⟧ = V⟦ A ⟧ ⟦→⟧ E⟦ B ⟧
 V⟦ A `× B ⟧ = E⟦ A ⟧ ⟦×⟧ E⟦ B ⟧
 V⟦ A `+ B ⟧ = V⟦ A ⟧ ⟦+⟧ V⟦ B ⟧

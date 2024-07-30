@@ -29,7 +29,6 @@ data 0R {D} : Tm D → Set where
   ne  : ∀ {M M′} → M ⟼* M′ → ⊢ M′ ⇉wn → M ∈ 0R
 
 ⟦_⊢_⟧ : ∀ {D} → Ctx D → Ty → Tm D → Set
-⟦ Δ ⊢ ⋆      ⟧ = λ M → ⊢ M ⇇wn
 ⟦ Δ ⊢ A `→ B ⟧ = λ M → ∀ {D′} (Δ′ : Ctx D′) (ρ : Rename D′ _) N →
                        Δ′ ⊢ᵣ ρ ⦂ Δ → N ∈ ⟦ Δ′ ⊢ A ⟧ → M [ ρ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
 ⟦ Δ ⊢ A `× B ⟧ = λ M → M ·fst ∈ ⟦ Δ ⊢ A ⟧ × M ·snd ∈ ⟦ Δ ⊢ B ⟧
@@ -55,7 +54,6 @@ private
 -- Basic properties of KLR
 
 ⟦⊢⟧-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → M ∈ ⟦ Δ ⊢ A ⟧ → M [ ρ ]ᵣ ∈ ⟦ Δ′ ⊢ A ⟧
-⟦⊢⟧-mono {A = ⋆}                      ⊢ρ M∈⟦⋆⟧   = ⊢⇇wn-mono M∈⟦⋆⟧
 ⟦⊢⟧-mono {ρ = ρ} {M = M} {A = A `→ B} ⊢ρ M∈⟦A→B⟧ Δ′ ρ′ N ⊢ρ′ N∈⟦A⟧ = M[ρ][ρ′]·N∈⟦B⟧
   where
     M[ρ∘ρ′]·N∈⟦B⟧ : M [ ρ ∘ᵣ ρ′ ]ᵣ · N ∈ ⟦ Δ′ ⊢ B ⟧
@@ -71,7 +69,6 @@ private
 ⟦⊢⟧-mono {A = `0}     ⊢ρ (ne Rs ⊢M)                = ne ([]ᵣ-cong-⟼* Rs) (⊢⇉wn-mono ⊢M)
 
 ⟦⊢⟧-head-expand : M′ ⟼ M → M ∈ ⟦ Δ ⊢ A ⟧ → M′ ∈ ⟦ Δ ⊢ A ⟧
-⟦⊢⟧-head-expand {A = ⋆}     R M∈⟦⋆⟧ = clo R M∈⟦⋆⟧
 ⟦⊢⟧-head-expand {M′ = M′} {M = M} {A = A `→ B} R M∈⟦A→B⟧ Δ′ ρ N ⊢ρ N∈⟦A⟧
   = ⟦⊢⟧-head-expand {A = B} ξR M[ρ]·N∈⟦B⟧
   where
@@ -97,13 +94,11 @@ private
 -- reflection/reification
 reflect : ∀ A → ⊢ M ⇉wn → M ∈ ⟦ Δ ⊢ A ⟧
 reify   : ∀ A → M ∈ ⟦ Δ ⊢ A ⟧ → ⊢ M ⇇wn
-reflect ⋆        ⊢M = ⇄ ⊢M
 reflect (A `→ B) ⊢M Δ′ ρ N ⊢ρ N∈⟦A⟧ = reflect B (⊢⇉wn-mono ⊢M · reify A N∈⟦A⟧)
 reflect (A `× B) ⊢M = ⟨ reflect A (⊢M ·fst) , reflect B (⊢M ·snd) ⟩
 reflect (A `+ B) ⊢M = (ne ε ⊢M)
 reflect `1       ⊢M = ⇄ ⊢M
 reflect `0       ⊢M = ne ε ⊢M
-reify                 ⋆        M∈⟦⋆⟧   = M∈⟦⋆⟧
 reify {M = M} {Δ = Δ} (A `→ B) M∈⟦A→B⟧ = ⊢⇇wn-ext→ (reify B M[↑]·#0∈⟦B⟧)
   where
     #0∈⟦A⟧ : # zero ∈ ⟦ Δ , A ⊢ A ⟧

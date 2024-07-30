@@ -140,18 +140,19 @@ compat-ƛ {Γ = Γ} A B M ⊨M {D} Δ γ γ∈Γ {D′} Δ′ ρ N ⊢ρ HN[N] =
       p = []ᵣ⇒[]ₛ (γ x)
 
 compat-· : ∀ A B M N → Γ ⊨ M ⦂ A `→ B → Γ ⊨ N ⦂ A → Γ ⊨ M · N ⦂ B
-compat-· A B M N ⊨M ⊨N {D} Δ γ γ∈Γ = subst (λ M → M · (N [ γ ]ₛ) ∈ ⟦ Δ ⊢ B ⟧) ([]ᵣ-identity (M [ γ ]ₛ)) HN[M·N]
+compat-· A B M N ⊨M ⊨N {D} Δ γ γ∈Γ = M·N∈⟦B⟧
   where
-    open ≡-UpToReasoning (_⟼_ {D})
+    M∈⟦A→B⟧ : M [ γ ]ₛ ∈ ⟦ Δ ⊢ A `→ B ⟧
+    M∈⟦A→B⟧ = ⊨M Δ γ γ∈Γ
 
-    HN[M] : M [ γ ]ₛ ∈ ⟦ Δ ⊢ A `→ B ⟧
-    HN[M] = ⊨M Δ γ γ∈Γ
+    N∈⟦A⟧ : N [ γ ]ₛ ∈ ⟦ Δ ⊢ A ⟧
+    N∈⟦A⟧ = ⊨N Δ γ γ∈Γ
 
-    HN[N] : N [ γ ]ₛ ∈ ⟦ Δ ⊢ A ⟧
-    HN[N] = ⊨N Δ γ γ∈Γ
-
-    HN[M·N] : M [ γ ]ₛ [ ιᵣ ]ᵣ · N [ γ ]ₛ ∈ ⟦ Δ ⊢ B ⟧
-    HN[M·N] = HN[M] Δ ιᵣ (N [ γ ]ₛ) ⊢ᵣ-ιᵣ HN[N]
+    M·N∈⟦B⟧ : (M · N) [ γ ]ₛ ∈ ⟦ Δ ⊢ B ⟧
+    M·N∈⟦B⟧ = subst
+                (λ M → M · (N [ γ ]ₛ) ∈ ⟦ Δ ⊢ B ⟧)
+                ([]ᵣ-identity (M [ γ ]ₛ))
+                (M∈⟦A→B⟧ Δ ιᵣ (N [ γ ]ₛ) ⊢ᵣ-ιᵣ N∈⟦A⟧)
 
 compat-⟨,⟩ : ∀ A B M N → Γ ⊨ M ⦂ A → Γ ⊨ N ⦂ B → Γ ⊨ ⟨ M , N ⟩ ⦂ A `× B
 compat-⟨,⟩ A B M N ⊨M ⊨N Δ γ γ∈Γ =

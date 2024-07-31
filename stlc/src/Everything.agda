@@ -14,3 +14,5 @@ import Full.Dynamics
 import Full.Properties
 import Full.Semantics
 import Equality.Statics
+import Equality.Properties
+import Equality.Semantics

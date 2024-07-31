@@ -6,7 +6,7 @@ open import Syntax
 open import Statics
 open import Substitution
 
-infix 4 _⊢_≡_⦂_
+infix 4 _⊢_≡_⦂_ _⊢_⇉_ _⊢_⇇_
 
 data _⊢_≡_⦂_ {G} (Γ : Ctx G) : Tm G → Tm G → Ty → Set where
 
@@ -103,3 +103,124 @@ data _⊢_≡_⦂_ {G} (Γ : Ctx G) : Tm G → Tm G → Ty → Set where
           Γ ⊢ M ≡ M′ ⦂ A →
           Γ ⊢ M′ ≡ M″ ⦂ A →
           Γ ⊢ M ≡ M″ ⦂ A
+
+data _⊢_⇉_ {G} (Γ : Ctx G) : Tm G → Ty → Set
+data _⊢_⇇_ {G} (Γ : Ctx G) : Tm G → Ty → Set
+
+data _⊢_⇉_ Γ where
+
+  #_ : ∀ {A x} →
+       Γ ∋ x ⦂ A →
+       Γ ⊢ # x ⇉ A
+
+  _·_ : ∀ {A B M N} →
+        Γ ⊢ M ⇉ A `→ B →
+        Γ ⊢ N ⇇ A →
+        Γ ⊢ M · N ⇉ B
+
+  _·fst : ∀ {A B M} →
+          Γ ⊢ M ⇉ A `× B →
+          Γ ⊢ M ·fst ⇉ A
+
+  _·snd : ∀ {A B M} →
+          Γ ⊢ M ⇉ A `× B →
+          Γ ⊢ M ·snd ⇉ B
+
+  _·case[_,_] : ∀ {A B C L M N} →
+                Γ ⊢ L ⇉ A `+ B →
+                Γ , A ⊢ M ⇇ C →
+                Γ , B ⊢ N ⇇ C →
+                Γ ⊢ L ·case[ M , N ] ⇉ C
+
+  _·absurd : ∀ {C M} →
+             Γ ⊢ M ⇉ `0 →
+             Γ ⊢ M ·absurd ⇉ C
+
+data _⊢_⇇_ Γ where
+
+  ⇄+_ : ∀ {A B M} →
+        Γ ⊢ M ⇉ A `+ B →
+        Γ ⊢ M ⇇ A `+ B
+
+  ⇄0_ : ∀ {M} →
+        Γ ⊢ M ⇉ `0 →
+        Γ ⊢ M ⇇ `0
+
+  ƛ_ : ∀ {A B M} →
+       Γ , A ⊢ M ⇇ B →
+       Γ ⊢ ƛ M ⇇ A `→ B
+
+  ⟨_,_⟩ : ∀ {A B M N} →
+          Γ ⊢ M ⇇ A →
+          Γ ⊢ N ⇇ B →
+          Γ ⊢ ⟨ M , N ⟩ ⇇ A `× B
+
+  inl·_ : ∀ {A B M} →
+          Γ ⊢ M ⇇ A →
+          Γ ⊢ inl· M ⇇ A `+ B
+
+  inr·_ : ∀ {A B M} →
+          Γ ⊢ M ⇇ B →
+          Γ ⊢ inr· M ⇇ A `+ B
+
+  tt· : Γ ⊢ tt· ⇇ `1
+
+data Ne {G} (Γ : Ctx G) : Ty → Set
+data Nf {G} (Γ : Ctx G) : Ty → Set
+
+data Ne Γ where
+
+  #_ : ∀ {A} →
+       Γ ∋ A →
+       Ne Γ A
+
+  _·_ : ∀ {A B} →
+        Ne Γ (A `→ B) →
+        Nf Γ A →
+        Ne Γ B
+
+  _·fst : ∀ {A B} →
+          Ne Γ (A `× B) →
+          Ne Γ A
+
+  _·snd : ∀ {A B} →
+          Ne Γ (A `× B) →
+          Ne Γ B
+
+  _·case[_,_] : ∀ {A B C} →
+                Ne Γ (A `+ B) →
+                Nf (Γ , A) C →
+                Nf (Γ , B) C →
+                Ne Γ C
+
+  _·absurd : ∀ {C} →
+             Ne Γ `0 →
+             Ne Γ C
+
+data Nf Γ where
+
+  ⇄+_ : ∀ {A B} →
+        Ne Γ (A `+ B) →
+        Nf Γ (A `+ B)
+
+  ⇄0_ : Ne Γ `0 →
+        Nf Γ `0
+
+  ƛ_ : ∀ {A B} →
+       Nf (Γ , A) B →
+       Nf Γ (A `→ B)
+
+  ⟨_,_⟩ : ∀ {A B} →
+          Nf Γ A →
+          Nf Γ B →
+          Nf Γ (A `× B)
+
+  inl·_ : ∀ {A B} →
+          Nf Γ A →
+          Nf Γ (A `+ B)
+
+  inr·_ : ∀ {A B} →
+          Nf Γ B →
+          Nf Γ (A `+ B)
+
+  tt· : Nf Γ `1

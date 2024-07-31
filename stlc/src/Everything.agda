@@ -13,3 +13,4 @@ import CallByValue.Semantics
 import Full.Dynamics
 import Full.Properties
 import Full.Semantics
+import Equality.Statics

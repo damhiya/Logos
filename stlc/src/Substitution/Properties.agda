@@ -9,7 +9,6 @@ open import Relation.Binary.PropositionalEquality.Properties
 
 open import Syntax
 open import Statics
-open import Statics.Properties
 open import Substitution
 
 open ≡-Reasoning

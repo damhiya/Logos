@@ -81,15 +81,13 @@ data _⊢_⦂_ {G} : Ctx G → Tm G → Ty → Set where
              Γ ⊢ M ⦂ `0 →
              Γ ⊢ M ·absurd ⦂ C
 
-lookup : ∀ {G} (Γ : Ctx G) (x : Fin G) → Ty
-lookup (Γ , A) zero    = A
-lookup (Γ , B) (suc x) = lookup Γ x
-
--- constructor injectivity lemmas
 private
   variable
-    A₁ A₂ B₁ B₂ : Ty
+    G : ℕ
+    Γ : Ctx G
+    A A₁ A₂ B B₁ B₂ : Ty
 
+-- constructor injectivity lemmas
 →-inj₁ : A₁ `→ B₁ ≡ A₂ `→ B₂ → A₁ ≡ A₂
 →-inj₁ refl = refl
 
@@ -107,3 +105,16 @@ private
 
 +-inj₂ : A₁ `+ B₁ ≡ A₂ `+ B₂ → B₁ ≡ B₂
 +-inj₂ refl = refl
+
+-- lookup and properties of _∋_⦂_
+lookup : Ctx G → Fin G → Ty
+lookup (Γ , A) zero    = A
+lookup (Γ , B) (suc x) = lookup Γ x
+
+∋-lookup : ∀ (Γ : Ctx G) x → Γ ∋ x ⦂ lookup Γ x
+∋-lookup (Γ , A) zero    = Z
+∋-lookup (Γ , B) (suc x) = S ∋-lookup Γ x
+
+∋-functional : ∀ {x} → Γ ∋ x ⦂ A → Γ ∋ x ⦂ B → A ≡ B
+∋-functional Z       Z       = refl
+∋-functional (S x⦂A) (S x⦂B) = ∋-functional x⦂A x⦂B

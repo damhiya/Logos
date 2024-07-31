@@ -11,7 +11,6 @@ open import Relation.Binary.Construct.Closure.ReflexiveTransitive.Properties
 open import RelationReasoning
 open import Syntax
 open import Statics
-open import Statics.Properties
 open import Substitution
 open import Substitution.Properties
 open import Full.Dynamics

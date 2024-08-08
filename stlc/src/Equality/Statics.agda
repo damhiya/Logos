@@ -165,6 +165,7 @@ data _⊢_⇇_ Γ where
 
   tt· : Γ ⊢ tt· ⇇ `1
 
+-- Ne/Nf must be typed since η-long forms are type sensitive
 data Ne {G} (Γ : Ctx G) : Ty → Set
 data Nf {G} (Γ : Ctx G) : Ty → Set
 

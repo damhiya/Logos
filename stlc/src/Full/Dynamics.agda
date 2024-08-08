@@ -188,6 +188,11 @@ Normal : ∀ {G} → Tm G → Set
 Normal M = ∀ {M′} → ¬ (M ⟶ M′)
 
 -- weakly normalizing terms
+-- Typed approach does not work well under the following conditions
+-- (1) type assignment system
+-- (2) has product and sum types
+-- (3) no commuting reductions for the sum type
+-- Because it makes hard to prove extensionality for the product type
 data ⊢_⇉wn {G} : Tm G → Set
 data ⊢_⇇wn {G} : Tm G → Set
 

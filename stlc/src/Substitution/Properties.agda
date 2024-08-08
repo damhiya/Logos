@@ -2,7 +2,7 @@ module Substitution.Properties where
 
 open import Data.Nat.Base
 open import Data.Fin.Base
-open import Function.Base
+open import Data.Product.Base renaming (_,_ to ⟨_,_⟩)
 open import Relation.Binary.PropositionalEquality using (_≗_)
 open import Relation.Binary.PropositionalEquality.Core
 open import Relation.Binary.PropositionalEquality.Properties
@@ -373,6 +373,17 @@ _⊢ₛ_⦂_ : Ctx G → Subst G D → Ctx D → Set
 
 ⊢-[] : Γ , A ⊢ M ⦂ B → Γ ⊢ N ⦂ A → Γ ⊢ M [ N ] ⦂ B
 ⊢-[] M N = ⊢ₛ-[]ₛ (⊢ₛ-,ₛ ⊢ₛ-ιₛ N) M
+
+∋-index : Γ ∋ A → ∃[ x ] Γ ∋ x ⦂ A
+∋-index Z = ⟨ zero , Z ⟩
+∋-index (S x) = ⟨ suc (∋-index x .proj₁) , S ∋-index x .proj₂ ⟩
+
+∋-erase : ∀ {x} → Γ ∋ x ⦂ A → Γ ∋ A
+∋-erase Z     = Z
+∋-erase (S x) = S ∋-erase x
+
+∋-mono : Δ′ ⊢ᵣ ρ ⦂ Δ → Δ ∋ A → Δ′ ∋ A
+∋-mono ⊢ρ x = ∋-erase (⊢ρ (∋-index x .proj₂))
 
 ∋-inv : ∀ {x} → Δ′ ⊢ᵣ ρ ⦂ Δ → Δ′ ∋ ρ x ⦂ A → Δ ∋ x ⦂ A
 ∋-inv {Δ = Δ} {A = A} {x = x} ⊢ρ ⊢ρx with ∋-functional ⊢ρx (⊢ρ (∋-lookup Δ x))

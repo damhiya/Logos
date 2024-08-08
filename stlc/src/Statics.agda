@@ -9,7 +9,7 @@ infix  20 #_
 infixl 7  _·_
 infixr 6  ƛ_
 infixl 5  _,_
-infix  4  _∋_⦂_ _⊢_⦂_
+infix  4  _∋_ _∋_⦂_ _⊢_⦂_
 
 data Ty : Set where
   _`→_ : Ty → Ty → Ty
@@ -21,6 +21,10 @@ data Ty : Set where
 data Ctx : ℕ → Set where
   ∙ : Ctx zero
   _,_ : ∀ {G} → Ctx G → Ty → Ctx (suc G)
+
+data _∋_ : ∀ {G} → Ctx G → Ty → Set where
+  Z  : ∀ {G} {Γ : Ctx G} {A}           → Γ , A ∋ A
+  S_ : ∀ {G} {Γ : Ctx G} {A B} → Γ ∋ A → Γ , B ∋ A
 
 data _∋_⦂_ : ∀ {G} → Ctx G → Fin G → Ty → Set where
   Z  : ∀ {G} {Γ : Ctx G} {A}                 → Γ , A ∋ zero  ⦂ A

@@ -40,6 +40,9 @@ PSTy = ∀ {D} → Ctx D → Set
 ⟦ `1     ⟧ = 1𝒮
 ⟦ `0     ⟧ = 0𝒮
 
+𝒢⟦_⟧ : ∀ {G} → Ctx G → ∀ {D} → Ctx D → Set
+𝒢⟦ Γ ⟧(Δ) = ∀ {A} → Γ ∋ A → ⟦ A ⟧(Δ)
+
 private
   variable
     G D : ℕ
@@ -63,3 +66,16 @@ reify         (A `+ B) (inj₂ (inj₁ b)) = inr· reify B b
 reify         (A `+ B) (inj₂ (inj₂ M)) = ⇄+ M
 reify         `1       a               = tt·
 reify         `0       a               = ⇄0 a
+
+-- eval : Γ ⊢ M ⦂ A → 𝒢⟦ Γ ⟧(Δ) → ⟦ A ⟧(Δ)
+-- eval {M = x}                (# ⊢x)                γ = {!!}
+-- eval {M = M}                (ƛ ⊢M)                γ = {!!}
+-- eval {M = M · N}            (⊢M · ⊢N)             γ = {!!}
+-- eval {M = ⟨ M , N ⟩}        ⟨ ⊢M , ⊢N ⟩           γ = {!!}
+-- eval {M = M ·fst}           (⊢M ·fst)             γ = {!!}
+-- eval {M = M ·snd}           (⊢M ·snd)             γ = {!!}
+-- eval {M = inl· M}           (inl· ⊢M)             γ = {!!}
+-- eval {M = inr· M}           (inr· ⊢M)             γ = {!!}
+-- eval {M = L ·case[ M , N ]} (⊢L ·case[ ⊢M , ⊢N ]) γ = {!!}
+-- eval {M = tt·}              tt·                   γ = {!!}
+-- eval {M = M ·absurd}        (⊢M ·absurd)          γ = {!!}

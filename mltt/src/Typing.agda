@@ -1,0 +1,311 @@
+module Typing where
+
+open import Agda.Primitive renaming (Set to Type)
+open import Data.Fin.Base
+open import Data.Nat.Base
+
+open import Syntax
+
+data _∋_⦂_        : ∀ {G} → Ctx G → Fin G → Ty G → Type
+data _ctx         : ∀ {G} → Ctx G → Type
+data _≡_ctx       : ∀ {G} → Ctx G → Ctx G → Type
+data _⊢_ty        : ∀ {G} → Ctx G → Ty G → Type
+data _⊢_≡_ty      : ∀ {G} → Ctx G → Ty G → Ty G → Type
+data _⊢_⦂_tm      : ∀ {G} → Ctx G → Tm G → Ty G → Type
+data _⊢_≡_⦂_tm    : ∀ {G} → Ctx G → Tm G → Tm G → Ty G → Type
+data _⊢_⦂_subst   : ∀ {G D} → Ctx G → Subst G D → Ctx D → Type
+data _⊢_≡_⦂_subst : ∀ {G D} → Ctx G → Subst G D → Subst G D → Ctx D → Type
+
+infix 5
+  _∋_⦂_
+  _ctx
+  _≡_ctx
+  _⊢_ty
+  _⊢_≡_ty
+  _⊢_⦂_tm
+  _⊢_≡_⦂_tm
+  _⊢_⦂_subst
+  _⊢_≡_⦂_subst
+
+private
+  variable
+    G D : ℕ
+    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
+    x x′ : Fin G
+    A A′ A″ B B′ C C′ : Ty G
+    L L′ M M′ M″ N N′ : Tm G
+    σ σ′ σ″ τ τ′ : Subst G D
+
+data _∋_⦂_ where
+  zero :       Γ , A ∋ zero ⦂ A [ ↑ ]
+  suc  : (H₀ : Γ ∋ x ⦂ A) →
+               Γ , B ∋ suc x ⦂ A [ ↑ ]
+
+data _ctx where
+  ∙-wf :       ∙ ctx
+  ,-wf : (P₀ : Γ ctx) →
+         (H₀ : Γ ⊢ A ty) →
+               Γ , A ctx
+
+data _≡_ctx where
+  ∙-cong :       ∙ ≡ ∙ ctx
+  ,-cong : (H₀ : Γ ≡ Γ′ ctx) →
+           (H₁ : Γ ⊢ A ≡ A′ ty) →
+                 Γ , A ≡ Γ′ , A′ ctx
+
+data _⊢_ty where
+  -- type formers
+  Π̇-wf  : (P₀ : Γ ⊢ A ty) →
+          (H₀ : Γ , A ⊢ B ty) →
+                Γ ⊢ Π̇ A B ty
+  ℕ̇-wf  : (P₀ : Γ ctx) →
+                Γ ⊢ ℕ̇ ty
+  U̇-wf  : (P₀ : Γ ctx) →
+                Γ ⊢ U̇ ty
+  -- El
+  El-wf : (H₀ : Γ ⊢ M ⦂ U̇ tm) →
+                Γ ⊢ El M ty
+  -- substitution
+  []-wf : (H₀ : Δ ⊢ A ty) →
+          (H₁ : Γ ⊢ σ ⦂ Δ subst) →
+                Γ ⊢ A [ σ ] ty
+
+data _⊢_≡_ty where
+  -- type formers
+  Π̇-cong  : (H₀ : Γ ⊢ A ≡ A′ ty) →
+            (H₁ : Γ , A ⊢ B ≡ B′ ty) →
+                  Γ ⊢ Π̇ A B ≡ Π̇ A′ B′ ty
+  ℕ̇-cong  : (P₀ : Γ ctx) →
+                  Γ ⊢ ℕ̇ ≡ ℕ̇ ty
+  U̇-cong  : (P₀ : Γ ctx) →
+                  Γ ⊢ U̇ ≡ U̇ ty
+  -- El
+  El-cong : (H₀ : Γ ⊢ M ≡ M′ ⦂ U̇ tm) →
+                  Γ ⊢ El M ≡ El M′ ty
+  -- substitution
+  []-cong : (H₀ : Δ ⊢ A ≡ A′ ty) →
+            (H₁ : Γ ⊢ σ ≡ σ′ ⦂ Δ subst) →
+                  Γ ⊢ A [ σ ] ≡ A′ [ σ′ ] ty
+  -- commutation with El
+  Π̌-El    : (H₀ : Γ ⊢ M ⦂ U̇ tm) →
+            (H₁ : Γ , El M ⊢ N ⦂ U̇ tm) →
+                  Γ ⊢ El (Π̌ M N) ≡ Π̇ (El M) (El N) ty
+  ℕ̌-El    : (P₀ : Γ ctx) →
+                  Γ ⊢ El ℕ̌ ≡ ℕ̇ ty
+  -- commutation with []
+  Π̇-[]    : (H₀ : Γ′ ⊢ A ty) →
+            (H₁ : Γ′ , A ⊢ B ty) →
+            (H₂ : Γ ⊢ σ ⦂ Γ′ subst) →
+                  Γ ⊢ (Π̇ A B) [ σ ] ≡ Π̇ (A [ σ ]) (B [ ⇑ σ ]) ty
+  ℕ̇-[]    : (H₀ : Γ ⊢ σ ⦂ Γ′ subst) →
+                  Γ ⊢ ℕ̇ [ σ ] ≡ ℕ̇ ty
+  U̇-[]    : (H₀ : Γ ⊢ σ ⦂ Γ′ subst) →
+                  Γ ⊢ U̇ [ σ ] ≡ U̇ ty
+  El-[]   : (H₀ : Γ′ ⊢ M ⦂ U̇ tm) →
+            (H₁ : Γ ⊢ σ ⦂ Γ′ subst) →
+                  Γ ⊢ (El M) [ σ ] ≡ El (M [ σ ]) ty
+  -- extra rules for []
+  [I]     : (H₀ : Γ ⊢ A ty) →
+                  Γ ⊢ A [ I ] ≡ A ty
+  [∗]     : (H₀ : Γ″ ⊢ A ty) →
+            (H₁ : Γ′ ⊢ τ ⦂ Γ″ subst) →
+            (H₂ : Γ  ⊢ σ ⦂ Γ′ subst) →
+                  Γ ⊢ A [ τ ∗ σ ] ≡ A [ τ ] [ σ ] ty
+  -- transitive symmetric closure
+  ≡-trans : (H₀ : Γ ⊢ A  ≡ A′ ty) →
+            (H₁ : Γ ⊢ A′ ≡ A″ ty) →
+                  Γ ⊢ A  ≡ A″ ty
+  ≡-sym   : (H₀ : Γ ⊢ A  ≡ A′ ty) →
+                  Γ ⊢ A′ ≡ A  ty
+
+data _⊢_⦂_tm where
+  -- variables
+  #-wf    : (P₀ : Γ ctx) →
+            (H₀ : Γ ∋ x ⦂ A) →
+                  Γ ⊢ # x ⦂ A tm
+  -- Π̇
+  ƛ-wf    : (H₀ : Γ , A ⊢ M ⦂ B tm) →
+                  Γ ⊢ ƛ M ⦂ Π̇ A B tm
+  ·-wf    : (H₀ : Γ ⊢ M ⦂ Π̇ A B tm) →
+            (H₁ : Γ ⊢ N ⦂ A tm) →
+                  Γ ⊢ M · N ⦂ B [ I , N ] tm
+  -- ℕ̇
+  z·-wf   : (P₀ : Γ ctx) →
+            Γ ⊢ z· ⦂ ℕ̇ tm
+  s·-wf   : (H₀ : Γ ⊢ M ⦂ ℕ̇ tm) →
+            Γ ⊢ s· M ⦂ ℕ̇ tm
+  rec-wf  : (H₀ : Γ , ℕ̇ ⊢ C ty) →
+            (H₁ : Γ ⊢ L ⦂ C [ I , z· ] tm) →
+            (H₂ : Γ , ℕ̇ , C ⊢ M ⦂ C [ (↑ ∗ ↑) , (s· # suc zero) ] tm) →
+            (H₃ : Γ ⊢ N ⦂ ℕ̇ tm) →
+                  Γ ⊢ rec C L M N ⦂ C [ I , N ] tm
+  -- U̇
+  Π̌-wf    : (H₀ : Γ ⊢ M ⦂ U̇ tm) →
+            (H₁ : Γ , El M ⊢ N ⦂ U̇ tm) →
+                  Γ ⊢ Π̌ M N ⦂ U̇ tm
+  ℕ̌-wf    : (P₀ : Γ ctx) →
+                  Γ ⊢ ℕ̌ ⦂ U̇ tm
+  -- substitution
+  []-wf   : (H₀ : Δ ⊢ M ⦂ A tm) →
+            (H₁ : Γ ⊢ σ ⦂ Δ subst) →
+                  Γ ⊢ M [ σ ] ⦂ A [ σ ] tm
+  -- conversion
+  conv    : (E₀ : Γ ⊢ A ≡ A′ ty) →
+            (H₁ : Γ ⊢ M ⦂ A  tm) →
+                  Γ ⊢ M ⦂ A′ tm
+
+data _⊢_≡_⦂_tm where
+  -- variables
+  #-cong     : (P₀ : Γ ctx) →
+               (H₀ : Γ ∋ x ⦂ A) →
+                     Γ ⊢ # x ≡ # x ⦂ A tm
+  -- Π̇
+  ƛ-cong     : (H₀ : Γ , A ⊢ M ≡ M′ ⦂ B tm) →
+                     Γ ⊢ ƛ M ≡ ƛ M′ ⦂ Π̇ A B tm
+  ·-cong     : (H₀ : Γ ⊢ M ≡ M′ ⦂ Π̇ A B tm) →
+               (H₁ : Γ ⊢ N ≡ N′ ⦂ A tm) →
+                     Γ ⊢ M · N ≡ M′ · N′ ⦂ B [ I , N ] tm
+  -- ℕ̇
+  z·-cong    : (P₀ : Γ ctx) →
+                     Γ ⊢ z· ≡ z· ⦂ ℕ̇ tm
+  s·-cong    : (H₀ : Γ ⊢ M ≡ M′ ⦂ ℕ̇ tm) →
+                     Γ ⊢ s· M ≡ s· M′ ⦂ ℕ̇ tm
+  rec-cong   : (H₀ : Γ , ℕ̇ ⊢ C ≡ C′ ty) →
+               (H₁ : Γ ⊢ L ≡ L′ ⦂ C [ I , z· ] tm) →
+               (H₂ : Γ , ℕ̇ , C ⊢ M ≡ M′ ⦂ C [ (↑ ∗ ↑) , (s· # suc zero) ] tm) →
+               (H₃ : Γ ⊢ N ≡ N′ ⦂ ℕ̇ tm) →
+                     Γ ⊢ rec C L M N ≡ rec C′ L′ M′ N′ ⦂ C [ I , N ] tm
+  -- U̇
+  Π̌-cong     : (H₀ : Γ ⊢ M ≡ M′ ⦂ U̇ tm) →
+               (H₁ : Γ , El M ⊢ N ≡ N′ ⦂ U̇ tm) →
+                     Γ ⊢ Π̌ M N ≡ Π̌ M′ N′ ⦂ U̇ tm
+  ℕ̌-cong     : (P₀ : Γ ctx) →
+                     Γ ⊢ ℕ̌ ≡ ℕ̌ ⦂ U̇ tm
+  -- substitution
+  []-cong    : (H₀ : Γ′ ⊢ M ≡ M′ ⦂ A tm) →
+               (H₁ : Γ ⊢ σ ≡ σ′ ⦂ Γ′ subst) →
+                     Γ ⊢ M [ σ ] ≡ M′ [ σ′ ] ⦂ A [ σ ] tm
+  -- Π̇
+  Π̇-β        : (H₀ : Γ , A ⊢ M ⦂ B tm) →
+               (H₁ : Γ ⊢ N ⦂ A tm) →
+                     Γ ⊢ (ƛ M) · N ≡ M [ I , N ] ⦂ B [ I , N ] tm
+  Π̇-η        : (H₀ : Γ ⊢ M ⦂ Π̇ A B tm) →
+                     Γ ⊢ M ≡ ƛ ((M [ ↑ ]) · (# zero)) ⦂ Π̇ A B tm
+  -- ℕ̇
+  ℕ̇-β-z·     : (H₀ : Γ , ℕ̇ ⊢ C ty) →
+               (H₁ : Γ ⊢ L ⦂ C [ I , z· ] tm) →
+               (H₂ : Γ , ℕ̇ , C ⊢ M ⦂ C [ (↑ ∗ ↑) , (s· # zero) ] tm) →
+                     Γ ⊢ rec C L M z· ≡ L ⦂ C [ I , z· ] tm
+  ℕ̇-β-s·     : (H₀ : Γ , ℕ̇ ⊢ C ty) →
+               (H₁ : Γ ⊢ L ⦂ C [ I , z· ] tm) →
+               (H₂ : Γ , ℕ̇ , C ⊢ M ⦂ C [ (↑ ∗ ↑) , (s· # zero) ] tm) →
+               (H₃ : Γ ⊢ N ⦂ ℕ̇ tm) →
+                     Γ ⊢ rec C L M (s· N) ≡ M [ I , N , rec C L M N ] ⦂ C [ I , s· N ] tm
+  -- commutation with []
+  ƛ-[]       : (H₀ : Γ′ , A ⊢ M ⦂ B tm) →
+               (H₁ : Γ ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ (ƛ M) [ σ ] ≡ ƛ (M [ ⇑ σ ]) ⦂ Π̇ (A [ σ ]) (B [ ⇑ σ ]) tm
+  ·-[]       : (H₀ : Γ′ ⊢ M ⦂ Π̇ A B tm) →
+               (H₁ : Γ′ ⊢ N ⦂ A tm) →
+               (H₂ : Γ ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ (M · N) [ σ ] ≡ (M [ σ ]) · (N [ σ ]) ⦂ B [ (I , N) ∗ σ ] tm
+  z·-[]      : (H₀ : Γ ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ z· [ σ ] ≡ z· ⦂ ℕ̇ tm
+  s·-[]      : (H₀ : Γ′ ⊢ M ⦂ ℕ̇ tm) →
+               (H₁ : Γ ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ (s· M) [ σ ] ≡ s· (M [ σ ]) ⦂ ℕ̇ tm
+  rec-[]     : (H₀ : Γ′ , ℕ̇ ⊢ C ty) →
+               (H₁ : Γ′ ⊢ L ⦂ C [ I , z· ] tm) →
+               (H₂ : Γ′ , ℕ̇ , C ⊢ M ⦂ C [ (↑ ∗ ↑) , (s· # suc zero) ] tm) →
+               (H₃ : Γ′ ⊢ N ⦂ ℕ̇ tm) →
+               (H₄ : Γ ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ (rec C L M N) [ σ ] ≡ rec (C [ ⇑ σ ]) (L [ σ ]) (M [ ⇑ ⇑ σ ]) (N [ σ ]) ⦂ C [ (I , N) ∗ σ ] tm
+  Π̌-[]       : (H₀ : Γ′ ⊢ M ⦂ U̇ tm) →
+               (H₁ : Γ′ , El M ⊢ N ⦂ U̇ tm) →
+               (H₂ : Γ ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ (Π̌ M N) [ σ ] ≡ Π̌ (M [ σ ]) (N [ ⇑ σ ]) ⦂ U̇ tm
+  ℕ̌-[]       : (H₀ : Γ ⊢ σ ⦂ Δ subst) →
+                     Γ ⊢ ℕ̌ [ σ ] ≡ ℕ̌ ⦂ U̇ tm
+  -- extra rules for []
+  [I]        : (H₀ : Γ ⊢ M ⦂ A tm) →
+                     Γ ⊢ M [ I ] ≡ M ⦂ A tm
+  [∗]        : (H₀ : Γ″ ⊢ M ⦂ A tm) →
+               (H₁ : Γ′ ⊢ τ ⦂ Γ″ subst) →
+               (H₂ : Γ  ⊢ σ ⦂ Γ′ subst) →
+                     Γ ⊢ M [ τ ∗ σ ] ≡ M [ τ ] [ σ ] ⦂ A [ τ ∗ σ ] tm
+  #-[↑]      : (H₀ : Γ ∋ x ⦂ A) →
+               (P₀ : Γ ⊢ B ty) →
+                     Γ , B ⊢ (# x) [ ↑ ] ≡ # suc x ⦂ A [ ↑ ] tm
+  #-[,]-zero : (H₀ : Γ ⊢ σ ⦂ Γ′ subst) →
+               (H₁ : Γ′ ⊢ A ty) →
+               (H₂ : Γ ⊢ M ⦂ A [ σ ] tm) →
+                     Γ ⊢ (# zero) [ σ , M ] ≡ M ⦂ A [ σ ] tm
+  #-[,]-suc  : (H₀ : Γ′ ∋ x ⦂ A) →
+               (H₁ : Γ ⊢ σ ⦂ Γ′ subst) →
+               (H₂ : Γ′ ⊢ A ty) →
+               (H₃ : Γ ⊢ M ⦂ A [ σ ] tm) →
+                     Γ ⊢ (# (suc x)) [ σ , M ] ≡ (# x) [ σ ] ⦂ A [ σ ] tm
+  -- transitive symmetric closure
+  ≡-trans    : (H₀ : Γ ⊢ M  ≡ M′ ⦂ A tm) →
+               (H₁ : Γ ⊢ M′ ≡ M″ ⦂ A tm) →
+                     Γ ⊢ M  ≡ M″ ⦂ A tm
+  ≡-sym      : (H₀ : Γ ⊢ M  ≡ M′ ⦂ A tm) →
+                     Γ ⊢ M′ ≡ M  ⦂ A tm
+  -- conversion
+  conv       : (E₀ : Γ ⊢ A ≡ A′ ty) →
+               (H₀ : Γ ⊢ M ≡ M′ ⦂ A  tm) →
+                     Γ ⊢ M ≡ M′ ⦂ A′ tm
+
+data _⊢_⦂_subst where
+  I-wf : (P₀ : Γ ctx) →
+               Γ ⊢ I ⦂ Γ subst
+  ↑-wf : (P₀ : Γ ⊢ A ty) →
+               Γ , A ⊢ ↑ ⦂ Γ subst
+  ,-wf : (H₀ : Γ ⊢ σ ⦂ Γ′ subst) →
+         (P₀ : Γ′ ⊢ A ty) →
+         (H₁ : Γ ⊢ M ⦂ A [ σ ] tm) →
+               Γ ⊢ σ , M ⦂ Γ′ , A subst
+  ∗-wf : (H₀ : Γ′ ⊢ τ ⦂ Γ″ subst) →
+         (H₁ : Γ  ⊢ σ ⦂ Γ′ subst) →
+               Γ  ⊢ τ ∗ σ ⦂ Γ″ subst
+  -- conversion
+  conv : (E₀ : Δ ≡ Δ′ ctx) →
+         (H₀ : Γ ⊢ σ ⦂ Δ  subst) →
+               Γ ⊢ σ ⦂ Δ′ subst
+
+data _⊢_≡_⦂_subst where
+  I-cong  : (P₀ : Γ ctx) →
+                  Γ ⊢ I ≡ I ⦂ Γ subst
+  ↑-cong  : (P₀ : Γ ⊢ A ty) →
+                  Γ , A ⊢ ↑ ≡ ↑ ⦂ Γ subst
+  ,-cong  : (H₀ : Γ ⊢ σ ≡ σ′ ⦂ Γ′ subst) →
+            (P₀ : Γ′ ⊢ A ty) →
+            (H₁ : Γ ⊢ M ≡ M′ ⦂ A [ σ ] tm) →
+                  Γ ⊢ σ , M ≡ σ′ , M′ ⦂ Γ′ , A subst
+  ∗-cong  : (H₀ : Γ′ ⊢ τ ≡ τ′ ⦂ Γ″ subst) →
+            (H₁ : Γ  ⊢ σ ≡ σ′ ⦂ Γ′ subst) →
+                  Γ  ⊢ τ ∗ σ ≡ τ′ ∗ σ′ ⦂ Γ″ subst
+  -- extra equalities
+  I-∗     : (H₀ : Γ ⊢ σ ⦂ Δ subst) →
+                  Γ ⊢ I ∗ σ ≡ σ ⦂ Δ subst
+  ∗-I     : (H₀ : Γ ⊢ σ ⦂ Δ subst) →
+                  Γ ⊢ σ ≡ σ ∗ I ⦂ Δ subst
+  ∗-assoc : (H₀ : Γ″ ⊢ σ″ ⦂ Γ‴ subst) →
+            (H₁ : Γ′ ⊢ σ′ ⦂ Γ″ subst) →
+            (H₂ : Γ  ⊢ σ  ⦂ Γ′ subst) →
+                  Γ  ⊢ (σ″ ∗ σ′) ∗ σ ≡ σ″ ∗ (σ′ ∗ σ) ⦂ Γ‴ subst
+  ,-∗     : (H₀ : Γ′ ⊢ τ ⦂ Γ″ subst) →
+            (P₀ : Γ″ ⊢ A ty) →
+            (H₁ : Γ′ ⊢ M ⦂ A [ τ ] tm) →
+            (H₂ : Γ ⊢ σ ⦂ Γ′ subst) →
+                  Γ ⊢ (τ , M) ∗ σ ≡ τ ∗ σ , M [ σ ] ⦂ Γ″ , A subst
+  -- transitive symmetric closure
+  ≡-trans : (H₀ : Γ ⊢ σ  ≡ σ′ ⦂ Δ subst) →
+            (H₀ : Γ ⊢ σ′ ≡ σ″ ⦂ Δ subst) →
+                  Γ ⊢ σ  ≡ σ″ ⦂ Δ subst
+  ≡-sym   : (H₀ : Γ ⊢ σ  ≡ σ′ ⦂ Δ subst) →
+                  Γ ⊢ σ′ ≡ σ  ⦂ Δ subst
+  -- conversion
+  conv    : (E₀ : Δ ≡ Δ′ ctx) →
+            (H₀ : Γ ⊢ σ ≡ σ′ ⦂ Δ  subst) →
+                  Γ ⊢ σ ≡ σ′ ⦂ Δ′ subst

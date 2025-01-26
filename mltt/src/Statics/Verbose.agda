@@ -1,4 +1,4 @@
-module Statics.Concise where
+module Statics.Verbose where
 
 open import Agda.Primitive renaming (Set to Type)
 open import Data.Fin.Base

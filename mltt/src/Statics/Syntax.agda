@@ -1,8 +1,6 @@
 module Statics.Syntax where
 
-open import Agda.Primitive renaming (Set to Type)
-open import Data.Fin.Base
-open import Data.Nat.Base
+open import Lib
 
 infixl 6 _,_
 

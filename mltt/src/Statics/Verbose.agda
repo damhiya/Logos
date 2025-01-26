@@ -1,8 +1,6 @@
 module Statics.Verbose where
 
-open import Agda.Primitive renaming (Set to Type)
-open import Data.Fin.Base
-open import Data.Nat.Base
+open import Lib
 
 open import Statics.Syntax
 open import Statics.LookUp

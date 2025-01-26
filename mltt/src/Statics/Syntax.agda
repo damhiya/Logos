@@ -38,6 +38,7 @@ data Tm G where
   ℕ̌ : Tm G
   -- substitution
   _[_] : ∀ {G′} → Tm G′ → Subst G G′ → Tm G
+  hd : ∀ {G′} → Subst G (suc G′) → Tm G
 
 data Subst where
   tl  : ∀ {G D} → Subst G (suc D) → Subst G D
@@ -45,10 +46,8 @@ data Subst where
   _,_ : ∀ {G D} → Subst G D → Tm G → Subst G (suc D)
   _∗_ : ∀ {G G′ G″} → Subst G′ G″ → Subst G G′ → Subst G G″
 
-pattern hd σ = (# zero) [ σ ]
+pattern #0   = # zero
+pattern #1   = # suc zero
 pattern ↑    = tl I
 pattern ↑²   = tl (tl I)
-pattern ⇑_ σ = (σ ∗ ↑) , (# zero)
-
-pattern #0 = # zero
-pattern #1 = # suc zero
+pattern ⇑_ σ = (σ ∗ ↑) , #0

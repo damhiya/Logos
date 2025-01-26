@@ -1,10 +1,10 @@
-module Typing where
+module Statics.Concise where
 
 open import Agda.Primitive renaming (Set to Type)
 open import Data.Fin.Base
 open import Data.Nat.Base
 
-open import Syntax
+open import Statics.Syntax
 
 data _∋_⦂_        : ∀ {G} → Ctx G → Fin G → Ty G → Type
 data _ctx         : ∀ {G} → Ctx G → Type

@@ -42,9 +42,15 @@ data Tm G where
   _[_] : ∀ {G′} → Tm G′ → Subst G G′ → Tm G
 
 data Subst where
-  I : ∀ {G} → Subst G G
-  ↑ : ∀ {G} → Subst (suc G) G
-  _,_ : ∀ {G G′} → Subst G G′ → Tm G → Subst G (suc G′)
+  tl  : ∀ {G D} → Subst G (suc D) → Subst G D
+  I   : ∀ {G} → Subst G G
+  _,_ : ∀ {G D} → Subst G D → Tm G → Subst G (suc D)
   _∗_ : ∀ {G G′ G″} → Subst G′ G″ → Subst G G′ → Subst G G″
 
-pattern ⇑_ σ = (σ ∗ ↑) , # zero
+pattern hd σ = (# zero) [ σ ]
+pattern ↑    = tl I
+pattern ↑²   = tl (tl I)
+pattern ⇑_ σ = (σ ∗ ↑) , (# zero)
+
+pattern #0 = # zero
+pattern #1 = # suc zero

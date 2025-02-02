@@ -15,3 +15,4 @@ import Statics.Verbose.LookUp
 import Statics.Verbose.Presupposition
 import Statics.Verbose.Reasoning
 import Statics.Verbose.Substitution
+import Statics.VerboseToConcise

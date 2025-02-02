@@ -4,6 +4,7 @@ module Everything where
 
 import Lib
 import Statics.Concise
+import Statics.ConciseToVerbose
 import Statics.LookUp
 import Statics.Syntax
 import Statics.Verbose

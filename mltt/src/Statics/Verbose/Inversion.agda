@@ -20,6 +20,9 @@ inv-ctx (,-wf H₀ H₁) = record { fst = H₀; snd = H₁ }
 inv-Π̇-ty : Γ ⊢ Π̇ A B ty → (Γ ⊢ A ty) × (Γ , A ⊢ B ty)
 inv-Π̇-ty (Π̇-wf H₀ H₁) = record { fst = H₀; snd = H₁ }
 
+inv-El-ty : Γ ⊢ El M ty → Γ ⊢ M ⦂ U̇ tm
+inv-El-ty (El-wf M-wf) = M-wf
+
 inv-[]-ty : Γ ⊢ A [ σ ] ty → Σ[ Δ ∈ Ctx D ] (Δ ⊢ A ty) × (Γ ⊢ σ ⦂ Δ subst)
 inv-[]-ty ([]-wf {Δ = Δ} H₀ H₁) = λ { .fst → Δ
                                     ; .snd .fst → H₀

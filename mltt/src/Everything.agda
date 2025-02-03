@@ -4,6 +4,8 @@ module Everything where
 
 import Lib
 import Statics.Concise
+import Statics.Concise.ContextConversion
+import Statics.Concise.Presupposition
 import Statics.ConciseToVerbose
 import Statics.LookUp
 import Statics.Syntax

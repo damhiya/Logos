@@ -83,23 +83,23 @@ data _⊢_≡_ty where
   ℕ̌-El    : Γ ctx →
             Γ ⊢ El ℕ̌ ≡ ℕ̇ ty
   -- commutation with []
-  Π̇-[]    : Γ′ , A ⊢ B ty →
-            Γ ⊢ σ ⦂ Γ′ subst →
+  Π̇-[]    : Δ , A ⊢ B ty →
+            Γ ⊢ σ ⦂ Δ subst →
             Γ ⊢ (Π̇ A B) [ σ ] ≡ Π̇ (A [ σ ]) (B [ ⇑ σ ]) ty
-  ℕ̇-[]    : Γ ⊢ σ ⦂ Γ′ subst →
+  ℕ̇-[]    : Γ ⊢ σ ⦂ Δ subst →
             Γ ⊢ ℕ̇ [ σ ] ≡ ℕ̇ ty
-  U̇-[]    : Γ ⊢ σ ⦂ Γ′ subst →
+  U̇-[]    : Γ ⊢ σ ⦂ Δ subst →
             Γ ⊢ U̇ [ σ ] ≡ U̇ ty
-  El-[]   : Γ′ ⊢ M ⦂ U̇ tm →
-            Γ ⊢ σ ⦂ Γ′ subst →
+  El-[]   : Δ ⊢ M ⦂ U̇ tm →
+            Γ ⊢ σ ⦂ Δ subst →
             Γ ⊢ (El M) [ σ ] ≡ El (M [ σ ]) ty
   -- extra rules for []
   [I]     : Γ ⊢ A ty →
             Γ ⊢ A [ I ] ≡ A ty
   [∗]     : Γ″ ⊢ A ty →
-            Γ′ ⊢ τ ⦂ Γ″ subst →
-            Γ  ⊢ σ ⦂ Γ′ subst →
-            Γ ⊢ A [ τ ∗ σ ] ≡ A [ τ ] [ σ ] ty
+            Γ′ ⊢ σ ⦂ Γ″ subst →
+            Γ  ⊢ τ ⦂ Γ′ subst →
+            Γ ⊢ A [ σ ∗ τ ] ≡ A [ σ ] [ τ ] ty
   -- equivalence closure
   ≡-refl  : Γ ⊢ A ty →
             Γ ⊢ A ≡ A ty
@@ -256,10 +256,10 @@ data _⊢_⦂_subst where
           Γ ⊢ tl σ ⦂ Δ subst
   I-wf  : Γ ctx →
           Γ ⊢ I ⦂ Γ subst
-  ,-wf  : Γ ⊢ σ ⦂ Γ′ subst →
-          Γ′ ⊢ A ty →
+  ,-wf  : Γ ⊢ σ ⦂ Δ subst →
+          Δ ⊢ A ty →
           Γ ⊢ M ⦂ A [ σ ] tm →
-          Γ ⊢ σ , M ⦂ Γ′ , A subst
+          Γ ⊢ σ , M ⦂ Δ , A subst
   ∗-wf  : Γ′ ⊢ σ ⦂ Γ″ subst →
           Γ  ⊢ τ ⦂ Γ′ subst →
           Γ  ⊢ σ ∗ τ ⦂ Γ″ subst

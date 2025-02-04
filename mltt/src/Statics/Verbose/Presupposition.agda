@@ -37,16 +37,16 @@ presup-≡ty (ℕ̇-cong P₀) = record { fst = ℕ̇-wf P₀
 presup-≡ty (U̇-cong P₀) = record { fst = U̇-wf P₀
                                 ; snd = U̇-wf P₀
                                 }
-presup-≡ty (El-cong H₀) = record { fst = El-wf (presup-≡tm H₀ .snd .fst)
-                                 ; snd = El-wf (presup-≡tm H₀ .snd .snd)
+presup-≡ty (T-cong H₀) = record { fst = T-wf (presup-≡tm H₀ .snd .fst)
+                                 ; snd = T-wf (presup-≡tm H₀ .snd .snd)
                                  }
 presup-≡ty ([]-cong H₀ H₁) = record { fst = []-wf (presup-≡ty H₀ .fst) (presup-≡subst H₁ .fst)
                                     ; snd = []-wf (presup-≡ty H₀ .snd) (presup-≡subst H₁ .snd)
                                     }
-presup-≡ty (Π̌-El H₀ H₁) = record { fst = El-wf (Π̌-wf H₀ H₁)
-                                 ; snd = Π̇-wf (El-wf H₀) (El-wf H₁)
+presup-≡ty (Π̌-T H₀ H₁) = record { fst = T-wf (Π̌-wf H₀ H₁)
+                                 ; snd = Π̇-wf (T-wf H₀) (T-wf H₁)
                                  }
-presup-≡ty (ℕ̌-El P₀) = record { fst = El-wf (ℕ̌-wf P₀)
+presup-≡ty (ℕ̌-T P₀) = record { fst = T-wf (ℕ̌-wf P₀)
                               ; snd = ℕ̇-wf P₀
                               }
 presup-≡ty {Γ = Γ}  (Π̇-[] {A = A} {σ = σ} H₀ H₁ H₂) =
@@ -65,8 +65,8 @@ presup-≡ty (ℕ̇-[] H₀) = record { fst = []-wf (ℕ̇-wf (presup-ctx-subst 
 presup-≡ty (U̇-[] H₀) = record { fst = []-wf (U̇-wf (presup-ctx-subst H₀ .snd)) H₀
                               ; snd = U̇-wf (presup-ctx-subst H₀ .fst)
                               }
-presup-≡ty (El-[] H₀ H₁) = record { fst = []-wf (El-wf H₀) H₁
-                                  ; snd = El-wf (conv (U̇-[] H₁) ([]-wf H₀ H₁))
+presup-≡ty (T-[] H₀ H₁) = record { fst = []-wf (T-wf H₀) H₁
+                                  ; snd = T-wf (conv (U̇-[] H₁) ([]-wf H₀ H₁))
                                   }
 presup-≡ty ([I] H₀) = record { fst = []-wf H₀ (I-wf (presup-ctx-ty H₀))
                              ; snd = H₀
@@ -148,7 +148,7 @@ presup-≡tm {Γ = Γ} (rec-cong {C = C} {C′ = C′} {N = N} {N′ = N′} P�
     Γ,ℕ̇,C⊢C[↑²,s·#1]≡C′[↑²,s·#1] = []-cong H₀ (≡-refl (,-wf Γ,ℕ̇,C⊢↑²⦂Γ (ℕ̇-wf Γ-ctx) (convsym (ℕ̇-[] Γ,ℕ̇,C⊢↑²⦂Γ) (s·-wf (conv Γ,ℕ̇,C⊢Ṅ[↑][↑]≡ℕ̇ (#-wf Γ,ℕ̇,C-ctx (suc zero)))))))
 presup-≡tm (Π̌-cong P₀ H₀ H₁) = λ { .fst → U̇-wf Γ-ctx
                                  ; .snd .fst → Π̌-wf (presup-≡tm H₀ .snd .fst) (presup-≡tm H₁ .snd .fst)
-                                 ; .snd .snd → Π̌-wf (presup-≡tm H₀ .snd .snd) (conv-tm (,-cong (≡ctx-refl Γ-ctx) (El-wf P₀) (El-wf (presup-≡tm H₀ .snd .snd)) (El-cong H₀) (El-cong H₀)) (presup-≡tm H₁ .snd .snd))
+                                 ; .snd .snd → Π̌-wf (presup-≡tm H₀ .snd .snd) (conv-tm (,-cong (≡ctx-refl Γ-ctx) (T-wf P₀) (T-wf (presup-≡tm H₀ .snd .snd)) (T-cong H₀) (T-cong H₀)) (presup-≡tm H₁ .snd .snd))
                                  }
   where
     Γ-ctx = presup-ctx-tm P₀
@@ -390,15 +390,15 @@ presup-≡tm {Γ = Γ} (Π̌-[] {Δ = Δ} {M = M} {σ = σ} M-wf N-wf σ-wf) = �
   where
     Δ-wf = presup-ctx-tm M-wf
     Γ-wf = presup-ctx-subst σ-wf .fst
-    Γ₁≡Γ₂ : Γ , (El M) [ σ ] ≡ Γ , El (M [ σ ]) ctx
+    Γ₁≡Γ₂ : Γ , (T M) [ σ ] ≡ Γ , T (M [ σ ]) ctx
     Γ₁≡Γ₂ = ,-cong (≡ctx-refl Γ-wf)
-                   ([]-wf (El-wf M-wf) σ-wf)
-                   (El-wf (conv (U̇-[] σ-wf) ([]-wf M-wf σ-wf)))
-                   (El-[] M-wf σ-wf)
-                   (El-[] M-wf σ-wf)
-    ⇑σ-wf₁ : Γ , (El M) [ σ ] ⊢ ⇑ σ ⦂ Δ , El M subst
-    ⇑σ-wf₁ = ⇑-wf σ-wf (El-wf M-wf)
-    ⇑σ-wf₂ : Γ , El (M [ σ ]) ⊢ ⇑ σ ⦂ Δ , El M subst
+                   ([]-wf (T-wf M-wf) σ-wf)
+                   (T-wf (conv (U̇-[] σ-wf) ([]-wf M-wf σ-wf)))
+                   (T-[] M-wf σ-wf)
+                   (T-[] M-wf σ-wf)
+    ⇑σ-wf₁ : Γ , (T M) [ σ ] ⊢ ⇑ σ ⦂ Δ , T M subst
+    ⇑σ-wf₁ = ⇑-wf σ-wf (T-wf M-wf)
+    ⇑σ-wf₂ : Γ , T (M [ σ ]) ⊢ ⇑ σ ⦂ Δ , T M subst
     ⇑σ-wf₂ = conv-subst Γ₁≡Γ₂ ⇑σ-wf₁
 presup-≡tm (ℕ̌-[] σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
                            ; .snd .fst → []-wf (ℕ̌-wf Δ-wf) σ-wf

@@ -53,9 +53,9 @@ data _⊢_ty where
           Γ ⊢ ℕ̇ ty
   U̇-wf  : Γ ctx →
           Γ ⊢ U̇ ty
-  -- El
-  El-wf : Γ ⊢ M ⦂ U̇ tm →
-          Γ ⊢ El M ty
+  -- reflection
+  T-wf  : Γ ⊢ M ⦂ U̇ tm →
+          Γ ⊢ T M ty
   -- substitution
   []-wf : Δ ⊢ A ty →
           Γ ⊢ σ ⦂ Δ subst →
@@ -70,18 +70,18 @@ data _⊢_≡_ty where
             Γ ⊢ ℕ̇ ≡ ℕ̇ ty
   U̇-cong  : Γ ctx →
             Γ ⊢ U̇ ≡ U̇ ty
-  -- El
-  El-cong : Γ ⊢ M ≡ M′ ⦂ U̇ tm →
-            Γ ⊢ El M ≡ El M′ ty
+  -- reflection
+  T-cong : Γ ⊢ M ≡ M′ ⦂ U̇ tm →
+            Γ ⊢ T M ≡ T M′ ty
   -- substitution
   []-cong : Δ ⊢ A ≡ A′ ty →
             Γ ⊢ σ ≡ σ′ ⦂ Δ subst →
             Γ ⊢ A [ σ ] ≡ A′ [ σ′ ] ty
   -- commutation with El
-  Π̌-El    : Γ , El M ⊢ N ⦂ U̇ tm →
-            Γ ⊢ El (Π̌ M N) ≡ Π̇ (El M) (El N) ty
-  ℕ̌-El    : Γ ctx →
-            Γ ⊢ El ℕ̌ ≡ ℕ̇ ty
+  Π̌-T     : Γ , T M ⊢ N ⦂ U̇ tm →
+            Γ ⊢ T (Π̌ M N) ≡ Π̇ (T M) (T N) ty
+  ℕ̌-T     : Γ ctx →
+            Γ ⊢ T ℕ̌ ≡ ℕ̇ ty
   -- commutation with []
   Π̇-[]    : Δ , A ⊢ B ty →
             Γ ⊢ σ ⦂ Δ subst →
@@ -90,9 +90,9 @@ data _⊢_≡_ty where
             Γ ⊢ ℕ̇ [ σ ] ≡ ℕ̇ ty
   U̇-[]    : Γ ⊢ σ ⦂ Δ subst →
             Γ ⊢ U̇ [ σ ] ≡ U̇ ty
-  El-[]   : Δ ⊢ M ⦂ U̇ tm →
+  T-[]    : Δ ⊢ M ⦂ U̇ tm →
             Γ ⊢ σ ⦂ Δ subst →
-            Γ ⊢ (El M) [ σ ] ≡ El (M [ σ ]) ty
+            Γ ⊢ (T M) [ σ ] ≡ T (M [ σ ]) ty
   -- extra rules for []
   [I]     : Γ ⊢ A ty →
             Γ ⊢ A [ I ] ≡ A ty
@@ -131,7 +131,7 @@ data _⊢_⦂_tm where
             Γ ⊢ N ⦂ ℕ̇ tm →
             Γ ⊢ rec C L M N ⦂ C [ I , N ] tm
   -- U̇
-  Π̌-wf    : Γ , El M ⊢ N ⦂ U̇ tm →
+  Π̌-wf    : Γ , T M ⊢ N ⦂ U̇ tm →
             Γ ⊢ Π̌ M N ⦂ U̇ tm
   ℕ̌-wf    : Γ ctx →
             Γ ⊢ ℕ̌ ⦂ U̇ tm
@@ -169,7 +169,7 @@ data _⊢_≡_⦂_tm where
                Γ ⊢ rec C L M N ≡ rec C′ L′ M′ N′ ⦂ C [ I , N ] tm
   -- U̇
   Π̌-cong     : Γ ⊢ M ≡ M′ ⦂ U̇ tm →
-               Γ , El M ⊢ N ≡ N′ ⦂ U̇ tm →
+               Γ , T M ⊢ N ≡ N′ ⦂ U̇ tm →
                Γ ⊢ Π̌ M N ≡ Π̌ M′ N′ ⦂ U̇ tm
   ℕ̌-cong     : Γ ctx →
                Γ ⊢ ℕ̌ ≡ ℕ̌ ⦂ U̇ tm
@@ -214,7 +214,7 @@ data _⊢_≡_⦂_tm where
                Δ ⊢ N ⦂ ℕ̇ tm →
                Γ ⊢ σ ⦂ Δ subst →
                Γ ⊢ (rec C L M N) [ σ ] ≡ rec (C [ ⇑ σ ]) (L [ σ ]) (M [ ⇑ ⇑ σ ]) (N [ σ ]) ⦂ C [ I , N ] [ σ ] tm
-  Π̌-[]       : Δ , El M ⊢ N ⦂ U̇ tm →
+  Π̌-[]       : Δ , T M ⊢ N ⦂ U̇ tm →
                Γ ⊢ σ ⦂ Δ subst →
                Γ ⊢ (Π̌ M N) [ σ ] ≡ Π̌ (M [ σ ]) (N [ ⇑ σ ]) ⦂ U̇ [ σ ] tm
   ℕ̌-[]       : Γ ⊢ σ ⦂ Δ subst →

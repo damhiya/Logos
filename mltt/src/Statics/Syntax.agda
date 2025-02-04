@@ -18,8 +18,8 @@ data Ty G where
   Π̇ : Ty G → Ty (suc G) → Ty G
   ℕ̇ : Ty G
   U̇ : Ty G
-  -- El
-  El : Tm G → Ty G
+  -- reflection
+  T : Tm G → Ty G
   -- substitution
   _[_] : ∀ {G′} → Ty G′ → Subst G G′ → Ty G
 

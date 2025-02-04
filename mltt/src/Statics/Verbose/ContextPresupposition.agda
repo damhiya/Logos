@@ -22,7 +22,7 @@ presup-ctx-subst : Γ ⊢ σ ⦂ Δ subst → (Γ ctx) × (Δ ctx)
 presup-ctx-ty (Π̇-wf H₀ H₁) = presup-ctx-ty H₀
 presup-ctx-ty (ℕ̇-wf H₀) = H₀
 presup-ctx-ty (U̇-wf H₀) = H₀
-presup-ctx-ty (El-wf H₀) = presup-ctx-tm H₀
+presup-ctx-ty (T-wf H₀) = presup-ctx-tm H₀
 presup-ctx-ty ([]-wf H₀ H₁) = presup-ctx-subst H₁ .fst
 presup-ctx-tm (#-wf H₀ H₁) = H₀
 presup-ctx-tm (ƛ-wf P₀ H₀) = presup-ctx-ty P₀
@@ -47,14 +47,14 @@ presup-ctx-≡subst : Γ ⊢ σ ≡ σ′ ⦂ Δ subst → (Γ ctx) × (Δ ctx)
 presup-ctx-≡ty (Π̇-cong P₀ H₀ H₁) = presup-ctx-≡ty H₀
 presup-ctx-≡ty (ℕ̇-cong P₀) = P₀
 presup-ctx-≡ty (U̇-cong P₀) = P₀
-presup-ctx-≡ty (El-cong H₀) = presup-ctx-≡tm H₀
+presup-ctx-≡ty (T-cong H₀) = presup-ctx-≡tm H₀
 presup-ctx-≡ty ([]-cong H₀ H₁) = presup-ctx-≡subst H₁ .fst
-presup-ctx-≡ty (Π̌-El H₀ H₁) = presup-ctx-tm H₀
-presup-ctx-≡ty (ℕ̌-El P₀) = P₀
+presup-ctx-≡ty (Π̌-T H₀ H₁) = presup-ctx-tm H₀
+presup-ctx-≡ty (ℕ̌-T P₀) = P₀
 presup-ctx-≡ty (Π̇-[] H₀ H₁ H₂) = presup-ctx-subst H₂ .fst
 presup-ctx-≡ty (ℕ̇-[] H₀) = presup-ctx-subst H₀ .fst
 presup-ctx-≡ty (U̇-[] H₀) = presup-ctx-subst H₀ .fst
-presup-ctx-≡ty (El-[] H₀ H₁) = presup-ctx-subst H₁ .fst
+presup-ctx-≡ty (T-[] H₀ H₁) = presup-ctx-subst H₁ .fst
 presup-ctx-≡ty ([I] H₀) = presup-ctx-ty H₀
 presup-ctx-≡ty ([∗] H₀ H₁ H₂) = presup-ctx-subst H₂ .fst
 presup-ctx-≡ty (≡-refl H₀) = presup-ctx-ty H₀

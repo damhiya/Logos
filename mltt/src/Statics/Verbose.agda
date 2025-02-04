@@ -42,15 +42,15 @@ data _ctx where
 data _≡_ctx where
   ∙-cong :       ∙ ≡ ∙ ctx
   ,-cong : Γ ≡ Γ′ ctx →
-           Γ  ⊢ A  ty →
-           Γ′ ⊢ A′ ty →
+           Γ  ⊢ A  ty →     -- extra premise
+           Γ′ ⊢ A′ ty →     -- extra premise
            Γ  ⊢ A ≡ A′ ty →
-           Γ′ ⊢ A ≡ A′ ty →
+           Γ′ ⊢ A ≡ A′ ty → -- extra premise
            Γ , A ≡ Γ′ , A′ ctx
 
 data _⊢_ty where
   -- type formers
-  Π̇-wf  : Γ ⊢ A ty →
+  Π̇-wf  : Γ ⊢ A ty → -- extra premise
           Γ , A ⊢ B ty →
           Γ ⊢ Π̇ A B ty
   ℕ̇-wf  : Γ ctx →
@@ -67,7 +67,7 @@ data _⊢_ty where
 
 data _⊢_≡_ty where
   -- type formers
-  Π̇-cong  : Γ ⊢ A ty →
+  Π̇-cong  : Γ ⊢ A ty → -- extra premise
             Γ ⊢ A ≡ A′ ty →
             Γ , A ⊢ B ≡ B′ ty →
             Γ ⊢ Π̇ A B ≡ Π̇ A′ B′ ty
@@ -83,13 +83,13 @@ data _⊢_≡_ty where
             Γ ⊢ σ ≡ σ′ ⦂ Δ subst →
             Γ ⊢ A [ σ ] ≡ A′ [ σ′ ] ty
   -- commutation with El
-  Π̌-El    : Γ ⊢ M ⦂ U̇ tm →
+  Π̌-El    : Γ ⊢ M ⦂ U̇ tm → -- extra premise
             Γ , El M ⊢ N ⦂ U̇ tm →
             Γ ⊢ El (Π̌ M N) ≡ Π̇ (El M) (El N) ty
   ℕ̌-El    : Γ ctx →
             Γ ⊢ El ℕ̌ ≡ ℕ̇ ty
   -- commutation with []
-  Π̇-[]    : Γ′ ⊢ A ty →
+  Π̇-[]    : Γ′ ⊢ A ty → -- extra premise
             Γ′ , A ⊢ B ty →
             Γ ⊢ σ ⦂ Γ′ subst →
             Γ ⊢ (Π̇ A B) [ σ ] ≡ Π̇ (A [ σ ]) (B [ ⇑ σ ]) ty
@@ -122,7 +122,7 @@ data _⊢_⦂_tm where
             Γ ∋ x ⦂ A →
             Γ ⊢ # x ⦂ A tm
   -- Π̇
-  ƛ-wf    : Γ ⊢ A ty →
+  ƛ-wf    : Γ ⊢ A ty → -- extra premise
             Γ , A ⊢ M ⦂ B tm →
             Γ ⊢ ƛ M ⦂ Π̇ A B tm
   ·-wf    : Γ ⊢ M ⦂ Π̇ A B tm →
@@ -139,7 +139,7 @@ data _⊢_⦂_tm where
             Γ ⊢ N ⦂ ℕ̇ tm →
             Γ ⊢ rec C L M N ⦂ C [ I , N ] tm
   -- U̇
-  Π̌-wf    : Γ ⊢ M ⦂ U̇ tm →
+  Π̌-wf    : Γ ⊢ M ⦂ U̇ tm → -- extra premise
             Γ , El M ⊢ N ⦂ U̇ tm →
             Γ ⊢ Π̌ M N ⦂ U̇ tm
   ℕ̌-wf    : Γ ctx →
@@ -161,7 +161,7 @@ data _⊢_≡_⦂_tm where
                Γ ∋ x ⦂ A →
                Γ ⊢ # x ≡ # x ⦂ A tm
   -- Π̇
-  ƛ-cong     : Γ ⊢ A ty →
+  ƛ-cong     : Γ ⊢ A ty → -- extra premise
                Γ , A ⊢ M ≡ M′ ⦂ B tm →
                Γ ⊢ ƛ M ≡ ƛ M′ ⦂ Π̇ A B tm
   ·-cong     : Γ ⊢ M ≡ M′ ⦂ Π̇ A B tm →
@@ -172,14 +172,14 @@ data _⊢_≡_⦂_tm where
                Γ ⊢ z· ≡ z· ⦂ ℕ̇ tm
   s·-cong    : Γ ⊢ M ≡ M′ ⦂ ℕ̇ tm →
                Γ ⊢ s· M ≡ s· M′ ⦂ ℕ̇ tm
-  rec-cong   : Γ , ℕ̇ ⊢ C ty →
+  rec-cong   : Γ , ℕ̇ ⊢ C ty → -- extra premise
                Γ , ℕ̇ ⊢ C ≡ C′ ty →
                Γ ⊢ L ≡ L′ ⦂ C [ I , z· ] tm →
                Γ , ℕ̇ , C ⊢ M ≡ M′ ⦂ C [ ↑² , s· #1 ] tm →
                Γ ⊢ N ≡ N′ ⦂ ℕ̇ tm →
                Γ ⊢ rec C L M N ≡ rec C′ L′ M′ N′ ⦂ C [ I , N ] tm
   -- U̇
-  Π̌-cong     : Γ ⊢ M ⦂ U̇ tm →
+  Π̌-cong     : Γ ⊢ M ⦂ U̇ tm → -- extra premise
                Γ ⊢ M ≡ M′ ⦂ U̇ tm →
                Γ , El M ⊢ N ≡ N′ ⦂ U̇ tm →
                Γ ⊢ Π̌ M N ≡ Π̌ M′ N′ ⦂ U̇ tm
@@ -192,7 +192,7 @@ data _⊢_≡_⦂_tm where
   hd-cong    : Γ ⊢ σ ≡ σ′ ⦂ Δ , A subst →
                Γ ⊢ hd σ ≡ hd σ′ ⦂ A [ tl σ ] tm
   -- Π̇
-  Π̇-β        : Γ ⊢ A ty →
+  Π̇-β        : Γ ⊢ A ty → -- extra premise
                Γ , A ⊢ M ⦂ B tm →
                Γ ⊢ N ⦂ A tm →
                Γ ⊢ (ƛ M) · N ≡ M [ I , N ] ⦂ B [ I , N ] tm
@@ -227,7 +227,7 @@ data _⊢_≡_⦂_tm where
                Δ ⊢ N ⦂ ℕ̇ tm →
                Γ ⊢ σ ⦂ Δ subst →
                Γ ⊢ (rec C L M N) [ σ ] ≡ rec (C [ ⇑ σ ]) (L [ σ ]) (M [ ⇑ ⇑ σ ]) (N [ σ ]) ⦂ C [ I , N ] [ σ ] tm
-  Π̌-[]       : Δ ⊢ M ⦂ U̇ tm →
+  Π̌-[]       : Δ ⊢ M ⦂ U̇ tm → -- extra premise
                Δ , El M ⊢ N ⦂ U̇ tm →
                Γ ⊢ σ ⦂ Δ subst →
                Γ ⊢ (Π̌ M N) [ σ ] ≡ Π̌ (M [ σ ]) (N [ ⇑ σ ]) ⦂ U̇ [ σ ] tm

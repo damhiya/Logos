@@ -4,14 +4,7 @@ open import Lib
 open import Statics.Syntax
 open import Statics.Verbose
 
-private
-  variable
-    G D : ℕ
-    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
-    x x′ : Fin G
-    A A′ A″ B B′ C C′ : Ty G
-    L L′ M M′ M″ N N′ : Tm G
-    σ σ′ σ″ τ τ′ : Subst G D
+open Variables
 
 data Closure {a ℓ} {A : Type a} (_∼_ : A → A → Type ℓ) : ∀ (k : Bool) → A → A → Type (a ⊔ ℓ) where
   refl : ∀ {x : A} → Closure _∼_ false x x

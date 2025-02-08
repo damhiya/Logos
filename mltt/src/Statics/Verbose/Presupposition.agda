@@ -12,14 +12,7 @@ open import Statics.Verbose.ContextPresupposition
 open import Statics.Verbose.Substitution
 open import Statics.Verbose.Reasoning
 
-private
-  variable
-    G D : ℕ
-    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
-    x x′ : Fin G
-    A A′ A″ B B′ C C′ : Ty G
-    L L′ M M′ M″ N N′ : Tm G
-    σ σ′ σ″ τ τ′ : Subst G D
+open Variables
 
 presup-≡ty : Γ ⊢ A ≡ A′ ty → (Γ ⊢ A ty) × (Γ ⊢ A′ ty)
 presup-tm : Γ ⊢ M ⦂ A tm → Γ ⊢ A ty

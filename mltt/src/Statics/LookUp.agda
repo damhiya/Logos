@@ -6,12 +6,7 @@ open import Statics.Syntax
 
 infix 4 _∋_⦂_
 
-private
-  variable
-    G : ℕ
-    Γ : Ctx G
-    A B : Ty G
-    x : Fin G
+open Variables
 
 data _∋_⦂_ : ∀ {G} → Ctx G → Fin G → Ty G → Type where
   zero :       Γ , A ∋ zero ⦂ A [ ↑ ]

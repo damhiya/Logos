@@ -9,14 +9,7 @@ import Statics.Verbose.ContextConversion as V
 import Statics.Verbose.ContextPresupposition as V
 import Statics.Verbose.Presupposition as V
 
-private
-  variable
-    G D : ℕ
-    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
-    x x′ : Fin G
-    A A′ A″ B B′ C C′ : Ty G
-    L L′ M M′ M″ N N′ : Tm G
-    σ σ′ σ″ τ τ′ : Subst G D
+open Variables
 
 presup-≡ctx : Γ ≡ Γ′ ctx → Γ ctx × Γ′ ctx
 presup-≡ctx H = λ { .fst → V⇒C-ctx (P .fst)

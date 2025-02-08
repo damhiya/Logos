@@ -51,3 +51,13 @@ pattern #1   = # suc zero
 pattern ↑    = tl I
 pattern ↑²   = tl (tl I)
 pattern ⇑_ σ = (σ ∗ ↑) , #0
+
+module Variables where
+
+  variable
+    G D : ℕ
+    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
+    x x′ : Fin G
+    A A′ A″ B B′ C C′ : Ty G
+    L L′ M M′ M″ N N′ : Tm G
+    σ σ′ σ″ τ τ′ : Subst G D

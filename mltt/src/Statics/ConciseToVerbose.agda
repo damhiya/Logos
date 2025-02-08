@@ -9,14 +9,7 @@ open import Statics.Verbose.ContextConversion
 open import Statics.Verbose.ContextPresupposition
 open import Statics.Verbose.Presupposition
 
-private
-  variable
-    G D : ℕ
-    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
-    x x′ : Fin G
-    A A′ A″ B B′ C C′ : Ty G
-    L L′ M M′ M″ N N′ : Tm G
-    σ σ′ σ″ τ τ′ : Subst G D
+open Variables
 
 C⇒V-ctx : Γ C.ctx → Γ V.ctx
 C⇒V-≡ctx : Γ C.≡ Γ′ ctx → Γ V.≡ Γ′ ctx

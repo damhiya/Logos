@@ -7,14 +7,7 @@ open import Statics.Verbose
 open import Statics.Verbose.ContextConversion
 open import Statics.Verbose.Inversion
 
-private
-  variable
-    G D : ℕ
-    Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
-    x x′ : Fin G
-    A A′ A″ B B′ C C′ : Ty G
-    L L′ M M′ M″ N N′ : Tm G
-    σ σ′ σ″ τ τ′ : Subst G D
+open Variables
 
 presup-ctx-ty    : Γ ⊢ A ty → Γ ctx
 presup-ctx-tm    : Γ ⊢ M ⦂ A tm → Γ ctx

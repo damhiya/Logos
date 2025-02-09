@@ -7,6 +7,7 @@ import Statics.Concise
 import Statics.Concise.ContextConversion
 import Statics.Concise.Presupposition
 import Statics.ConciseToVerbose
+import Statics.Inclusion
 import Statics.LookUp
 import Statics.Syntax
 import Statics.Verbose

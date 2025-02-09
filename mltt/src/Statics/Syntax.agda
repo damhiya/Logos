@@ -48,6 +48,31 @@ data Subst where
   _,_ : ∀ {G D} → Subst G D → Tm G → Subst G (suc D)
   _∗_ : ∀ {G G′ G″} → Subst G′ G″ → Subst G G′ → Subst G G″
 
+data NfTy (G : ℕ) : Type
+data Ne (G : ℕ) : Type
+data Nf (G : ℕ) : Type
+
+data NfTy G where
+  Π̇ : NfTy G → NfTy (suc G) → NfTy G
+  ℕ̇ : NfTy G
+  U̇ : ℕ → NfTy G
+  T : ℕ → Ne G → NfTy G
+
+data Ne G where
+  #_ : Fin G → Ne G
+  _·_ : Ne G → Nf G → Ne G
+  rec : NfTy (suc G) → Nf G → Nf (suc (suc G)) → Ne G → Ne G
+
+data Nf G where
+  ⇄_ : Ne G → Nf G
+  ƛ_ : Nf (suc G) → Nf G
+  z· : Nf G
+  s·_ : Nf G → Nf G
+  Π̌ : ℕ → Nf G → Nf (suc G) → Nf G
+  ℕ̌ : ℕ → Nf G
+  Ǔ : (n : ℕ) → Fin n → Nf G
+  Ť : (n : ℕ) → Fin n → Ne G → Nf G
+
 pattern #0   = # zero
 pattern #1   = # suc zero
 pattern ↑    = tl I

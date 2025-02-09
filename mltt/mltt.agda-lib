@@ -1,0 +1,8 @@
+name: mltt
+depend: standard-library
+include: src
+flags:
+  --without-K
+  --warning=noUnsupportedIndexedMatch
+  --no-import-sorts
+  --safe

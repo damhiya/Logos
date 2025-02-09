@@ -48,6 +48,8 @@ C⇒V-≡ty (C.Π̌-T N-wf) = V.Π̌-T (inv-T-ty (inv-ctx (presup-ctx-tm N-wfV) 
   where
     N-wfV = C⇒V-tm N-wf
 C⇒V-≡ty (C.ℕ̌-T Γ-wf) = V.ℕ̌-T (C⇒V-ctx Γ-wf)
+C⇒V-≡ty (C.Ǔ-T Γ-wf) = V.Ǔ-T (C⇒V-ctx Γ-wf)
+C⇒V-≡ty (C.Ť-T M-wf) = V.Ť-T (C⇒V-tm M-wf)
 C⇒V-≡ty (C.Π̇-[] B-wf σ-wf) = V.Π̇-[] (inv-ctx (presup-ctx-ty B-wfV) .snd) B-wfV (C⇒V-subst σ-wf)
   where
     B-wfV = C⇒V-ty B-wf
@@ -71,6 +73,8 @@ C⇒V-tm (C.Π̌-wf N-wf) = V.Π̌-wf (inv-T-ty (inv-ctx (presup-ctx-tm N-wfV) .
   where
     N-wfV = C⇒V-tm N-wf
 C⇒V-tm (C.ℕ̌-wf Γ-wf) = V.ℕ̌-wf (C⇒V-ctx Γ-wf)
+C⇒V-tm (C.Ǔ-wf Γ-wf) = V.Ǔ-wf (C⇒V-ctx Γ-wf)
+C⇒V-tm (C.Ť-wf M-wf) = V.Ť-wf (C⇒V-tm M-wf)
 C⇒V-tm (C.[]-wf M-wf σ-wf) = V.[]-wf (C⇒V-tm M-wf) (C⇒V-subst σ-wf)
 C⇒V-tm (C.hd-wf σ-wf) = V.hd-wf (C⇒V-subst σ-wf)
 C⇒V-tm (C.conv E M-wf) = V.conv (C⇒V-≡ty E) (C⇒V-tm M-wf)
@@ -88,6 +92,8 @@ C⇒V-≡tm (C.Π̌-cong M-eq N-eq) = V.Π̌-cong (presup-≡tm M-eqV .snd .fst)
   where
     M-eqV = C⇒V-≡tm M-eq
 C⇒V-≡tm (C.ℕ̌-cong Γ-wf) = V.ℕ̌-cong (C⇒V-ctx Γ-wf)
+C⇒V-≡tm (C.Ǔ-cong Γ-wf) = V.Ǔ-cong (C⇒V-ctx Γ-wf)
+C⇒V-≡tm (C.Ť-cong M-eq) = V.Ť-cong (C⇒V-≡tm M-eq)
 C⇒V-≡tm (C.[]-cong M-eq σ-eq) = V.[]-cong (C⇒V-≡tm M-eq) (C⇒V-≡subst σ-eq)
 C⇒V-≡tm (C.hd-cong σ-eq) = V.hd-cong (C⇒V-≡subst σ-eq)
 C⇒V-≡tm (C.Π̇-β M-wf N-wf) = V.Π̇-β (inv-ctx (presup-ctx-tm M-wfV) .snd) M-wfV (C⇒V-tm N-wf)
@@ -96,6 +102,12 @@ C⇒V-≡tm (C.Π̇-β M-wf N-wf) = V.Π̇-β (inv-ctx (presup-ctx-tm M-wfV) .sn
 C⇒V-≡tm (C.Π̇-η M-wf) = V.Π̇-η (C⇒V-tm M-wf)
 C⇒V-≡tm (C.ℕ̇-β-z· C-wf L-wf M-wf) = V.ℕ̇-β-z· (C⇒V-ty C-wf) (C⇒V-tm L-wf) (C⇒V-tm M-wf)
 C⇒V-≡tm (C.ℕ̇-β-s· C-wf L-wf M-wf N-wf) = V.ℕ̇-β-s· (C⇒V-ty C-wf) (C⇒V-tm L-wf) (C⇒V-tm M-wf) (C⇒V-tm N-wf)
+C⇒V-≡tm (C.Π̌-Ť N-wf) = V.Π̌-Ť (inv-T-ty (inv-ctx (presup-ctx-tm N-wfV) .snd)) N-wfV
+  where
+    N-wfV = C⇒V-tm N-wf
+C⇒V-≡tm (C.ℕ̌-Ť Γ-wf) = V.ℕ̌-Ť (C⇒V-ctx Γ-wf)
+C⇒V-≡tm (C.Ǔ-Ť Γ-wf) = V.Ǔ-Ť (C⇒V-ctx Γ-wf)
+C⇒V-≡tm (C.Ť-Ť M-wf) = V.Ť-Ť (C⇒V-tm M-wf)
 C⇒V-≡tm (C.ƛ-[] M-wf σ-wf) = V.ƛ-[] (C⇒V-tm M-wf) (C⇒V-subst σ-wf)
 C⇒V-≡tm (C.·-[] M-wf N-wf σ-wf) = V.·-[] (C⇒V-tm M-wf) (C⇒V-tm N-wf) (C⇒V-subst σ-wf)
 C⇒V-≡tm (C.z·-[] σ-wf) = V.z·-[] (C⇒V-subst σ-wf)
@@ -105,6 +117,8 @@ C⇒V-≡tm (C.Π̌-[] N-wf σ-wf) = V.Π̌-[] (inv-T-ty (inv-ctx (presup-ctx-tm
   where
     N-wfV = C⇒V-tm N-wf
 C⇒V-≡tm (C.ℕ̌-[] σ-wf) = V.ℕ̌-[] (C⇒V-subst σ-wf)
+C⇒V-≡tm (C.Ǔ-[] σ-wf) = V.Ǔ-[] (C⇒V-subst σ-wf)
+C⇒V-≡tm (C.Ť-[] M-wf σ-wf) = V.Ť-[] (C⇒V-tm M-wf) (C⇒V-subst σ-wf)
 C⇒V-≡tm (C.#zero-hd σ-wf) = V.#zero-hd (C⇒V-subst σ-wf)
 C⇒V-≡tm (C.#suc-tl Δ∋x σ-wf) = V.#suc-tl Δ∋x (C⇒V-subst σ-wf)
 C⇒V-≡tm (C.hd-, σ-wf A-wf M-wf) = V.hd-, (C⇒V-subst σ-wf) (C⇒V-ty A-wf) (C⇒V-tm M-wf)

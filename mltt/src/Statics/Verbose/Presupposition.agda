@@ -42,6 +42,12 @@ presup-≡ty (Π̌-T H₀ H₁) = record { fst = T-wf (Π̌-wf H₀ H₁)
 presup-≡ty (ℕ̌-T P₀) = record { fst = T-wf (ℕ̌-wf P₀)
                               ; snd = ℕ̇-wf P₀
                               }
+presup-≡ty (Ǔ-T Γ-wf) = record { fst = T-wf (Ǔ-wf Γ-wf)
+                               ; snd = U̇-wf Γ-wf
+                               }
+presup-≡ty (Ť-T M-wf) = record { fst = T-wf (Ť-wf M-wf)
+                               ; snd = T-wf M-wf
+                               }
 presup-≡ty {Γ = Γ}  (Π̇-[] {A = A} {σ = σ} H₀ H₁ H₂) =
   record { fst = []-wf (Π̇-wf H₀ H₁) H₂
          ; snd = Π̇-wf ([]-wf H₀ H₂)
@@ -78,6 +84,8 @@ presup-tm (s·-wf H₀) = ℕ̇-wf (presup-ctx-tm H₀)
 presup-tm (rec-wf H₀ H₁ H₂ H₃) = []-wf H₀ (,-wf (I-wf (presup-ctx-tm H₃)) (ℕ̇-wf (presup-ctx-tm H₃)) (convsym ([I] (ℕ̇-wf (presup-ctx-tm H₃))) H₃))
 presup-tm (Π̌-wf H₀ H₁) = U̇-wf (presup-ctx-tm H₀)
 presup-tm (ℕ̌-wf P₀) = U̇-wf P₀
+presup-tm (Ǔ-wf Γ-wf) = U̇-wf Γ-wf
+presup-tm (Ť-wf M-wf) = U̇-wf (presup-ctx-tm M-wf)
 presup-tm ([]-wf H₀ H₁) = []-wf (presup-tm H₀) H₁
 presup-tm (hd-wf H₀) = []-wf (inv-ctx (presup-ctx-subst H₀ .snd) .snd) (tl-wf H₀)
 presup-tm (conv E₀ H₀) = presup-≡ty E₀ .snd
@@ -149,6 +157,16 @@ presup-≡tm (ℕ̌-cong P₀) = λ { .fst → U̇-wf P₀
                            ; .snd .fst → ℕ̌-wf P₀
                            ; .snd .snd → ℕ̌-wf P₀
                            }
+presup-≡tm (Ǔ-cong Γ-wf) = λ { .fst → U̇-wf Γ-wf
+                             ; .snd .fst → Ǔ-wf Γ-wf
+                             ; .snd .snd → Ǔ-wf Γ-wf
+                             }
+presup-≡tm (Ť-cong M-eq) = λ { .fst → U̇-wf Γ-wf
+                             ; .snd .fst → Ť-wf (presup-≡tm M-eq .snd .fst)
+                             ; .snd .snd → Ť-wf (presup-≡tm M-eq .snd .snd)
+                             }
+  where
+    Γ-wf = presup-ctx-≡tm M-eq
 presup-≡tm ([]-cong H₀ H₁) = λ { .fst → []-wf (presup-≡tm H₀ .fst) (presup-≡subst H₁ .fst)
                                ; .snd .fst → []-wf (presup-≡tm H₀ .snd .fst) (presup-≡subst H₁ .fst)
                                ; .snd .snd → conv ([]-cong (≡-refl (presup-≡tm H₀ .fst)) (≡-sym H₁)) ([]-wf (presup-≡tm H₀ .snd .snd) (presup-≡subst H₁ .snd))
@@ -248,6 +266,32 @@ presup-≡tm {Γ = Γ} (ℕ̇-β-s· {C = C} {L = L} {M = M} {N = N} P₀ H₁ H
                   C [ (↑² , s· #1) ∗ (I , N , rec C L M N) ] ≡⟨ []-cong (≡-refl P₀) E₅ ⟩
                   C [ I , s· N ]                             ty ∎
       where open ≡ty-Reasoning
+presup-≡tm {Γ = Γ} (Π̌-Ť {M = M} {n = n} {i = i} M-wf N-wf) = λ { .fst → U̇-wf Γ-wf
+                                                               ; .snd .fst → Ť-wf (Π̌-wf M-wf N-wf)
+                                                               ; .snd .snd → Π̌-wf (Ť-wf M-wf) (Ť-wf (conv-tm H N-wf))
+                                                               }
+  where
+    Γ-wf = presup-ctx-tm M-wf
+    M-eq : Γ ⊢ T (toℕ i) M ≡ T n (Ť n i M) ty
+    M-eq = ≡-sym (Ť-T M-wf)
+    H : Γ , T (toℕ i) M ≡ Γ , T n (Ť n i M) ctx
+    H = ,-cong (≡ctx-refl Γ-wf) (T-wf M-wf) (T-wf (Ť-wf M-wf)) M-eq M-eq
+presup-≡tm (ℕ̌-Ť Γ-wf) = λ { .fst → U̇-wf Γ-wf
+                          ; .snd .fst → Ť-wf (ℕ̌-wf Γ-wf)
+                          ; .snd .snd → ℕ̌-wf Γ-wf
+                          }
+presup-≡tm (Ǔ-Ť Γ-wf) = λ { .fst → U̇-wf Γ-wf
+                          ; .snd .fst → Ť-wf (Ǔ-wf Γ-wf)
+                          ; .snd .snd → Ǔ-wf Γ-wf
+                          }
+presup-≡tm {Γ = Γ} (Ť-Ť {M = M} {j = j} M-wf) = λ { .fst → U̇-wf Γ-wf
+                                                  ; .snd .fst → Ť-wf (Ť-wf M-wf)
+                                                  ; .snd .snd → Ť-wf M-wf′
+                                                  }
+  where
+    Γ-wf = presup-ctx-tm M-wf
+    M-wf′ : Γ ⊢ M ⦂ U̇ (toℕ (inject j)) tm
+    M-wf′ = subst (λ n → Γ ⊢ M ⦂ U̇ n tm) (sym (toℕ-inject j)) M-wf
 presup-≡tm {Γ = Γ} (ƛ-[] {Δ = Δ} {A = A} {M = M} {σ = σ} H₀ H₁) = λ { .fst → []-wf (Π̇-wf ⊢A ⊢B) H₁
                                                                     ; .snd .fst → []-wf (ƛ-wf ⊢A H₀) H₁
                                                                     ; .snd .snd → convsym (Π̇-[] ⊢A ⊢B H₁) (ƛ-wf ⊢A[σ] ([]-wf H₀ (⇑-wf H₁ ⊢A)))
@@ -375,23 +419,23 @@ presup-≡tm {Γ = Γ} (rec-[] {Δ = Δ} {C = C} {N = N} {σ = σ} H₀ H₁ H�
                                    C [ (⇑ σ) ∗ (↑² , s· #1) ]   ≡⟨ [∗] H₀ ⇑σ-wf ↑²,s·#1-wf₂ ⟩
                                    C [ ⇑ σ ] [ ↑² , s· #1 ]     ty ∎
       where open ≡ty-Reasoning
-presup-≡tm {Γ = Γ} (Π̌-[] {Δ = Δ} {M = M} {σ = σ} M-wf N-wf σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
-                                                                     ; .snd .fst → []-wf (Π̌-wf M-wf N-wf) σ-wf
-                                                                     ; .snd .snd → convsym (U̇-[] σ-wf) (Π̌-wf (conv (U̇-[] σ-wf) ([]-wf M-wf σ-wf))
-                                                                                                             (conv (U̇-[] ⇑σ-wf₂) ([]-wf N-wf ⇑σ-wf₂)))
-                                                                     }
+presup-≡tm {Γ = Γ} (Π̌-[] {Δ = Δ} {M = M} {n = n} {σ = σ} M-wf N-wf σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
+                                                                             ; .snd .fst → []-wf (Π̌-wf M-wf N-wf) σ-wf
+                                                                             ; .snd .snd → convsym (U̇-[] σ-wf) (Π̌-wf (conv (U̇-[] σ-wf) ([]-wf M-wf σ-wf))
+                                                                                                                     (conv (U̇-[] ⇑σ-wf₂) ([]-wf N-wf ⇑σ-wf₂)))
+                                                                             }
   where
     Δ-wf = presup-ctx-tm M-wf
     Γ-wf = presup-ctx-subst σ-wf .fst
-    Γ₁≡Γ₂ : Γ , (T M) [ σ ] ≡ Γ , T (M [ σ ]) ctx
+    Γ₁≡Γ₂ : Γ , (T n M) [ σ ] ≡ Γ , T n (M [ σ ]) ctx
     Γ₁≡Γ₂ = ,-cong (≡ctx-refl Γ-wf)
                    ([]-wf (T-wf M-wf) σ-wf)
                    (T-wf (conv (U̇-[] σ-wf) ([]-wf M-wf σ-wf)))
                    (T-[] M-wf σ-wf)
                    (T-[] M-wf σ-wf)
-    ⇑σ-wf₁ : Γ , (T M) [ σ ] ⊢ ⇑ σ ⦂ Δ , T M subst
+    ⇑σ-wf₁ : Γ , (T n M) [ σ ] ⊢ ⇑ σ ⦂ Δ , T n M subst
     ⇑σ-wf₁ = ⇑-wf σ-wf (T-wf M-wf)
-    ⇑σ-wf₂ : Γ , T (M [ σ ]) ⊢ ⇑ σ ⦂ Δ , T M subst
+    ⇑σ-wf₂ : Γ , T n (M [ σ ]) ⊢ ⇑ σ ⦂ Δ , T n M subst
     ⇑σ-wf₂ = conv-subst Γ₁≡Γ₂ ⇑σ-wf₁
 presup-≡tm (ℕ̌-[] σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
                            ; .snd .fst → []-wf (ℕ̌-wf Δ-wf) σ-wf
@@ -400,6 +444,19 @@ presup-≡tm (ℕ̌-[] σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
   where
     Δ-wf = presup-ctx-subst σ-wf .snd
     Γ-wf = presup-ctx-subst σ-wf .fst
+presup-≡tm (Ǔ-[] σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
+                           ; .snd .fst → []-wf (Ǔ-wf Δ-wf) σ-wf
+                           ; .snd .snd → convsym (U̇-[] σ-wf) (Ǔ-wf Γ-wf)
+                           }
+  where
+    Γ-wf = presup-ctx-subst σ-wf .fst
+    Δ-wf = presup-ctx-subst σ-wf .snd
+presup-≡tm (Ť-[] M-wf σ-wf) = λ { .fst → []-wf (U̇-wf Δ-wf) σ-wf
+                                ; .snd .fst → []-wf (Ť-wf M-wf) σ-wf
+                                ; .snd .snd → convsym (U̇-[] σ-wf) (Ť-wf (conv (U̇-[] σ-wf) ([]-wf M-wf σ-wf)))
+                                }
+  where
+    Δ-wf = presup-ctx-subst σ-wf .snd
 presup-≡tm {Γ = Γ} (#zero-hd {σ = σ} {A = A} σ-wf) = λ { .fst → []-wf ([]-wf A-wf (↑-wf Δ,A-wf)) σ-wf
                                ; .snd .fst → []-wf (#-wf Δ,A-wf zero) σ-wf
                                ; .snd .snd → convsym E (hd-wf σ-wf)

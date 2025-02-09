@@ -17,9 +17,9 @@ data Ty G where
   -- type formers
   Π̇ : Ty G → Ty (suc G) → Ty G
   ℕ̇ : Ty G
-  U̇ : Ty G
+  U̇ : ℕ → Ty G
   -- reflection
-  T : Tm G → Ty G
+  T : ℕ → Tm G → Ty G
   -- substitution
   _[_] : ∀ {G′} → Ty G′ → Subst G G′ → Ty G
 
@@ -34,8 +34,10 @@ data Tm G where
   s·_ : Tm G → Tm G 
   rec : Ty (suc G) → Tm G → Tm (suc (suc G)) → Tm G → Tm G
   -- U̇
-  Π̌ : Tm G → Tm (suc G) → Tm G
-  ℕ̌ : Tm G
+  Π̌ : ℕ → Tm G → Tm (suc G) → Tm G
+  ℕ̌ : ℕ → Tm G
+  Ǔ : (n : ℕ) → Fin n → Tm G
+  Ť : (n : ℕ) → Fin n → Tm G → Tm G
   -- substitution
   _[_] : ∀ {G′} → Tm G′ → Subst G G′ → Tm G
   hd : ∀ {G′} → Subst G (suc G′) → Tm G
@@ -55,9 +57,9 @@ pattern ⇑_ σ = (σ ∗ ↑) , #0
 module Variables where
 
   variable
-    G D : ℕ
+    G D n : ℕ
     Γ Γ′ Γ″ Γ‴ Δ Δ′ : Ctx G
-    x x′ : Fin G
+    x x′ i j : Fin G
     A A′ A″ B B′ C C′ : Ty G
     L L′ M M′ M″ N N′ : Tm G
     σ σ′ σ″ τ τ′ : Subst G D

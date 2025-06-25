@@ -2,7 +2,7 @@ name: mltt
 depend: standard-library
 include: src
 flags:
-  --without-K
+  --cubical-compatible
   --warning=noUnsupportedIndexedMatch
   --no-import-sorts
   --safe

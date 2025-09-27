@@ -1,0 +1,8 @@
+name: mltt
+depend: standard-library
+include: src
+flags:
+  --cubical-compatible
+  --warning=noUnsupportedIndexedMatch
+  --no-import-sorts
+  --safe
